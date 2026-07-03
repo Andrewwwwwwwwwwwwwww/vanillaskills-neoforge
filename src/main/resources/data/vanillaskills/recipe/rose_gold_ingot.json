@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    "minecraft:gold_ingot", "minecraft:gold_ingot", "minecraft:gold_ingot", "minecraft:gold_ingot",
+    "minecraft:copper_ingot", "minecraft:copper_ingot", "minecraft:copper_ingot", "minecraft:copper_ingot"
+  ],
+  "result": {
+    "id": "minecraft:gold_ingot",
+    "count": 4,
+    "components": {
+      "minecraft:custom_data": { "vs_rose_gold_ingot": true },
+      "minecraft:custom_name": { "text": "Rose Gold Ingot", "color": "#E8B7A6", "italic": false },
+      "minecraft:custom_model_data": { "strings": ["vanillaskills:rose_gold_ingot"] }
+    }
+  }
+}
