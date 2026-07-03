@@ -1,0 +1,11 @@
+{
+  "parent": "vanillaskills:root",
+  "display": {
+    "icon": { "id": "minecraft:experience_bottle" },
+    "title": "Specialist",
+    "description": "Fully unlock any skill path",
+    "show_toast": true, "announce_to_chat": true
+  },
+  "criteria": { "path": { "trigger": "minecraft:impossible" } },
+  "requirements": [ ["path"] ]
+}
