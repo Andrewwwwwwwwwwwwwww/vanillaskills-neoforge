@@ -1,5 +1,11 @@
 # VanillaSkills — NeoForge edition
 
+## [1.1.2+mc26.2-neoforge] - 2026-07-04
+Server-side Wind Burst launch fix (vanilla 26.2 bug) + Dragon dash keeps fall distance (parity with Fabric 1.1.2).
+
+## [1.1.2+mc26.2-neoforge] - 2026-07-04
+Dragon dash no longer resets fall distance (mace smash/Wind Burst compatibility; parity with Fabric 1.1.2).
+
 ## [1.1.1+mc26.2-neoforge] - 2026-07-03
 7 new bounty quests + fishing quests at half weight (parity with Fabric 1.1.1).
 
