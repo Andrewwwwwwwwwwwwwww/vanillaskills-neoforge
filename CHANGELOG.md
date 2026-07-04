@@ -1,5 +1,14 @@
 # VanillaSkills Changelog
 
+## [1.1.0] - 2026-07-03
+### Added
+- **Fortune Finder now improves ALL naturally generated loot.** The Luck attribute (+0.5 per
+  Fortune Finder node, +5 maxed) grants bonus items from natural containers: **+1 bonus item per
+  2.5 luck** (+2 when maxed), rolled from the container's own loot table and placed in empty
+  slots. Covers chests, barrels, chest minecarts, chest boats, trial-chamber corridor loot — and
+  **trial-chamber vaults** eject bonus reward items at the same rate. Fishing luck unchanged
+  (still applies). Bonus items can include the Fortune/Dragon upgrade templates.
+
 ## [1.0.9] - 2026-07-03
 ### Changed
 - **Cultivator now also rewards sweet berries and glow berries.** Both are right-click harvests
