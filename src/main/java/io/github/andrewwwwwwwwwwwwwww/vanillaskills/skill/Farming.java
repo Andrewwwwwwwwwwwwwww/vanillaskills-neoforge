@@ -47,4 +47,22 @@ public final class Farming {
     public static int bonusCap(BlockState state) {
         return state.getBlock() == Blocks.PUMPKIN ? 2 : Integer.MAX_VALUE;
     }
+
+    /**
+     * Cultivator bonus roll for right-click harvests (sweet berries, glow berries), which never hit
+     * the block-break event — called from the harvest mixins. Same odds as the break-event path:
+     * one independent 50% roll per Cultivator level.
+     */
+    public static void rollBonus(net.minecraft.server.level.ServerLevel level, net.minecraft.core.BlockPos pos,
+                                 net.minecraft.server.level.ServerPlayer sp, Item product) {
+        int farmLevel = CraftingGate.farmingLevel(sp);
+        if (farmLevel <= 0) return;
+        int bonus = 0;
+        for (int i = 0; i < farmLevel; i++) {
+            if (sp.getRandom().nextFloat() < 0.5f) bonus++;
+        }
+        if (bonus > 0) {
+            Block.popResource(level, pos, new net.minecraft.world.item.ItemStack(product, bonus));
+        }
+    }
 }

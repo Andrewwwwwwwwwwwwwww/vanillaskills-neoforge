@@ -1,5 +1,12 @@
 # VanillaSkills Changelog
 
+## [1.0.9] - 2026-07-03
+### Changed
+- **Cultivator now also rewards sweet berries and glow berries.** Both are right-click harvests
+  (no block-break event), so they are hooked at the harvest interaction itself: picking a berry
+  bush (age 2+) or a berry-bearing cave vine rolls the same per-level 50% bonus, dropping extra
+  sweet/glow berries. Works identically on Fabric and NeoForge (shared mixins).
+
 ## [1.0.8] - 2026-07-03
 ### Changed
 - **Cultivator rewards more crops.** The bonus-harvest roll now also triggers on **cocoa (mature)**,

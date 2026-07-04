@@ -1,5 +1,8 @@
 # VanillaSkills — NeoForge edition
 
+## [1.0.9+mc26.2-neoforge] - 2026-07-03
+Sweet + glow berry Cultivator bonus (shared harvest mixins; parity with Fabric 1.0.9).
+
 ## [1.0.8+mc26.2-neoforge] - 2026-07-03
 Same Cultivator crop expansion as the Fabric 1.0.8 release (cocoa/melon/pumpkin-capped-2/sugar cane/cactus/chorus).
 
