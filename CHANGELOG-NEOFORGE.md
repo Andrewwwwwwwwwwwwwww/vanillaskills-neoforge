@@ -1,5 +1,8 @@
 # VanillaSkills — NeoForge edition
 
+## [1.1.1+mc26.2-neoforge] - 2026-07-03
+7 new bounty quests + fishing quests at half weight (parity with Fabric 1.1.1).
+
 ## [1.1.0+mc26.2-neoforge] - 2026-07-03
 Fortune Finder luck now boosts all natural container + vault loot (shared mixins; parity with Fabric 1.1.0).
 

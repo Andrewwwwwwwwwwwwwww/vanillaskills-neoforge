@@ -25,10 +25,12 @@ public final class QuestPool {
             new Quest(Quest.Type.GATHER, "minecraft:bone", 32, 4, "Gather 32 Bones"),
 
             // ---- Fishing (catch & turn in) ----
-            new Quest(Quest.Type.GATHER, "minecraft:cod", 16, 5, "Catch 16 Cod"),
-            new Quest(Quest.Type.GATHER, "minecraft:salmon", 16, 5, "Catch 16 Salmon"),
-            new Quest(Quest.Type.GATHER, "minecraft:tropical_fish", 6, 7, "Catch 6 Tropical Fish"),
-            new Quest(Quest.Type.GATHER, "minecraft:pufferfish", 4, 6, "Catch 4 Pufferfish"),
+            // Half weight (5): fishing is one activity with four entries, so at full weight it
+            // dominated boards (~half of starter rotations had a fish quest).
+            new Quest(Quest.Type.GATHER, "minecraft:cod", 16, 5, "Catch 16 Cod", 5, false),
+            new Quest(Quest.Type.GATHER, "minecraft:salmon", 16, 5, "Catch 16 Salmon", 5, false),
+            new Quest(Quest.Type.GATHER, "minecraft:tropical_fish", 6, 7, "Catch 6 Tropical Fish", 5, false),
+            new Quest(Quest.Type.GATHER, "minecraft:pufferfish", 4, 6, "Catch 4 Pufferfish", 5, false),
 
             // ---- Kill ----
             new Quest(Quest.Type.KILL, "minecraft:zombie", 25, 5, "Slay 25 Zombies"),
@@ -43,6 +45,17 @@ public final class QuestPool {
             new Quest(Quest.Type.KILL, Quest.ANY_HOSTILE, 50, 7, "Slay 50 hostile mobs"),
 
             // ---- Freebie (instant, rare) ----
-            new Quest(Quest.Type.FREEBIE, "", 1, 3, "Daily Bonus — free Quest Shards", 3, false)
+            new Quest(Quest.Type.FREEBIE, "", 1, 3, "Daily Bonus — free Quest Shards", 3, false),
+
+            // ---- 1.1.1 additions ----
+            // APPEND ONLY: boards persist quests as indices into this list, so new entries must go
+            // at the end — inserting above would silently remap players' saved active quests.
+            new Quest(Quest.Type.GATHER, "minecraft:carrot", 64, 4, "Gather 64 Carrots"),
+            new Quest(Quest.Type.GATHER, "minecraft:honey_bottle", 4, 6, "Gather 4 Honey Bottles"),
+            new Quest(Quest.Type.GATHER, "minecraft:amethyst_shard", 24, 5, "Gather 24 Amethyst Shards"),
+            new Quest(Quest.Type.GATHER, "minecraft:string", 32, 4, "Gather 32 String"),
+            new Quest(Quest.Type.KILL, "minecraft:slime", 15, 5, "Slay 15 Slimes"),
+            new Quest(Quest.Type.KILL, "minecraft:pillager", 10, 6, "Slay 10 Pillagers"),
+            new Quest(Quest.Type.KILL, "minecraft:guardian", 8, 8, "Slay 8 Guardians", 10, true)
     );
 }
