@@ -36,6 +36,8 @@ public class GameplayConfig {
     public static volatile long BOUNTY_REFRESH_MS = 5L * 3_600_000L;
     /** Read by {@code QuestShop}: ms between shop rotations. */
     public static volatile long SHOP_REFRESH_MS = 24L * 3_600_000L;
+    /** Read by {@code WindBurstFix}: server-side Wind Burst launch workaround (vanilla 26.2 bug). */
+    public static volatile boolean WIND_BURST_FIX = true;
     // QuestShop.CONVERT_RATIO and Quests.GRADUATE_AT are pushed directly on load().
 
     // --- Persisted fields (gameplay.json) ---
@@ -56,6 +58,11 @@ public class GameplayConfig {
     public String resourcePackUrl = DEFAULT_RP_URL;
     /** SHA-1 of that pack (lets clients cache it; update alongside the URL if you change the pack). */
     public String resourcePackSha1 = DEFAULT_RP_SHA1;
+    /**
+     * Applies the Wind Burst mace launch server-side, working around the vanilla 26.2 bug where the
+     * launch never reaches the client. Disable if a Minecraft update fixes it (to avoid double-launch).
+     */
+    public boolean windBurstFix = true;
 
     private static Path path() {
         Path dir = VanillaSkills.worldDir();
@@ -93,6 +100,7 @@ public class GameplayConfig {
         PUSH_RESOURCE_PACK = serverResourcePack;
         RESOURCE_PACK_URL = resourcePackUrl == null ? "" : resourcePackUrl;
         RESOURCE_PACK_SHA1 = resourcePackSha1 == null ? "" : resourcePackSha1;
+        WIND_BURST_FIX = windBurstFix;
     }
 
     public void save() {

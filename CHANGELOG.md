@@ -1,5 +1,25 @@
 # VanillaSkills Changelog
 
+## [1.1.2] - 2026-07-04
+### Fixed
+- **Wind Burst maces launch you again.** Vanilla 26.2 has a bug where the mace's Wind Burst
+  enchantment never launches the attacker (reproducible in an unmodded world — the smash lands but
+  the explosion knockback is lost in the new client explosion path). The mod now applies the launch
+  server-side as a direct velocity push, matching the vanilla per-level strengths (I/II/III), with
+  the gust particles + sound. Toggle: "windBurstFix" in gameplay.json (default on; turn off if a
+  Minecraft update fixes the vanilla bug).
+### Changed
+- **Dragon dive-dash no longer erases fall distance.** Dash-diving into the ground now hurts
+  (risk/reward), and dash-into-smash mace combos work — the reset was also suppressing mace smash
+  attacks for full-set wearers.
+
+## [1.1.2] - 2026-07-04
+### Changed
+- **Dragon dive-dash no longer erases fall distance.** The reset made dash users immune to fall
+  damage, but it also silently disabled mace smash attacks and Wind Burst (both are computed from
+  fall distance). Dashing is now a deliberate risk/reward move: dive-dashing into the ground hurts,
+  and dash-into-smash mace combos work.
+
 ## [1.1.1] - 2026-07-03
 ### Added
 - **7 new bounty quests:** Gather 64 Carrots (4), 4 Honey Bottles (6), 24 Amethyst Shards (5),
