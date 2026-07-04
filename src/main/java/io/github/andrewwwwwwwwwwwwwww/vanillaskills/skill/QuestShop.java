@@ -139,6 +139,7 @@ public final class QuestShop {
         c.add(one("minecraft:shield", 1, 4));
         c.add(one("minecraft:spyglass", 1, 3));
         c.add(one("minecraft:compass", 1, 4));
+        c.add(one("minecraft:sponge", 1, 5)); // 5 QS / 2 SS — a way to get sponges before raiding a monument
         // --- Armor ---
         c.add(one("minecraft:iron_helmet", 1, 5));
         c.add(one("minecraft:iron_chestplate", 1, 8));

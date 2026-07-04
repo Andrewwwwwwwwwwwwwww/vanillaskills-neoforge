@@ -62,6 +62,13 @@ public final class SkillEffects {
     }
 
     private static void applyStatus(ServerPlayer player, SkillEffect effect) {
+        // Player-facing toggle: unlocked Night Vision can be switched off (/skill nightvision).
+        // Guarded HERE — the single choke point — so join/respawn/unlock applies respect it too,
+        // not just the periodic refresh.
+        if ("minecraft:night_vision".equals(effect.effect)
+                && VanillaSkills.PLAYERS.get(player.getUUID()).nightVisionDisabled) {
+            return;
+        }
         Holder<MobEffect> holder = mobEffect(effect.effect);
         if (holder == null) {
             VanillaSkills.LOGGER.warn("Unknown status effect '{}'", effect.effect);
@@ -76,7 +83,8 @@ public final class SkillEffects {
             SkillNode node = tree.byId(id);
             if (node == null) continue;
             for (SkillEffect effect : node.effects) {
-                if ("status_effect".equals(effect.type)) applyStatus(player, effect);
+                if (!"status_effect".equals(effect.type)) continue;
+                applyStatus(player, effect); // NV toggle enforced inside applyStatus
             }
         }
     }

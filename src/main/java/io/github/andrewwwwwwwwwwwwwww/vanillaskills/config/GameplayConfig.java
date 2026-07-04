@@ -48,7 +48,8 @@ public class GameplayConfig {
     public int shopRefreshHours = 24;
     /** Quest Shards needed per 1 Skill Shard at the converter (default 3). */
     public int convertRatio = 3;
-    /** Bounties to finish on the starter board before joining the shared main board (default 15). */
+    /** LEGACY (pre-1.2.0): graduation is now "complete every fixed starter quest" — this value is
+     *  ignored; kept so old gameplay.json files still parse. */
     public int graduateAt = 15;
     /** Auto-push the VanillaSkills texture pack to joining clients (required). Default on. */
     public boolean serverResourcePack = true;

@@ -17,6 +17,7 @@ public class PlayerSkillData {
     public int questShardsEarned = 0;    // Quest Shards earned lifetime
     public float lastHealth = -1f; // health at last logout, restored after max-health modifiers reapply
     public boolean completionRewarded = false; // got the full-tree Dragon Ingot reward
+    public boolean nightVisionDisabled = false; // /skill nightvision toggle (only relevant once unlocked)
     public Set<String> creditedAdvancements = new LinkedHashSet<>();
     public boolean initialized = false;
 
@@ -25,10 +26,14 @@ public class PlayerSkillData {
     public Map<Integer, Integer> questKills = new HashMap<>();
     public Set<Integer> questClaimed = new LinkedHashSet<>();
 
-    // Starter (personal) bounty board: new players complete 15 quests to graduate to the universal board.
+    // Starter board: new players complete ALL fixed starter quests (QuestPool.STARTER) to graduate
+    // to the universal rotating board. Starter progress never rotation-resets.
     public int questsCompleted = 0;
     public boolean graduated = false;
-    public int[] starterSlots = new int[0]; // this rotation's 3 personal quest indices (pre-graduation)
+    public int[] starterSlots = new int[0]; // LEGACY (pre-1.2.0 random starter board); unused, kept for old saves
+    public Set<Integer> starterDone = new LinkedHashSet<>();      // claimed starter indices (one-time)
+    public Map<Integer, Integer> starterKills = new HashMap<>();  // kill progress per starter index
+    public int starterVersion = 0; // 2 = fixed-starter system (1.2.0 migration marker)
 
     public void normalize() {
         if (unlocked == null) unlocked = new LinkedHashSet<>();
@@ -36,6 +41,8 @@ public class PlayerSkillData {
         if (questKills == null) questKills = new HashMap<>();
         if (questClaimed == null) questClaimed = new LinkedHashSet<>();
         if (starterSlots == null) starterSlots = new int[0];
+        if (starterDone == null) starterDone = new LinkedHashSet<>();
+        if (starterKills == null) starterKills = new HashMap<>();
     }
 
     public boolean hasUnlocked(String id) {

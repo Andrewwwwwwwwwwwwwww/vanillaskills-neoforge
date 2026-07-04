@@ -2,6 +2,7 @@ package io.github.andrewwwwwwwwwwwwwww.vanillaskills.gui;
 
 import io.github.andrewwwwwwwwwwwwwww.vanillaskills.VanillaSkills;
 import io.github.andrewwwwwwwwwwwwwww.vanillaskills.skill.Quest;
+import io.github.andrewwwwwwwwwwwwwww.vanillaskills.skill.QuestPool;
 import io.github.andrewwwwwwwwwwwwwww.vanillaskills.skill.Quests;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.component.DataComponents;
@@ -21,65 +22,87 @@ import net.minecraft.world.item.component.ItemLore;
 import java.util.ArrayList;
 import java.util.List;
 
-/** The bounty board: shows the 3 active quests, the player's progress, and lets them claim. */
+/**
+ * The bounty board. Pre-graduation it shows ALL fixed starter quests (always active, complete each
+ * once, no rotation); after graduating it shows the shared 3-quest rotating board.
+ */
 public class QuestMenu extends ChestMenu {
-    private static final int[] SLOTS = {11, 13, 15};
+    // Graduated layout (9x3): 3 quests centered.
+    private static final int[] MAIN_SLOTS = {11, 13, 15};
+    // Starter layout (9x5): a centered 5-wide x 3-row block of quests (columns 2-6).
+    private static final int[] STARTER_SLOTS = {
+            11, 12, 13, 14, 15,
+            20, 21, 22, 23, 24,
+            29, 30, 31, 32, 33};
     private static final int INFO_SLOT = 4;
-    private static final int SHOP_SLOT = 22;
-    private static final int BACK_SLOT = 18;   // bottom-left: open the skill tree
-    private static final int CLOSE_SLOT = 26;
 
     private final ServerPlayer player;
     private final SimpleContainer container;
+    private final boolean starterBoard;
+    private final int[] questSlots;
+    private final int shopSlot;
+    private final int backSlot;
+    private final int closeSlot;
+    /** Rotation this menu was built against — clicks on a stale board reopen instead of claiming. */
+    private long rotationAtBuild;
 
     public static void open(ServerPlayer player) {
         Quests.sync(player);
+        boolean starter = !Quests.isGraduated(player);
         player.openMenu(new SimpleMenuProvider(
-                (syncId, inv, p) -> new QuestMenu(syncId, inv, (ServerPlayer) p),
+                (syncId, inv, p) -> new QuestMenu(syncId, inv, (ServerPlayer) p, starter),
                 Component.literal("Bounty Board")));
     }
 
-    private QuestMenu(int syncId, Inventory inv, ServerPlayer player) {
-        super(MenuType.GENERIC_9x3, syncId, inv, new SimpleContainer(27), 3);
+    private QuestMenu(int syncId, Inventory inv, ServerPlayer player, boolean starterBoard) {
+        super(starterBoard ? MenuType.GENERIC_9x5 : MenuType.GENERIC_9x3, syncId, inv,
+                new SimpleContainer(starterBoard ? 45 : 27), starterBoard ? 5 : 3);
         this.player = player;
         this.container = (SimpleContainer) getContainer();
+        this.starterBoard = starterBoard;
+        this.questSlots = starterBoard ? STARTER_SLOTS : MAIN_SLOTS;
+        int last = container.getContainerSize() - 1; // 44 or 26
+        this.closeSlot = last;                       // bottom-right
+        this.backSlot = last - 8;                    // bottom-left
+        this.shopSlot = last - 4;                    // bottom-center
         populate();
     }
 
     private void populate() {
+        this.rotationAtBuild = VanillaSkills.QUESTS.rotationId();
         for (int i = 0; i < container.getContainerSize(); i++) container.setItem(i, ItemStack.EMPTY);
         container.setItem(INFO_SLOT, infoItem());
         List<Quest> active = Quests.activeFor(player);
-        for (int i = 0; i < active.size() && i < SLOTS.length; i++) {
-            container.setItem(SLOTS[i], questItem(i, active.get(i)));
+        for (int i = 0; i < active.size() && i < questSlots.length; i++) {
+            container.setItem(questSlots[i], questItem(i, active.get(i)));
         }
-        container.setItem(SHOP_SLOT, shopButton());
-        container.setItem(BACK_SLOT, button(Items.NETHER_STAR, "Skill Tree", ChatFormatting.AQUA,
+        container.setItem(shopSlot, shopButton());
+        container.setItem(backSlot, button(Items.NETHER_STAR, "Skill Tree", ChatFormatting.AQUA,
                 "Open the skill tree."));
-        container.setItem(CLOSE_SLOT, button(Items.BARRIER, "Close", ChatFormatting.RED, null));
+        container.setItem(closeSlot, button(Items.BARRIER, "Close", ChatFormatting.RED, null));
     }
 
     private ItemStack infoItem() {
-        long remaining = VanillaSkills.QUESTS.nextRotationMs() - System.currentTimeMillis();
-        String when = remaining <= 0 ? "any moment" : (remaining / 3_600_000) + "h " + (remaining % 3_600_000 / 60_000) + "m";
         int quest = VanillaSkills.PLAYERS.questShards(player);
-        boolean graduated = Quests.isGraduated(player);
-
         List<Component> lore = new ArrayList<>();
-        if (graduated) {
-            lore.add(styled("The main bounty board — shared by everyone.", ChatFormatting.GRAY));
+        if (starterBoard) {
+            int total = QuestPool.STARTER.size();
+            lore.add(styled("Your starter quests — all always available,", ChatFormatting.GRAY));
+            lore.add(styled("no rotation, complete them in any order.", ChatFormatting.GRAY));
+            lore.add(styled("Finish all " + total + " to join the main board: "
+                    + Quests.graduationProgress(player) + "/" + total, ChatFormatting.AQUA));
         } else {
-            lore.add(styled("Your starter board.", ChatFormatting.GRAY));
-            lore.add(styled("Complete " + Quests.GRADUATE_AT + " quests to join the main board: "
-                    + Quests.graduationProgress(player) + "/" + Quests.GRADUATE_AT, ChatFormatting.AQUA));
+            long remaining = VanillaSkills.QUESTS.nextRotationMs() - System.currentTimeMillis();
+            String when = remaining <= 0 ? "any moment" : (remaining / 3_600_000) + "h " + (remaining % 3_600_000 / 60_000) + "m";
+            lore.add(styled("The main bounty board — shared by everyone.", ChatFormatting.GRAY));
+            lore.add(styled("New bounties in " + when, ChatFormatting.YELLOW));
         }
-        lore.add(styled("New bounties in " + when, ChatFormatting.YELLOW));
         lore.add(Component.literal(""));
         lore.add(styled("Your Quest Shards: " + quest, ChatFormatting.LIGHT_PURPLE));
-        lore.add(styled("Click a bounty to claim its reward.", ChatFormatting.DARK_GRAY));
+        lore.add(styled("Click a quest to claim its reward.", ChatFormatting.DARK_GRAY));
 
         ItemStack stack = new ItemStack(Items.CLOCK);
-        stack.set(DataComponents.CUSTOM_NAME, styled(graduated ? "Bounty Board" : "Starter Board", ChatFormatting.GOLD));
+        stack.set(DataComponents.CUSTOM_NAME, styled(starterBoard ? "Starter Quests" : "Bounty Board", ChatFormatting.GOLD));
         stack.set(DataComponents.LORE, new ItemLore(lore));
         return stack;
     }
@@ -113,17 +136,26 @@ public class QuestMenu extends ChestMenu {
 
         List<Component> lore = new ArrayList<>();
         if (q.type() != Quest.Type.FREEBIE) {
-            String verb = q.type() == Quest.Type.KILL ? "Slain" : "Gathered";
+            String verb = switch (q.type()) {
+                case KILL -> "Slain";
+                case SKILL -> "Skills unlocked";
+                default -> "Gathered";
+            };
             lore.add(styled(verb + ": " + progress + "/" + q.amount(), ChatFormatting.GRAY));
         }
         lore.add(styled("Reward: +" + q.reward() + " Quest Shard" + (q.reward() == 1 ? "" : "s"), ChatFormatting.LIGHT_PURPLE));
         lore.add(Component.literal(""));
         if (claimed) {
-            lore.add(styled("Claimed — come back next rotation", ChatFormatting.DARK_GRAY));
+            lore.add(styled(starterBoard ? "Completed" : "Claimed — come back next rotation", ChatFormatting.DARK_GRAY));
         } else if (ready) {
             lore.add(styled(q.type() == Quest.Type.GATHER ? "Click to turn in & claim" : "Click to claim", ChatFormatting.GREEN));
         } else {
-            lore.add(styled(q.type() == Quest.Type.GATHER ? "Bring the items here" : "Keep hunting", ChatFormatting.GRAY));
+            String hint = switch (q.type()) {
+                case GATHER -> "Bring the items here";
+                case SKILL -> "Unlock skills in the skill tree (/skill)";
+                default -> "Keep hunting";
+            };
+            lore.add(styled(hint, ChatFormatting.GRAY));
         }
         stack.set(DataComponents.LORE, new ItemLore(lore));
         if (claimed) stack.set(DataComponents.ENCHANTMENT_GLINT_OVERRIDE, true);
@@ -132,6 +164,7 @@ public class QuestMenu extends ChestMenu {
 
     private static net.minecraft.world.item.Item iconFor(Quest q) {
         if (q.type() == Quest.Type.FREEBIE) return Items.EMERALD;
+        if (q.type() == Quest.Type.SKILL) return Items.NETHER_STAR;
         if (q.type() == Quest.Type.GATHER) return Quests.item(q.target());
         if (q.target().equals(Quest.ANY_HOSTILE)) return Items.IRON_SWORD;
         net.minecraft.world.item.Item egg = Quests.item(q.target() + "_spawn_egg");
@@ -141,12 +174,28 @@ public class QuestMenu extends ChestMenu {
     @Override
     public void clicked(int slotId, int button, ContainerInput input, Player clicker) {
         if (clicker instanceof ServerPlayer sp) {
-            if (slotId == CLOSE_SLOT) { sp.closeContainer(); return; }
-            if (slotId == BACK_SLOT) { SkillTreeMenu.open(sp); return; }
-            if (slotId == SHOP_SLOT) { ShopMenu.open(sp); return; }
-            for (int i = 0; i < SLOTS.length; i++) {
-                if (slotId == SLOTS[i]) {
+            if (slotId == closeSlot) { sp.closeContainer(); return; }
+            if (slotId == backSlot) { SkillTreeMenu.open(sp); return; }
+            if (slotId == shopSlot) { ShopMenu.open(sp); return; }
+            for (int i = 0; i < questSlots.length; i++) {
+                if (slotId == questSlots[i]) {
+                    // Stale-board guard: if graduation status or the rotation changed while this menu
+                    // was open, the rendered quests no longer match the live board — a claim here would
+                    // hit the WRONG quest (and could consume the wrong items). Reopen instead.
+                    boolean liveStarter = !Quests.isGraduated(sp);
+                    if (liveStarter != starterBoard
+                            || (!starterBoard && rotationAtBuild != VanillaSkills.QUESTS.rotationId())) {
+                        sp.sendSystemMessage(Component.literal("The board changed — reopening.")
+                                .withStyle(ChatFormatting.YELLOW));
+                        open(sp);
+                        return;
+                    }
                     Quests.claim(sp, i);
+                    // Graduating mid-menu changes the board layout; reopen with the right size.
+                    if (starterBoard && Quests.isGraduated(sp)) {
+                        open(sp);
+                        return;
+                    }
                     populate();
                     sendAllDataToRemote();
                     return;
