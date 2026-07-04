@@ -6,6 +6,34 @@ import java.util.List;
 public final class QuestPool {
     private QuestPool() {}
 
+    /**
+     * The FIXED starter board: all 15 always active for new players, each completable once. Finishing
+     * all of them graduates the player to the rotating shared board below. A progression arc — wood,
+     * food, the mining ladder, first combat, mob drops, and finally the mod's own skill tree. All
+     * targets are biome-agnostic (e.g. sticks instead of a specific wood's log).
+     * EDIT-IN-PLACE ONLY: starter progress is saved as indices into THIS list — never reorder,
+     * insert, or GROW it. The starter GUI ({@code QuestMenu.STARTER_SLOTS}) renders exactly this
+     * many slots and graduation requires claiming every index, so an appended quest would be
+     * unrenderable and would make graduation impossible. To change a quest, replace its entry.
+     */
+    public static final List<Quest> STARTER = List.of(
+            new Quest(Quest.Type.GATHER, "minecraft:stick", 32, 2, "Gather 32 Sticks"),
+            new Quest(Quest.Type.GATHER, "minecraft:cobblestone", 64, 2, "Gather 64 Cobblestone"),
+            new Quest(Quest.Type.GATHER, "minecraft:coal", 16, 3, "Gather 16 Coal"),
+            new Quest(Quest.Type.GATHER, "minecraft:bread", 16, 3, "Bake 16 Bread"),
+            new Quest(Quest.Type.GATHER, "minecraft:leather", 16, 5, "Gather 16 Leather"),
+            new Quest(Quest.Type.GATHER, "minecraft:copper_ingot", 32, 4, "Smelt 32 Copper Ingots"),
+            new Quest(Quest.Type.GATHER, "minecraft:iron_ingot", 16, 5, "Smelt 16 Iron Ingots"),
+            new Quest(Quest.Type.GATHER, "minecraft:gold_ingot", 8, 5, "Smelt 8 Gold Ingots"),
+            new Quest(Quest.Type.GATHER, "minecraft:diamond", 4, 6, "Gather 4 Diamonds"),
+            new Quest(Quest.Type.KILL, "minecraft:zombie", 10, 4, "Slay 10 Zombies"),
+            new Quest(Quest.Type.KILL, "minecraft:skeleton", 10, 4, "Slay 10 Skeletons"),
+            new Quest(Quest.Type.KILL, "minecraft:creeper", 5, 5, "Slay 5 Creepers"),
+            new Quest(Quest.Type.GATHER, "minecraft:bone", 16, 4, "Gather 16 Bones"),
+            new Quest(Quest.Type.GATHER, "minecraft:string", 8, 4, "Gather 8 String"),
+            new Quest(Quest.Type.SKILL, "", 10, 6, "Unlock 10 Skills")
+    );
+
     // Rewards are in Quest Shards, tiered by difficulty (easy 4-5, medium 6-7, hard 8-9) so a full
     // board of 3 quests yields ~16-22 Quest Shards — roughly half the daily shop.
     // weight 10 = normal; lategame=true quests are hidden during the early-game "noob" window.

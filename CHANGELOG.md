@@ -1,5 +1,29 @@
 # VanillaSkills Changelog
 
+## [1.2.0] - 2026-07-04
+### Changed
+- **Starter quests reworked: 15 fixed quests, always available.** New players now see all 15
+  starter quests at once (no rotation, complete in any order, each once): sticks, cobblestone,
+  coal, bread, leather, the copper->iron->gold->diamond mining ladder, zombies/skeletons/creepers,
+  bones, string, and finally **Unlock 10 Skills**. Finishing all 15 graduates you to the shared
+  rotating board. The starter GUI is now a full 4-row board showing live progress on everything.
+- **Players who were mid-starter are reset to 0 starter quests done** (fresh start on the new
+  board; earned shards are kept). Graduated players are unaffected.
+### Added
+- **`/skill nightvision` — toggle an unlocked Night Vision capstone on or off.** Per player,
+  persists across logins. Turning it off removes the effect instantly; turning it on re-applies it
+  instantly. Players who have not unlocked the capstone get a friendly error.
+### Fixed
+- **Grid repair-combining no longer destroys custom gear.** Combining two damaged custom
+  tools/armor in a crafting grid produced a fresh vanilla item (marker, name, and look stripped).
+  The grid combine now simply does not accept marked gear - use the anvil to merge or repair it.
+### Removed
+- **The redundant /skills alias** - /skill is the command.
+
+_(1.1.2 was withdrawn — its Wind Burst "fix" addressed a non-bug: Spawn Manager cancels all
+explosions at spawn, which includes Wind Burst launches. Wind Burst works normally outside the
+spawn-protection radius.)_
+
 ## [1.1.1] - 2026-07-03
 ### Added
 - **7 new bounty quests:** Gather 64 Carrots (4), 4 Honey Bottles (6), 24 Amethyst Shards (5),

@@ -7,7 +7,6 @@ import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
-import com.mojang.brigadier.tree.LiteralCommandNode;
 import io.github.andrewwwwwwwwwwwwwww.vanillaskills.VanillaSkills;
 import io.github.andrewwwwwwwwwwwwwww.vanillaskills.config.PointsConfig;
 import io.github.andrewwwwwwwwwwwwwww.vanillaskills.gui.SkillTreeMenu;
@@ -50,6 +49,9 @@ public final class SkillCommands {
                 .executes(SkillCommands::openLayout));
 
         root.then(Commands.literal("guide").executes(SkillCommands::guide));
+
+        // Toggle an unlocked Night Vision capstone on/off (per player, persisted).
+        root.then(Commands.literal("nightvision").executes(SkillCommands::toggleNightVision));
 
         root.then(Commands.literal("points")
                 .executes(SkillCommands::showOwnPoints)
@@ -106,8 +108,7 @@ public final class SkillCommands {
 
         root.then(editTree());
 
-        LiteralCommandNode<CommandSourceStack> node = dispatcher.register(root);
-        dispatcher.register(Commands.literal("skills").redirect(node));
+        dispatcher.register(root);
     }
 
     // ---- player-facing ----
@@ -129,6 +130,28 @@ public final class SkillCommands {
 
     private static int guide(CommandContext<CommandSourceStack> ctx) throws CommandSyntaxException {
         io.github.andrewwwwwwwwwwwwwww.vanillaskills.book.GuideBook.open(ctx.getSource().getPlayerOrException());
+        return 1;
+    }
+
+    private static int toggleNightVision(CommandContext<CommandSourceStack> ctx) throws CommandSyntaxException {
+        ServerPlayer player = ctx.getSource().getPlayerOrException();
+        PlayerSkillData data = VanillaSkills.PLAYERS.get(player.getUUID());
+        boolean unlocked = data != null && data.unlocked.stream().anyMatch(id -> id.startsWith("nightvision"));
+        if (!unlocked) {
+            ctx.getSource().sendFailure(Component.literal("You haven't unlocked Night Vision yet."));
+            return 0;
+        }
+        data.nightVisionDisabled = !data.nightVisionDisabled;
+        VanillaSkills.PLAYERS.save(player.getUUID());
+        if (data.nightVisionDisabled) {
+            player.removeEffect(net.minecraft.world.effect.MobEffects.NIGHT_VISION);
+            ctx.getSource().sendSuccess(() -> Component.literal(
+                    "Night Vision OFF — run /skill nightvision again to turn it back on."), false);
+        } else {
+            io.github.andrewwwwwwwwwwwwwww.vanillaskills.skill.SkillEffects
+                    .refreshStatusEffects(player, data, VanillaSkills.TREE.tree()); // instant re-apply
+            ctx.getSource().sendSuccess(() -> Component.literal("Night Vision ON."), false);
+        }
         return 1;
     }
 

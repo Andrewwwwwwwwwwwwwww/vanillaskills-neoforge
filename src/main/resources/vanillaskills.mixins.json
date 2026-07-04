@@ -21,6 +21,7 @@
     "LongPotionsMixin",
     "PotionStackSizeMixin",
     "PlayerAdvancementsMixin",
+    "RepairCombineMixin",
     "RoseGoldEffectMixin",
     "ShieldThornsMixin",
     "SmithingGateMixin",

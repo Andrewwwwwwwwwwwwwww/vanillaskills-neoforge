@@ -1,5 +1,8 @@
 # VanillaSkills — NeoForge edition
 
+## [1.1.3+mc26.2-neoforge] - 2026-07-04
+/skill nightvision toggle (parity with Fabric 1.1.3; 1.1.2 withdrawn).
+
 ## [1.1.1+mc26.2-neoforge] - 2026-07-03
 7 new bounty quests + fishing quests at half weight (parity with Fabric 1.1.1).
 

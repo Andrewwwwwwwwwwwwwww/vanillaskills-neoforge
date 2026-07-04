@@ -76,9 +76,9 @@ public final class GuideBook {
             """
             Bounty Board
 
-            New players begin on a personal starter board.
+            New players begin with {GRAD} fixed starter quests - always available, no rotation.
 
-            Finish {GRAD} quests to graduate to the shared main board.""",
+            Finish them all to graduate to the shared main board.""",
 
             """
             Quest Shop
@@ -176,7 +176,7 @@ public final class GuideBook {
             // Fill the live-config tokens so the guide always matches the current settings.
             String text = page
                     .replace("{MENDING}", mending)
-                    .replace("{GRAD}", String.valueOf(Quests.GRADUATE_AT))
+                    .replace("{GRAD}", String.valueOf(io.github.andrewwwwwwwwwwwwwww.vanillaskills.skill.QuestPool.STARTER.size()))
                     .replace("{CONVERT}", String.valueOf(QuestShop.CONVERT_RATIO));
             pages.add(Filterable.passThrough(Component.literal(text)));
         }

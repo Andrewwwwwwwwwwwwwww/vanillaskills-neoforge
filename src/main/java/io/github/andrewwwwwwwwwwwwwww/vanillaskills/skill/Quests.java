@@ -15,51 +15,63 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Random;
+import java.util.Map;
+import java.util.Set;
 
 /**
- * Per-player bounty progress. New players work a personal "starter" board of early-game quests (drawn
- * from the non-lategame pool); after completing {@link #GRADUATE_AT} quests they graduate to the shared
- * universal board (all quests). Both boards share the same 5-hour rotation timer.
+ * Per-player bounty progress. New players work the FIXED starter board — every quest in
+ * {@link QuestPool#STARTER} is always active and completable once, in any order; progress never
+ * rotation-resets. Completing ALL of them graduates the player to the shared universal board
+ * (3 rotating quests from {@link QuestPool#ALL} on the 5-hour timer).
  */
 public final class Quests {
     private Quests() {}
 
-    /** Quests a new player must complete on the starter board before joining the universal board.
-     *  Default 15 — set live from gameplay.json by GameplayConfig. */
+    /** LEGACY knob (pre-1.2.0 graduation count). Graduation is now "finish every starter quest";
+     *  kept so old gameplay.json files still parse. */
     public static int GRADUATE_AT = 15;
 
-    private static final Random RANDOM = new Random();
+    /** Data-format version for the fixed-starter system (1.2.0). */
+    private static final int STARTER_VERSION = 2;
 
-    /** Resets per-rotation progress when the board rolls over; (re)rolls the starter board for newbies. */
+    /**
+     * Migrates old saves and resets per-rotation progress when the shared board rolls over.
+     * Starter progress is rotation-independent, so pre-graduation players only get the migration.
+     */
     public static void sync(ServerPlayer player) {
         PlayerSkillData data = VanillaSkills.PLAYERS.get(player.getUUID());
-        long rotation = VanillaSkills.QUESTS.rotationId();
         boolean changed = false;
-        if (data.questRotation != rotation) {
+
+        // 1.2.0 migration: the starter board changed from 3 random rotating quests to the fixed
+        // 15 — players mid-starter are fully reset (user decision); graduated players are untouched.
+        if (data.starterVersion < STARTER_VERSION) {
+            data.starterVersion = STARTER_VERSION;
+            if (!data.graduated) {
+                data.questsCompleted = 0;
+                data.questKills.clear();
+                data.questClaimed.clear();
+                data.starterDone.clear();
+                data.starterKills.clear();
+            }
+            data.starterSlots = new int[0]; // legacy field, no longer read
+            changed = true;
+        }
+
+        long rotation = VanillaSkills.QUESTS.rotationId();
+        if (data.graduated && data.questRotation != rotation) {
             data.questRotation = rotation;
             data.questKills.clear();
             data.questClaimed.clear();
-            if (!data.graduated) data.starterSlots = pickEarly(3);
-            changed = true;
-        } else if (!data.graduated && (data.starterSlots == null || data.starterSlots.length != 3)) {
-            data.starterSlots = pickEarly(3);
             changed = true;
         }
         if (changed) VanillaSkills.PLAYERS.save(player.getUUID());
     }
 
-    /** The 3 quests on the player's current board (universal if graduated, else their starter board). */
+    /** The player's current quest list: all fixed starters pre-graduation, else the shared 3. */
     public static List<Quest> activeFor(ServerPlayer player) {
         PlayerSkillData data = VanillaSkills.PLAYERS.get(player.getUUID());
-        if (data.graduated) return VanillaSkills.QUESTS.active();
-        List<Quest> out = new ArrayList<>();
-        for (int idx : data.starterSlots) {
-            if (idx >= 0 && idx < QuestPool.ALL.size()) out.add(QuestPool.ALL.get(idx));
-        }
-        return out;
+        return data.graduated ? VanillaSkills.QUESTS.active() : QuestPool.STARTER;
     }
 
     public static Quest questFor(ServerPlayer player, int index) {
@@ -71,8 +83,19 @@ public final class Quests {
         return VanillaSkills.PLAYERS.get(player.getUUID()).graduated;
     }
 
+    /** Starter quests completed so far (pre-graduation UI). */
     public static int graduationProgress(ServerPlayer player) {
-        return VanillaSkills.PLAYERS.get(player.getUUID()).questsCompleted;
+        return VanillaSkills.PLAYERS.get(player.getUUID()).starterDone.size();
+    }
+
+    /** The claimed-set for the player's current board (starter claims are permanent). */
+    private static Set<Integer> claimedSet(PlayerSkillData data) {
+        return data.graduated ? data.questClaimed : data.starterDone;
+    }
+
+    /** The kill-progress map for the player's current board. */
+    private static Map<Integer, Integer> killMap(PlayerSkillData data) {
+        return data.graduated ? data.questKills : data.starterKills;
     }
 
     /** Called when a player kills something — advances any matching active KILL quests on their board. */
@@ -80,17 +103,19 @@ public final class Quests {
         sync(killer);
         PlayerSkillData data = VanillaSkills.PLAYERS.get(killer.getUUID());
         List<Quest> active = activeFor(killer);
+        Set<Integer> claimed = claimedSet(data);
+        Map<Integer, Integer> kills = killMap(data);
         String id = BuiltInRegistries.ENTITY_TYPE.getKey(dead.getType()).toString();
         boolean hostile = dead instanceof Enemy;
         boolean changed = false;
         for (int i = 0; i < active.size(); i++) {
             Quest q = active.get(i);
-            if (q.type() != Quest.Type.KILL || data.questClaimed.contains(i)) continue;
+            if (q.type() != Quest.Type.KILL || claimed.contains(i)) continue;
             boolean match = q.target().equals(Quest.ANY_HOSTILE) ? hostile : q.target().equals(id);
             if (!match) continue;
-            int cur = data.questKills.getOrDefault(i, 0);
+            int cur = kills.getOrDefault(i, 0);
             if (cur >= q.amount()) continue;
-            data.questKills.put(i, cur + 1);
+            kills.put(i, cur + 1);
             changed = true;
             if (cur + 1 == q.amount()) {
                 killer.sendSystemMessage(Component.literal("Bounty ready to claim: " + q.title() + " — /quests")
@@ -101,18 +126,20 @@ public final class Quests {
     }
 
     public static boolean isClaimed(ServerPlayer player, int index) {
-        return VanillaSkills.PLAYERS.get(player.getUUID()).questClaimed.contains(index);
+        return claimedSet(VanillaSkills.PLAYERS.get(player.getUUID())).contains(index);
     }
 
-    /** Progress toward the quest (kills done, or items currently held), capped at the amount. */
+    /** Progress toward the quest (kills done, items held, or skills unlocked), capped at the amount. */
     public static int progress(ServerPlayer player, int index) {
         Quest q = questFor(player, index);
         if (q == null) return 0;
-        if (q.type() == Quest.Type.FREEBIE) return q.amount(); // always ready
-        if (q.type() == Quest.Type.KILL) {
-            return Math.min(q.amount(), VanillaSkills.PLAYERS.get(player.getUUID()).questKills.getOrDefault(index, 0));
-        }
-        return Math.min(q.amount(), countItem(player, q.target()));
+        PlayerSkillData data = VanillaSkills.PLAYERS.get(player.getUUID());
+        return switch (q.type()) {
+            case FREEBIE -> q.amount(); // always ready
+            case SKILL -> Math.min(q.amount(), data.unlocked.size());
+            case KILL -> Math.min(q.amount(), killMap(data).getOrDefault(index, 0));
+            case GATHER -> Math.min(q.amount(), countItem(player, q.target()));
+        };
     }
 
     /** Attempt to claim a quest's reward; messages the player with the result. */
@@ -121,37 +148,54 @@ public final class Quests {
         Quest q = questFor(player, index);
         if (q == null) return;
         PlayerSkillData data = VanillaSkills.PLAYERS.get(player.getUUID());
-        if (data.questClaimed.contains(index)) {
-            player.sendSystemMessage(Component.literal("You've already claimed this bounty.").withStyle(ChatFormatting.RED));
+        Set<Integer> claimed = claimedSet(data);
+        if (claimed.contains(index)) {
+            player.sendSystemMessage(Component.literal(data.graduated
+                    ? "You've already claimed this bounty."
+                    : "You've already completed this starter quest.").withStyle(ChatFormatting.RED));
             return;
         }
-        if (q.type() == Quest.Type.KILL) {
-            int cur = data.questKills.getOrDefault(index, 0);
-            if (cur < q.amount()) {
-                player.sendSystemMessage(Component.literal("Not done yet: " + cur + "/" + q.amount()).withStyle(ChatFormatting.RED));
-                return;
+        switch (q.type()) {
+            case KILL -> {
+                int cur = killMap(data).getOrDefault(index, 0);
+                if (cur < q.amount()) {
+                    player.sendSystemMessage(Component.literal("Not done yet: " + cur + "/" + q.amount()).withStyle(ChatFormatting.RED));
+                    return;
+                }
             }
-        } else if (q.type() == Quest.Type.GATHER) {
-            int have = countItem(player, q.target());
-            if (have < q.amount()) {
-                player.sendSystemMessage(Component.literal("You need " + (q.amount() - have) + " more.").withStyle(ChatFormatting.RED));
-                return;
+            case GATHER -> {
+                int have = countItem(player, q.target());
+                if (have < q.amount()) {
+                    player.sendSystemMessage(Component.literal("You need " + (q.amount() - have) + " more.").withStyle(ChatFormatting.RED));
+                    return;
+                }
+                removeItem(player, q.target(), q.amount());
             }
-            removeItem(player, q.target(), q.amount());
+            case SKILL -> {
+                int have = data.unlocked.size();
+                if (have < q.amount()) {
+                    player.sendSystemMessage(Component.literal("Unlock " + (q.amount() - have)
+                            + " more skill" + (q.amount() - have == 1 ? "" : "s")
+                            + " in the skill tree (/skill).").withStyle(ChatFormatting.RED));
+                    return;
+                }
+            }
+            case FREEBIE -> { /* nothing to verify or consume */ }
         }
-        // FREEBIE: nothing to verify or consume — just claim it.
-        data.questClaimed.add(index);
+        claimed.add(index);
         VanillaSkills.PLAYERS.addQuestShards(player, q.reward());
         player.sendSystemMessage(Component.literal("Bounty complete: " + q.title() + "  +" + q.reward()
                 + " Quest Shard" + (q.reward() == 1 ? "" : "s")).withStyle(ChatFormatting.GOLD));
 
         if (!data.graduated) {
             data.questsCompleted++;
-            if (data.questsCompleted >= GRADUATE_AT) {
+            int total = QuestPool.STARTER.size();
+            int done = data.starterDone.size();
+            if (done >= total) {
                 graduate(player, data);
             } else {
-                player.sendSystemMessage(Component.literal("Starter board: " + data.questsCompleted + "/"
-                        + GRADUATE_AT + " quests done.").withStyle(ChatFormatting.GRAY));
+                player.sendSystemMessage(Component.literal("Starter quests: " + done + "/" + total
+                        + " complete.").withStyle(ChatFormatting.GRAY));
             }
         }
         VanillaSkills.PLAYERS.save(player.getUUID());
@@ -169,45 +213,23 @@ public final class Quests {
     /** Op: force a player onto the universal board. */
     public static void forceGraduate(ServerPlayer player) {
         PlayerSkillData data = VanillaSkills.PLAYERS.get(player.getUUID());
-        data.questsCompleted = Math.max(data.questsCompleted, GRADUATE_AT);
+        data.starterVersion = STARTER_VERSION;
         graduate(player, data);
         VanillaSkills.PLAYERS.save(player.getUUID());
     }
 
-    /** Op: send a player back to the starter board. */
+    /** Op: send a player back to the starter board (fresh). */
     public static void resetToStarter(ServerPlayer player) {
         PlayerSkillData data = VanillaSkills.PLAYERS.get(player.getUUID());
         data.graduated = false;
         data.questsCompleted = 0;
         data.questKills.clear();
         data.questClaimed.clear();
-        data.starterSlots = pickEarly(3);
+        data.starterDone.clear();
+        data.starterKills.clear();
+        data.starterVersion = STARTER_VERSION;
         data.questRotation = VanillaSkills.QUESTS.rotationId();
         VanillaSkills.PLAYERS.save(player.getUUID());
-    }
-
-    /** 3 distinct random non-lategame quest indices, weighted (rarer quests like the freebie show less). */
-    private static int[] pickEarly(int count) {
-        List<Integer> pool = new ArrayList<>();
-        for (int i = 0; i < QuestPool.ALL.size(); i++) {
-            if (!QuestPool.ALL.get(i).lategame()) pool.add(i);
-        }
-        List<Integer> chosen = new ArrayList<>();
-        int n = Math.min(count, pool.size());
-        for (int k = 0; k < n; k++) {
-            int total = 0;
-            for (int idx : pool) total += Math.max(1, QuestPool.ALL.get(idx).weight());
-            int r = RANDOM.nextInt(total);
-            int removeAt = pool.size() - 1;
-            for (int j = 0; j < pool.size(); j++) {
-                r -= Math.max(1, QuestPool.ALL.get(pool.get(j)).weight());
-                if (r < 0) { removeAt = j; break; }
-            }
-            chosen.add(pool.remove(removeAt));
-        }
-        int[] out = new int[chosen.size()];
-        for (int i = 0; i < out.length; i++) out[i] = chosen.get(i);
-        return out;
     }
 
     public static Item item(String id) {
