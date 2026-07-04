@@ -5,6 +5,7 @@
   "mixins": [
     "AnvilMenuMixin",
     "ArrowDodgeMixin",
+    "CaveVinesHarvestMixin",
     "CraftResultGateMixin",
     "CrystalReflectMixin",
     "CustomArmorTrimMixin",
@@ -22,7 +23,8 @@
     "RoseGoldEffectMixin",
     "ShieldThornsMixin",
     "SmithingGateMixin",
-    "SmithingRecipeMixin"
+    "SmithingRecipeMixin",
+    "SweetBerryHarvestMixin"
   ],
   "injectors": {
     "defaultRequire": 1
