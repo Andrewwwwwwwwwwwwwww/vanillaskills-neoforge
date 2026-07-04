@@ -6,6 +6,7 @@
     "AnvilMenuMixin",
     "ArrowDodgeMixin",
     "CaveVinesHarvestMixin",
+    "ContainerLuckMixin",
     "CraftResultGateMixin",
     "CrystalReflectMixin",
     "CustomArmorTrimMixin",
@@ -24,7 +25,8 @@
     "ShieldThornsMixin",
     "SmithingGateMixin",
     "SmithingRecipeMixin",
-    "SweetBerryHarvestMixin"
+    "SweetBerryHarvestMixin",
+    "VaultLuckMixin"
   ],
   "injectors": {
     "defaultRequire": 1

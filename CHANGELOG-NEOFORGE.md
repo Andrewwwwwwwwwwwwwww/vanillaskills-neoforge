@@ -1,5 +1,8 @@
 # VanillaSkills — NeoForge edition
 
+## [1.1.0+mc26.2-neoforge] - 2026-07-03
+Fortune Finder luck now boosts all natural container + vault loot (shared mixins; parity with Fabric 1.1.0).
+
 ## [1.0.9+mc26.2-neoforge] - 2026-07-03
 Sweet + glow berry Cultivator bonus (shared harvest mixins; parity with Fabric 1.0.9).
 
