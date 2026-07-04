@@ -205,11 +205,10 @@ public class VanillaSkills {
             }
         });
 
-        // Hardwood swords & axes inflict a little poison on hit; also the Wind Burst launch fix.
+        // Hardwood swords & axes inflict a little poison on hit.
         NeoForge.EVENT_BUS.addListener((LivingDamageEvent.Post e) -> {
             if (e.getInflictedDamage() <= 0.0f) return;
             if (!(e.getSource().getEntity() instanceof ServerPlayer attacker)) return;
-            WindBurstFix.onMeleeDamage(attacker, e.getInflictedDamage());
             ItemStack weapon = attacker.getMainHandItem();
             if (!io.github.andrewwwwwwwwwwwwwww.vanillaskills.armor.Markers.has(weapon,
                     io.github.andrewwwwwwwwwwwwwww.vanillaskills.tool.ToolTiers.HARDWOOD.markerKey)) return;
