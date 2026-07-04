@@ -1,5 +1,14 @@
 # VanillaSkills Changelog
 
+## [1.1.1] - 2026-07-03
+### Added
+- **7 new bounty quests:** Gather 64 Carrots (4), 4 Honey Bottles (6), 24 Amethyst Shards (5),
+  32 String (4); Slay 15 Slimes (5), 10 Pillagers (6), and 8 Guardians (8, post-graduation).
+### Changed
+- **Fishing quests appear about half as often.** All four fish quests dropped to half weight —
+  they were one activity with four full-weight pool entries, so roughly every other starter board
+  had one. With the new quests diluting the pool too, fishing lands at ~8% of quest slots.
+
 ## [1.1.0] - 2026-07-03
 ### Added
 - **Fortune Finder now improves ALL naturally generated loot.** The Luck attribute (+0.5 per
