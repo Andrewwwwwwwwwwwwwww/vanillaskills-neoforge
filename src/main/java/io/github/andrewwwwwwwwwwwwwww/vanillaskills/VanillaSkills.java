@@ -199,6 +199,7 @@ public class VanillaSkills {
             for (int i = 0; i < farmLevel; i++) {
                 if (sp.getRandom().nextFloat() < 0.5f) bonus++;
             }
+            bonus = Math.min(bonus, io.github.andrewwwwwwwwwwwwwww.vanillaskills.skill.Farming.bonusCap(e.getState()));
             if (bonus > 0) {
                 net.minecraft.world.level.block.Block.popResource(level, e.getPos(), new ItemStack(product, bonus));
             }

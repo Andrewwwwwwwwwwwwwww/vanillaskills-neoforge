@@ -1,5 +1,12 @@
 # VanillaSkills Changelog
 
+## [1.0.8] - 2026-07-03
+### Changed
+- **Cultivator rewards more crops.** The bonus-harvest roll now also triggers on **cocoa (mature)**,
+  **melon** (bonus slices), **pumpkin** (capped at **+2** pumpkins per break), **sugar cane**,
+  **cactus**, and **chorus plant** (bonus chorus fruit) — in addition to the existing
+  wheat/carrots/potatoes/beetroot/nether wart. Immature crops still give nothing.
+
 ## [1.0.7] - 2026-06-28
 
 ### Changed

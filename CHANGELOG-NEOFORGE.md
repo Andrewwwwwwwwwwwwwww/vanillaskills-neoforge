@@ -1,5 +1,8 @@
 # VanillaSkills — NeoForge edition
 
+## [1.0.8+mc26.2-neoforge] - 2026-07-03
+Same Cultivator crop expansion as the Fabric 1.0.8 release (cocoa/melon/pumpkin-capped-2/sugar cane/cactus/chorus).
+
 ## [1.0.7+mc26.2-neoforge] - 2026-07-02
 First NeoForge build. Feature-equal port of the Fabric 1.0.7 release to NeoForge 26.2.0.7-beta
 (Minecraft 26.2, Java 25). Same textures, same mixins, same per-world config.
