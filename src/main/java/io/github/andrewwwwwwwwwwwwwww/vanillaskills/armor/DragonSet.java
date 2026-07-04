@@ -68,8 +68,7 @@ public final class DragonSet {
         Vec3 velocity = look.scale(DASH_SPEED).add(0.0, -DASH_DOWN_BIAS, 0.0);
         player.setDeltaMovement(velocity);
         player.hurtMarked = true; // forces a velocity packet to the client
-        // Fall distance is deliberately NOT reset: dash-diving is a risk/reward move, and zeroing it
-        // broke mace smash attacks / Wind Burst (both are computed from fallDistance).
+        player.fallDistance = 0.0;
     }
 
     public static void onPlayerLeave(UUID uuid) {
