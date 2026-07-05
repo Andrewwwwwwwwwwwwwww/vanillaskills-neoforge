@@ -1,5 +1,9 @@
 # VanillaSkills Changelog
 
+## [1.2.6] - 2026-07-04
+### Changed
+- **Dragon tool durability raised 2500 -> 3500** (~72% more than netherite, up from ~23%).
+
 ## [1.2.5] - 2026-07-04
 ### Added
 - **The skill tree's Recipes book now starts with "Hardwood"** — shows how to make the base
