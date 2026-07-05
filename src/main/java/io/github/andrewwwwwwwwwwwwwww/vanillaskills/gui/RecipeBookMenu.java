@@ -53,7 +53,7 @@ public class RecipeBookMenu extends ChestMenu {
         for (int i = 0; i < 54; i++) container.setItem(i, ItemStack.EMPTY);
 
         RecipeBook.Display rec = recipes.get(page);
-        container.setItem(TITLE_SLOT, button(rec.station(), rec.title(), ChatFormatting.GOLD, null));
+        container.setItem(TITLE_SLOT, titleItem(rec));
 
         for (int i = 0; i < 9; i++) {
             ItemStack g = rec.grid()[i];
@@ -68,6 +68,22 @@ public class RecipeBookMenu extends ChestMenu {
         if (page > 0) container.setItem(PREV_SLOT, button(Items.ARROW, "◀ Previous", ChatFormatting.YELLOW, null));
         if (page < recipes.size() - 1) container.setItem(NEXT_SLOT, button(Items.ARROW, "Next ▶", ChatFormatting.YELLOW, null));
         container.setItem(CLOSE_SLOT, button(Items.BARRIER, "Close", ChatFormatting.RED, null));
+    }
+
+    /** The station icon at the top, titled, with the recipe's "what it's for" description as lore. */
+    private ItemStack titleItem(RecipeBook.Display rec) {
+        ItemStack stack = new ItemStack(rec.station());
+        Guis.hideStats(stack);
+        stack.set(DataComponents.CUSTOM_NAME, Component.literal(rec.title())
+                .withStyle(ChatFormatting.GOLD).withStyle(s -> s.withItalic(false)));
+        if (rec.desc() != null && rec.desc().length > 0) {
+            java.util.List<Component> lore = new java.util.ArrayList<>();
+            for (String line : rec.desc()) {
+                lore.add(Component.literal(line).withStyle(ChatFormatting.GRAY).withStyle(s -> s.withItalic(false)));
+            }
+            stack.set(DataComponents.LORE, new ItemLore(lore));
+        }
+        return stack;
     }
 
     private ItemStack button(net.minecraft.world.item.Item item, String name, ChatFormatting color, String desc) {

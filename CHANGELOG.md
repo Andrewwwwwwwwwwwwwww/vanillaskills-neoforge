@@ -1,5 +1,29 @@
 # VanillaSkills Changelog
 
+## [1.2.5] - 2026-07-04
+### Added
+- **The skill tree's Recipes book now starts with "Hardwood"** — shows how to make the base
+  material (4 logs -> Wood blocks) and what it is for (craft tools/armor in their normal shape with
+  Wood blocks instead of planks). Recipe entries can now carry a short "what it is for" description.
+
+## [1.2.4] - 2026-07-04
+### Fixed
+- **Fixed a Cultivator dup exploit.** You could place a melon, pumpkin, sugar cane, or cactus and
+  break it for a net-positive bonus (infinite items). Now:
+  - **Melon & pumpkin** only give a bonus when they actually GREW (an attached stem is facing the
+    fruit) — placed ones give nothing.
+  - **Sugar cane & cactus** no longer give a Cultivator bonus at all (placing is identical to
+    harvesting, with no reliable placed-vs-grown signal; they are also bulk auto-farm crops).
+  - Wheat, carrots, potatoes, beetroot, nether wart, cocoa, chorus, and the berries are unchanged
+    (already un-dupable: they need a growth stage, or the harvestable block cannot be placed).
+
+## [1.2.3] - 2026-07-04
+### Fixed
+- **Fixed the lag introduced in 1.2.2.** The step-up sneak-suppression reacted to every flicker of
+  the sneak flag, which could churn the step-height attribute every tick (a sync packet per tick →
+  stutter). It is now debounced — the attribute changes at most once per real sneak/stand
+  transition — so the safety behaviour is unchanged but the per-tick cost is gone.
+
 ## [1.2.2] - 2026-07-04
 ### Changed
 - **Step-up (Mountaineer) is now suppressed while sneaking** — hold shift and you step like vanilla,
