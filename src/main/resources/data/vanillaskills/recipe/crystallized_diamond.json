@@ -2,9 +2,9 @@
   "type": "minecraft:crafting_shaped",
   "category": "misc",
   "pattern": [
-    "DAD",
-    "ABA",
-    "DAD"
+    "AAA",
+    "DBD",
+    "AAA"
   ],
   "key": {
     "D": "minecraft:diamond",

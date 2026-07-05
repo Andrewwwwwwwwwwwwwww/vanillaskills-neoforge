@@ -89,9 +89,9 @@ public final class RecipeBook {
         // 3. Crystallized Diamond
         ItemStack shard = new ItemStack(Items.AMETHYST_SHARD);
         r.add(new Display("Crystallized Diamond (×2)", new ItemStack[]{
-                diamond.copy(), shard.copy(), diamond.copy(),
-                shard.copy(), new ItemStack(Items.AMETHYST_BLOCK), shard.copy(),
-                diamond.copy(), shard.copy(), diamond.copy()}, count(Alloys.crystallizedDiamond(), 2)));
+                shard.copy(), shard.copy(), shard.copy(),
+                diamond.copy(), new ItemStack(Items.AMETHYST_BLOCK), diamond.copy(),
+                shard.copy(), shard.copy(), shard.copy()}, count(Alloys.crystallizedDiamond(), 2)));
 
         // 4. Steel Shield
         r.add(new Display("Steel Shield", new ItemStack[]{

@@ -113,7 +113,7 @@ public final class GuideBook {
 
             Steel ingot: forge iron + iron in an anvil.
 
-            Crystallized Diamond: 4 diamonds + 4 amethyst shards + 1 amethyst block = 2.""",
+            Crystallized Diamond: 6 amethyst shards + 2 diamonds + 1 amethyst block = 2.""",
 
             """
             Set Bonuses
