@@ -1,5 +1,9 @@
 # VanillaSkills Changelog
 
+## [1.2.1] - 2026-07-04
+### Changed
+- **Lowered every starter-quest reward by 1 Quest Shard** (total onboarding payout 62 -> 47).
+
 ## [1.2.0] - 2026-07-04
 ### Changed
 - **Starter quests reworked: 15 fixed quests, always available.** New players now see all 15
