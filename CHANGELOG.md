@@ -1,5 +1,9 @@
 # VanillaSkills Changelog
 
+## [1.2.7] - 2026-07-05
+### Changed
+- **Crystallized Diamond recipe** reshaped: amethyst shards fill the top & bottom rows, diamonds flank the amethyst block in the middle (AAA / DBD / AAA). Now 6 shards + 2 diamonds + 1 amethyst block (was 4 + 4 + 1); still yields 2.
+
 ## [1.2.6] - 2026-07-04
 ### Changed
 - **Dragon tool durability raised 2500 -> 3500** (~72% more than netherite, up from ~23%).
