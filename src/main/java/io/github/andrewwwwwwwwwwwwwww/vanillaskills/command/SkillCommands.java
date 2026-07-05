@@ -50,8 +50,10 @@ public final class SkillCommands {
 
         root.then(Commands.literal("guide").executes(SkillCommands::guide));
 
-        // Toggle an unlocked Night Vision capstone on/off (per player, persisted).
-        root.then(Commands.literal("nightvision").executes(SkillCommands::toggleNightVision));
+        // Toggle unlocked toggleable skills on/off (per player, persisted): /skill toggle <skill>
+        root.then(Commands.literal("toggle")
+                .then(Commands.literal("nightvision").executes(SkillCommands::toggleNightVision))
+                .then(Commands.literal("stepup").executes(SkillCommands::toggleStepUp)));
 
         root.then(Commands.literal("points")
                 .executes(SkillCommands::showOwnPoints)
@@ -146,11 +148,33 @@ public final class SkillCommands {
         if (data.nightVisionDisabled) {
             player.removeEffect(net.minecraft.world.effect.MobEffects.NIGHT_VISION);
             ctx.getSource().sendSuccess(() -> Component.literal(
-                    "Night Vision OFF — run /skill nightvision again to turn it back on."), false);
+                    "Night Vision OFF — run /skill toggle nightvision again to turn it back on."), false);
         } else {
             io.github.andrewwwwwwwwwwwwwww.vanillaskills.skill.SkillEffects
                     .refreshStatusEffects(player, data, VanillaSkills.TREE.tree()); // instant re-apply
             ctx.getSource().sendSuccess(() -> Component.literal("Night Vision ON."), false);
+        }
+        return 1;
+    }
+
+    private static int toggleStepUp(CommandContext<CommandSourceStack> ctx) throws CommandSyntaxException {
+        ServerPlayer player = ctx.getSource().getPlayerOrException();
+        PlayerSkillData data = VanillaSkills.PLAYERS.get(player.getUUID());
+        if (!io.github.andrewwwwwwwwwwwwwww.vanillaskills.skill.StepHeight.hasStepSkill(data)) {
+            ctx.getSource().sendFailure(Component.literal("You haven't unlocked the Mountaineer (step-up) skill yet."));
+            return 0;
+        }
+        data.stepUpDisabled = !data.stepUpDisabled;
+        VanillaSkills.PLAYERS.save(player.getUUID());
+        // Force StepHeight to re-evaluate next tick (applies/removes the modifier).
+        io.github.andrewwwwwwwwwwwwwww.vanillaskills.skill.StepHeight.invalidate(player.getUUID());
+        if (data.stepUpDisabled) {
+            ctx.getSource().sendSuccess(() -> Component.literal(
+                    "Step-up OFF — you'll step like vanilla. Run /skill toggle stepup to re-enable. "
+                    + "(Note: step-up is always off while you're sneaking.)"), false);
+        } else {
+            ctx.getSource().sendSuccess(() -> Component.literal(
+                    "Step-up ON — auto-step ledges (still off while sneaking)."), false);
         }
         return 1;
     }

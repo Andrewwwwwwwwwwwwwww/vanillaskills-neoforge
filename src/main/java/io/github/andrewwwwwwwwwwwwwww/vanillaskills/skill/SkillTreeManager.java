@@ -192,7 +192,8 @@ public class SkillTreeManager {
                         {SkillEffect.attribute("minecraft:step_height", "add_value", 0.2)},
                         {SkillEffect.attribute("minecraft:step_height", "add_value", 0.1)}
                 },
-                new String[]{"Step up taller ledges", "Step up a full block", "Step up 1.1 blocks"});
+                new String[]{"Step up taller ledges (sneak to walk normally)", "Step up a full block",
+                        "Step up 1.1 blocks — /skill toggle stepup"});
 
         // Aquatic: 9 nodes spreading three underwater perks — breath, swim speed, underwater mining.
         // Costs ramp up steeply so reaching full underwater capability is a real investment.

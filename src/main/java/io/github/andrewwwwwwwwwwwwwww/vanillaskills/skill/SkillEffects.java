@@ -51,6 +51,12 @@ public final class SkillEffects {
                     VanillaSkills.LOGGER.warn("Skill '{}' references unknown/absent attribute '{}'", node.id, effect.attribute);
                     return;
                 }
+                // Step-up (Mountaineer) is owned by StepHeight — skip applying it here while suppressed
+                // (sneaking / toggled off) so we don't briefly auto-step right after a join/respawn.
+                if ("minecraft:step_height".equals(effect.attribute)
+                        && StepHeight.suppressed(player, VanillaSkills.PLAYERS.get(player.getUUID()))) {
+                    return;
+                }
                 AttributeModifier modifier = new AttributeModifier(
                         modifierId(node.id, index), effect.amount, operation(effect.operation));
                 inst.addOrUpdateTransientModifier(modifier);
