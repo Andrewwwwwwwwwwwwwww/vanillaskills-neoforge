@@ -58,7 +58,7 @@ public final class ToolTiers {
     // deepslate (needs effective mining speed >= 90: (9 + 26 + 12 + 18) * 1.4 = 91).
     public static final ToolTier DRAGON = new ToolTier(
             "dragon", "Dragon", 0xC23BD6, "vs_tool_dragon",
-            NETHERITE_TOOLS, 2500, 1.5, 0.1, 18.0, itemSet(NETHERITE_INGOT),
+            NETHERITE_TOOLS, 3500, 1.5, 0.1, 18.0, itemSet(NETHERITE_INGOT),
             io.github.andrewwwwwwwwwwwwwww.vanillaskills.armor.DragonIngot::isDragonIngot);
 
     public static final List<ToolTier> TIERS = List.of(HARDWOOD, ROSE_GOLD, STEEL, CRYSTAL, DRAGON);
