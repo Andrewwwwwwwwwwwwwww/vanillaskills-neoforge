@@ -24,10 +24,19 @@ public final class RecipeBook {
      * crafting "station" icon shown at the top of the page — a crafting table for normal recipes,
      * an anvil for anvil-forged recipes. The 3-arg form defaults the station to a crafting table.
      */
-    public record Display(String title, ItemStack[] grid, ItemStack result,
+    public record Display(String title, String[] desc, ItemStack[] grid, ItemStack result,
                           net.minecraft.world.item.Item station) {
+        /** No description, crafting-table station. */
         public Display(String title, ItemStack[] grid, ItemStack result) {
-            this(title, grid, result, Items.CRAFTING_TABLE);
+            this(title, null, grid, result, Items.CRAFTING_TABLE);
+        }
+        /** No description, custom station icon. */
+        public Display(String title, ItemStack[] grid, ItemStack result, net.minecraft.world.item.Item station) {
+            this(title, null, grid, result, station);
+        }
+        /** With a "what it's for" description (shown as lore under the title), crafting-table station. */
+        public Display(String title, String[] desc, ItemStack[] grid, ItemStack result) {
+            this(title, desc, grid, result, Items.CRAFTING_TABLE);
         }
     }
 
@@ -35,6 +44,21 @@ public final class RecipeBook {
 
     public static List<Display> all() {
         List<Display> r = new ArrayList<>();
+
+        // 0. Hardwood — the first recipe: the base MATERIAL. Four logs in a 2x2 make Wood blocks
+        //    (the all-bark cubes), which are what Hardwood tools & armor are crafted from.
+        ItemStack log = new ItemStack(Items.OAK_LOG);
+        r.add(new Display("Hardwood",
+                new String[]{
+                        "The base material for all Hardwood gear.",
+                        "Then craft any tool or armor in its normal",
+                        "shape using these Wood blocks (not planks).",
+                        "Hardwood swords & axes poison on hit."},
+                new ItemStack[]{
+                        log.copy(), log.copy(), E,
+                        log.copy(), log.copy(), E,
+                        E, E, E},
+                count(new ItemStack(Items.OAK_WOOD), 3)));
 
         ItemStack scale = DragonScale.create();
         ItemStack netherite = new ItemStack(Items.NETHERITE_INGOT);

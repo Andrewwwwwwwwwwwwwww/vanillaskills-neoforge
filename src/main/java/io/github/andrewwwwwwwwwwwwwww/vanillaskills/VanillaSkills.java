@@ -192,7 +192,7 @@ public class VanillaSkills {
             // (5) you average ~2.5 extra per crop, and at level 1 ~0.5.
             if (!(e.getLevel() instanceof ServerLevel level) || !(e.getPlayer() instanceof ServerPlayer sp)) return;
             net.minecraft.world.item.Item product =
-                    io.github.andrewwwwwwwwwwwwwww.vanillaskills.skill.Farming.matureCropProduct(e.getState());
+                    io.github.andrewwwwwwwwwwwwwww.vanillaskills.skill.Farming.matureCropProduct(level, e.getPos(), e.getState());
             if (product == null) return;
             int farmLevel = io.github.andrewwwwwwwwwwwwwww.vanillaskills.skill.CraftingGate.farmingLevel(sp);
             if (farmLevel <= 0) return;
