@@ -17,7 +17,8 @@ public class PlayerSkillData {
     public int questShardsEarned = 0;    // Quest Shards earned lifetime
     public float lastHealth = -1f; // health at last logout, restored after max-health modifiers reapply
     public boolean completionRewarded = false; // got the full-tree Dragon Ingot reward
-    public boolean nightVisionDisabled = false; // /skill nightvision toggle (only relevant once unlocked)
+    public boolean nightVisionDisabled = false; // /skill toggle nightvision (only relevant once unlocked)
+    public boolean stepUpDisabled = false;      // /skill toggle stepup — also auto-suppressed while sneaking
     public Set<String> creditedAdvancements = new LinkedHashSet<>();
     public boolean initialized = false;
 

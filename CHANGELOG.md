@@ -1,5 +1,12 @@
 # VanillaSkills Changelog
 
+## [1.2.2] - 2026-07-04
+### Changed
+- **Step-up (Mountaineer) is now suppressed while sneaking** — hold shift and you step like vanilla,
+  so you can carefully edge up to ledges/lava instead of auto-stepping into danger.
+- **Toggle commands unified under `/skill toggle <skill>`:** `/skill toggle nightvision` (was
+  `/skill nightvision`) and the new **`/skill toggle stepup`** to disable the step-up bonus entirely.
+
 ## [1.2.1] - 2026-07-04
 ### Changed
 - **Lowered every starter-quest reward by 1 Quest Shard** (total onboarding payout 62 -> 47).
