@@ -84,6 +84,35 @@ public final class QuestPool {
             new Quest(Quest.Type.GATHER, "minecraft:string", 32, 4, "Gather 32 String"),
             new Quest(Quest.Type.KILL, "minecraft:slime", 15, 5, "Slay 15 Slimes"),
             new Quest(Quest.Type.KILL, "minecraft:pillager", 10, 6, "Slay 10 Pillagers"),
-            new Quest(Quest.Type.KILL, "minecraft:guardian", 8, 8, "Slay 8 Guardians", 10, true)
+            new Quest(Quest.Type.KILL, "minecraft:guardian", 8, 8, "Slay 8 Guardians", 10, true),
+
+            // ---- 1.2.8 additions ---- (APPEND ONLY — see note above)
+            // Cultivator crops: give the expanded farming skill something to turn in.
+            new Quest(Quest.Type.GATHER, "minecraft:pumpkin", 64, 5, "Gather 64 Pumpkins"),
+            new Quest(Quest.Type.GATHER, "minecraft:melon_slice", 64, 4, "Gather 64 Melon Slices"),
+            new Quest(Quest.Type.GATHER, "minecraft:sugar_cane", 32, 4, "Gather 32 Sugar Cane"),
+            new Quest(Quest.Type.GATHER, "minecraft:sweet_berries", 16, 5, "Gather 16 Sweet Berries"),
+            new Quest(Quest.Type.GATHER, "minecraft:cocoa_beans", 16, 4, "Gather 16 Cocoa Beans"),
+            new Quest(Quest.Type.GATHER, "minecraft:nether_wart", 32, 5, "Gather 32 Nether Wart", 10, true),
+            new Quest(Quest.Type.GATHER, "minecraft:chorus_fruit", 8, 7, "Gather 8 Chorus Fruit", 10, true),
+
+            // Nether identity (all lategame — hidden during the early-game window).
+            new Quest(Quest.Type.GATHER, "minecraft:blaze_rod", 16, 8, "Gather 16 Blaze Rods", 10, true),
+            new Quest(Quest.Type.GATHER, "minecraft:quartz", 32, 5, "Gather 32 Nether Quartz", 10, true),
+            new Quest(Quest.Type.GATHER, "minecraft:ghast_tear", 4, 8, "Gather 4 Ghast Tears", 10, true),
+            new Quest(Quest.Type.GATHER, "minecraft:magma_cream", 8, 6, "Gather 8 Magma Cream", 10, true),
+            new Quest(Quest.Type.GATHER, "minecraft:ancient_debris", 1, 9, "Gather 1 Ancient Debris", 10, true),
+
+            // Ocean identity.
+            new Quest(Quest.Type.GATHER, "minecraft:prismarine_shard", 24, 6, "Gather 24 Prismarine Shards"),
+            new Quest(Quest.Type.GATHER, "minecraft:nautilus_shell", 3, 7, "Gather 3 Nautilus Shells"),
+            new Quest(Quest.Type.GATHER, "minecraft:kelp", 32, 4, "Gather 32 Kelp"),
+            new Quest(Quest.Type.GATHER, "minecraft:ink_sac", 8, 4, "Gather 8 Ink Sacs"),
+
+            // Mining — raw drops (rewards the dig, ties to Prospector).
+            new Quest(Quest.Type.GATHER, "minecraft:raw_iron", 32, 5, "Gather 32 Raw Iron"),
+            new Quest(Quest.Type.GATHER, "minecraft:deepslate", 48, 4, "Gather 48 Deepslate"),
+            new Quest(Quest.Type.GATHER, "minecraft:obsidian", 8, 6, "Gather 8 Obsidian"),
+            new Quest(Quest.Type.GATHER, "minecraft:lapis_lazuli", 24, 5, "Gather 24 Lapis Lazuli")
     );
 }

@@ -1,5 +1,9 @@
 # VanillaSkills Changelog
 
+## [1.2.8] - 2026-07-05
+### Added
+- 20 new bounty-board quests: Cultivator crops (pumpkins, melon slices, sugar cane, sweet berries, cocoa beans, nether wart, chorus fruit), Nether materials (blaze rods, quartz, ghast tears, magma cream, ancient debris), Ocean materials (prismarine shards, nautilus shells, kelp, ink sacs), and raw mining drops (raw iron, deepslate, obsidian, lapis lazuli).
+
 ## [1.2.7] - 2026-07-05
 ### Changed
 - **Crystallized Diamond recipe** reshaped: amethyst shards fill the top & bottom rows, diamonds flank the amethyst block in the middle (AAA / DBD / AAA). Now 6 shards + 2 diamonds + 1 amethyst block (was 4 + 4 + 1); still yields 2.
