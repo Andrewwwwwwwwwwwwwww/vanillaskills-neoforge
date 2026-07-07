@@ -1,5 +1,9 @@
 # VanillaSkills Changelog
 
+## [1.2.9] - 2026-07-06
+### Changed
+- Rebalanced Quest Shard rewards across the starter and rotating boards. Highlights: Unlock 10 Skills 5 -> 10; Gather 10 Diamonds 9 -> 15 and now a rarer quest; the emerald quest is now Gather 32 Emeralds for 10; Ghast Tears 8 -> 16; Witches 6 -> 12; plus tweaks to leather, pumpkins, cocoa, nether wart, chorus, quartz, amethyst, copper, raw iron, obsidian, lapis, honey, tropical fish, nautilus shells, and the 50-mob quest. Starter full-completion payout is now 50 QS.
+
 ## [1.2.8] - 2026-07-05
 ### Added
 - 20 new bounty-board quests: Cultivator crops (pumpkins, melon slices, sugar cane, sweet berries, cocoa beans, nether wart, chorus fruit), Nether materials (blaze rods, quartz, ghast tears, magma cream, ancient debris), Ocean materials (prismarine shards, nautilus shells, kelp, ink sacs), and raw mining drops (raw iron, deepslate, obsidian, lapis lazuli).
