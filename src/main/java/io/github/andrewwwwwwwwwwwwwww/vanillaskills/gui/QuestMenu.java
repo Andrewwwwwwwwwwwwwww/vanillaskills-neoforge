@@ -43,6 +43,7 @@ public class QuestMenu extends ChestMenu {
     private final int shopSlot;
     private final int backSlot;
     private final int closeSlot;
+    private final int featsSlot;
     /** Rotation this menu was built against — clicks on a stale board reopen instead of claiming. */
     private long rotationAtBuild;
 
@@ -65,6 +66,7 @@ public class QuestMenu extends ChestMenu {
         this.closeSlot = last;                       // bottom-right
         this.backSlot = last - 8;                    // bottom-left
         this.shopSlot = last - 4;                    // bottom-center
+        this.featsSlot = last - 2;                   // bottom-center-right
         populate();
     }
 
@@ -77,6 +79,8 @@ public class QuestMenu extends ChestMenu {
             container.setItem(questSlots[i], questItem(i, active.get(i)));
         }
         container.setItem(shopSlot, shopButton());
+        container.setItem(featsSlot, button(Items.WITHER_SKELETON_SKULL, "Feats", ChatFormatting.GOLD,
+                "One-time achievements: discoveries, bosses & the End."));
         container.setItem(backSlot, button(Items.NETHER_STAR, "Skill Tree", ChatFormatting.AQUA,
                 "Open the skill tree."));
         container.setItem(closeSlot, button(Items.BARRIER, "Close", ChatFormatting.RED, null));
@@ -139,6 +143,7 @@ public class QuestMenu extends ChestMenu {
             String verb = switch (q.type()) {
                 case KILL -> "Slain";
                 case SKILL -> "Skills unlocked";
+                case STAT -> "Progress";
                 default -> "Gathered";
             };
             lore.add(styled(verb + ": " + progress + "/" + q.amount(), ChatFormatting.GRAY));
@@ -153,6 +158,7 @@ public class QuestMenu extends ChestMenu {
             String hint = switch (q.type()) {
                 case GATHER -> "Bring the items here";
                 case SKILL -> "Unlock skills in the skill tree (/skill)";
+                case STAT -> "Counts from when this appeared — keep going";
                 default -> "Keep hunting";
             };
             lore.add(styled(hint, ChatFormatting.GRAY));
@@ -165,6 +171,8 @@ public class QuestMenu extends ChestMenu {
     private static net.minecraft.world.item.Item iconFor(Quest q) {
         if (q.type() == Quest.Type.FREEBIE) return Items.EMERALD;
         if (q.type() == Quest.Type.SKILL) return Items.NETHER_STAR;
+        if (q.type() == Quest.Type.STAT) return q.target().contains("swim") ? Items.WATER_BUCKET
+                : q.target().contains("jump") ? Items.RABBIT_FOOT : Items.LEATHER_BOOTS;
         if (q.type() == Quest.Type.GATHER) return Quests.item(q.target());
         if (q.target().equals(Quest.ANY_HOSTILE)) return Items.IRON_SWORD;
         net.minecraft.world.item.Item egg = Quests.item(q.target() + "_spawn_egg");
@@ -177,6 +185,7 @@ public class QuestMenu extends ChestMenu {
             if (slotId == closeSlot) { sp.closeContainer(); return; }
             if (slotId == backSlot) { SkillTreeMenu.open(sp); return; }
             if (slotId == shopSlot) { ShopMenu.open(sp); return; }
+            if (slotId == featsSlot) { FeatsMenu.open(sp); return; }
             for (int i = 0; i < questSlots.length; i++) {
                 if (slotId == questSlots[i]) {
                     // Stale-board guard: if graduation status or the rotation changed while this menu
