@@ -113,6 +113,14 @@ public final class QuestPool {
             new Quest(Quest.Type.GATHER, "minecraft:raw_iron", 32, 6, "Gather 32 Raw Iron"),
             new Quest(Quest.Type.GATHER, "minecraft:deepslate", 48, 4, "Gather 48 Deepslate"),
             new Quest(Quest.Type.GATHER, "minecraft:obsidian", 8, 4, "Gather 8 Obsidian"),
-            new Quest(Quest.Type.GATHER, "minecraft:lapis_lazuli", 24, 4, "Gather 24 Lapis Lazuli")
+            new Quest(Quest.Type.GATHER, "minecraft:lapis_lazuli", 24, 4, "Gather 24 Lapis Lazuli"),
+
+            // ---- 1.3.0 additions: repeatable STAT quests ---- (APPEND ONLY)
+            // Progress counts from the moment the quest is dealt (baseline snapshot per rotation), so
+            // veterans don't auto-complete and you must do it within the ~5h window. Distance stats are
+            // in cm (walk_one_cm etc.); the amount is in BLOCKS and the reader divides by 100.
+            new Quest(Quest.Type.STAT, "minecraft:walk_one_cm,minecraft:sprint_one_cm", 5000, 6, "Travel 5,000 blocks on foot"),
+            new Quest(Quest.Type.STAT, "minecraft:swim_one_cm", 1500, 7, "Swim 1,500 blocks"),
+            new Quest(Quest.Type.STAT, "minecraft:jump", 800, 3, "Jump 800 times")
     );
 }

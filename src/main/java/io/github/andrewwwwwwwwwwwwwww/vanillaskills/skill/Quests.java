@@ -63,7 +63,19 @@ public final class Quests {
             data.questRotation = rotation;
             data.questKills.clear();
             data.questClaimed.clear();
+            data.questStatBase.clear();
             changed = true;
+        }
+        // Snapshot the baseline for any active STAT quest not yet captured this rotation, so its
+        // progress counts only from now — a veteran with huge lifetime stats still starts at zero.
+        if (data.graduated) {
+            List<Quest> active = VanillaSkills.QUESTS.active();
+            for (int i = 0; i < active.size(); i++) {
+                if (active.get(i).type() == Quest.Type.STAT && !data.questStatBase.containsKey(i)) {
+                    data.questStatBase.put(i, readStat(player, active.get(i).target()));
+                    changed = true;
+                }
+            }
         }
         if (changed) VanillaSkills.PLAYERS.save(player.getUUID());
     }
@@ -139,6 +151,12 @@ public final class Quests {
             case SKILL -> Math.min(q.amount(), data.unlocked.size());
             case KILL -> Math.min(q.amount(), killMap(data).getOrDefault(index, 0));
             case GATHER -> Math.min(q.amount(), countItem(player, q.target()));
+            case STAT -> {
+                long base = data.questStatBase.getOrDefault(index, readStat(player, q.target()));
+                long delta = Math.max(0, readStat(player, q.target()) - base);
+                long done = q.target().contains("_one_cm") ? delta / 100 : delta; // cm -> blocks
+                yield (int) Math.min(q.amount(), done);
+            }
         };
     }
 
@@ -177,6 +195,13 @@ public final class Quests {
                     player.sendSystemMessage(Component.literal("Unlock " + (q.amount() - have)
                             + " more skill" + (q.amount() - have == 1 ? "" : "s")
                             + " in the skill tree (/skill).").withStyle(ChatFormatting.RED));
+                    return;
+                }
+            }
+            case STAT -> {
+                if (progress(player, index) < q.amount()) {
+                    player.sendSystemMessage(Component.literal("Not done yet: " + progress(player, index)
+                            + "/" + q.amount()).withStyle(ChatFormatting.RED));
                     return;
                 }
             }
@@ -236,6 +261,16 @@ public final class Quests {
         Identifier loc = Identifier.tryParse(id);
         if (loc == null) return Items.PAPER;
         return BuiltInRegistries.ITEM.get(loc).map(Holder::value).orElse(Items.PAPER);
+    }
+
+    /** Sum of the given custom stats (comma-separated ids, e.g. "minecraft:walk_one_cm") for the player. */
+    private static long readStat(ServerPlayer player, String targets) {
+        long sum = 0;
+        for (String id : targets.split(",")) {
+            Identifier loc = Identifier.tryParse(id.trim());
+            if (loc != null) sum += player.getStats().getValue(net.minecraft.stats.Stats.CUSTOM, loc);
+        }
+        return sum;
     }
 
     private static int countItem(ServerPlayer player, String id) {

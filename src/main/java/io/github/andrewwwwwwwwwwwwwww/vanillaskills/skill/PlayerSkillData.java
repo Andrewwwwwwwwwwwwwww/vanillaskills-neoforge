@@ -26,6 +26,12 @@ public class PlayerSkillData {
     public long questRotation = -1;
     public Map<Integer, Integer> questKills = new HashMap<>();
     public Set<Integer> questClaimed = new LinkedHashSet<>();
+    // Repeatable STAT quests: baseline stat value snapshotted when the quest appears (keyed by the
+    // active slot 0-2), so progress only counts what you do DURING the current rotation. Reset each roll.
+    public Map<Integer, Long> questStatBase = new HashMap<>();
+
+    // One-time Feats (structure discoveries, boss kills, entering the End). Permanent; never rotation-reset.
+    public Set<String> featsDone = new LinkedHashSet<>();
 
     // Starter board: new players complete ALL fixed starter quests (QuestPool.STARTER) to graduate
     // to the universal rotating board. Starter progress never rotation-resets.
@@ -41,6 +47,8 @@ public class PlayerSkillData {
         if (creditedAdvancements == null) creditedAdvancements = new LinkedHashSet<>();
         if (questKills == null) questKills = new HashMap<>();
         if (questClaimed == null) questClaimed = new LinkedHashSet<>();
+        if (questStatBase == null) questStatBase = new HashMap<>();
+        if (featsDone == null) featsDone = new LinkedHashSet<>();
         if (starterSlots == null) starterSlots = new int[0];
         if (starterDone == null) starterDone = new LinkedHashSet<>();
         if (starterKills == null) starterKills = new HashMap<>();

@@ -1,5 +1,10 @@
 # VanillaSkills Changelog
 
+## [1.3.0] - 2026-07-06
+### Added
+- **Repeatable stat quests** on the bounty board: Travel 5,000 blocks, Swim 1,500 blocks, and Jump 800 times. Progress counts from the moment the quest appears (baseline snapshot per rotation), so it is repeatable each window and veterans do not auto-complete.
+- **Feats tab** on the Bounty Board: a checklist of one-time achievements that auto-award Quest Shards. Includes boss kills (Ender Dragon, Wither, Warden), entering The End, and discovering structures (Ancient City, Woodland Mansion, Trial Chamber, Ocean Monument, Bastion, Nether Fortress, End City). Fully server-side; never repeats once earned.
+
 ## [1.2.9] - 2026-07-06
 ### Changed
 - Rebalanced Quest Shard rewards across the starter and rotating boards. Highlights: Unlock 10 Skills 5 -> 10; Gather 10 Diamonds 9 -> 15 and now a rarer quest; the emerald quest is now Gather 32 Emeralds for 10; Ghast Tears 8 -> 16; Witches 6 -> 12; plus tweaks to leather, pumpkins, cocoa, nether wart, chorus, quartz, amethyst, copper, raw iron, obsidian, lapis, honey, tropical fish, nautilus shells, and the 50-mob quest. Starter full-completion payout is now 50 QS.
