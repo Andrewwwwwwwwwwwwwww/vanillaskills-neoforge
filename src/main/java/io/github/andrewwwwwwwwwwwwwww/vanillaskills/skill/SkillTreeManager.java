@@ -354,9 +354,10 @@ public class SkillTreeManager {
 
     /**
      * Lays {@code count} node slots in a tidy CENTRED block: rows of up to five, each row centred
-     * horizontally, starting on row 1 (directly under the lane header on row 0) and staying clear of
-     * the bottom-row Back/Points/Stats buttons. 9 nodes form a 3x3; 10 → 5x2; 15 → 5x3; 1–5 → a single
-     * centred row. So every lane reads as an even, centred grid rather than a ragged top-left fill.
+     * horizontally, starting on row 2 — row 0 holds the lane header and row 1 is deliberately left
+     * EMPTY as a visual separator so players don't mistake the header for a clickable skill. Stays
+     * clear of the bottom-row Back/Points/Stats buttons. 9 nodes form a 3x3; 10 → 5x2; 15 → 5x3;
+     * 1–5 → a single centred row. So every lane reads as an even, centred grid under the header.
      */
     private static int[] gridSlots(int count) {
         int width = switch (count) {        // nodes per row, chosen so the lane forms a tidy block
@@ -366,7 +367,7 @@ public class SkillTreeManager {
         int startCol = (9 - width) / 2;     // centre each row (width 5 -> cols 2-6, width 3 -> cols 3-5)
         int[] slots = new int[count];
         for (int i = 0; i < count; i++) {
-            int row = 1 + i / width;        // row 1 down, snug under the header
+            int row = 2 + i / width;        // row 2 down, leaving row 1 as a gap under the header
             int col = startCol + i % width;
             slots[i] = row * 9 + col;
         }
