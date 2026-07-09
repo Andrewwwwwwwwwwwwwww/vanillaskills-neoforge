@@ -136,6 +136,11 @@ public class SkillTreeMenu extends ChestMenu {
             if (editMode) {
                 container.setItem(size - 1, buildEditInfo(false));
             } else {
+                SkillCategory cat = tree.category(category);
+                if (cat != null) {
+                    int hs = headerSlot();               // top-center, else nearest free top-row slot
+                    if (hs >= 0) container.setItem(hs, laneHeader(cat, data));
+                }
                 container.setItem(POINTS_SLOT, buildCounter(data));
                 container.setItem(STATS_SLOT, buildStatsHead());
             }
@@ -221,6 +226,67 @@ public class SkillTreeMenu extends ChestMenu {
     }
 
     // ---- lane view (nodes) ----
+
+    /** Short blurb per lane explaining what its skills do — shown on the lane header at the top. */
+    private static final java.util.Map<String, String[]> LANE_DESCRIPTIONS = java.util.Map.ofEntries(
+            java.util.Map.entry("health", new String[]{"Raises your maximum health.", "+2 hearts per tier, up to +20 hearts."}),
+            java.util.Map.entry("speed", new String[]{"Move faster on foot.", "+2% walk speed per tier, up to +30%."}),
+            java.util.Map.entry("mining", new String[]{"Mine blocks faster.", "Stacking mining efficiency — max it out to",
+                    "instamine stone with an Efficiency V pickaxe."}),
+            java.util.Map.entry("luck", new String[]{"Raises your Luck (+0.5 per tier, up to +5).",
+                    "Better loot from chests, vaults & fishing."}),
+            java.util.Map.entry("damage", new String[]{"Hit harder in melee.", "+1 attack damage per tier, up to +10."}),
+            java.util.Map.entry("guardian", new String[]{"Take less damage.", "+1 armor per tier, up to +10."}),
+            java.util.Map.entry("reach", new String[]{"Place and hit from further away.",
+                    "+0.5 block & entity reach per tier (max +2.5)."}),
+            java.util.Map.entry("mountaineer", new String[]{"Auto-step up ledges up to 1.1 blocks tall.",
+                    "Sneak to walk normally. Toggle: /skill toggle stepup."}),
+            java.util.Map.entry("aquatic", new String[]{"Underwater mastery: longer breath,",
+                    "faster swimming, and quicker underwater mining."}),
+            java.util.Map.entry("armorsmith", new String[]{"Unlocks crafting each armor tier,",
+                    "Hardwood up to Dragon. Paid in Quest Shards."}),
+            java.util.Map.entry("toolsmith", new String[]{"Unlocks crafting each tool tier,",
+                    "Hardwood up to Dragon. Paid in Quest Shards."}),
+            java.util.Map.entry("brewmaster", new String[]{"Beneficial potions last longer —",
+                    "+10% duration per tier, up to +50%."}),
+            java.util.Map.entry("evasion", new String[]{"Chance to fully dodge incoming arrows.",
+                    "+2% per tier, up to 20%."}),
+            java.util.Map.entry("cultivator", new String[]{"Bonus crops when harvesting mature crops.",
+                    "+20% chance per tier, up to a guaranteed extra."}),
+            java.util.Map.entry("nightvision", new String[]{"A capstone granting permanent Night Vision.",
+                    "Toggle with /skill toggle nightvision."}));
+
+    /** The lane-view header: the branch's icon, name, what it does, and unlock progress. */
+    private ItemStack laneHeader(SkillCategory cat, PlayerSkillData data) {
+        SkillTree tree = VanillaSkills.TREE.tree();
+        int total = 0, unlocked = 0;
+        boolean quest = false;
+        for (SkillNode node : tree.nodesIn(cat.id)) {
+            total++;
+            if (data.hasUnlocked(node.id)) unlocked++;
+            if (node.isQuestCurrency()) quest = true;
+        }
+        ChatFormatting color = quest ? ChatFormatting.LIGHT_PURPLE : ChatFormatting.AQUA;
+        ItemStack stack = new ItemStack(resolveItem(cat.icon));
+        Guis.hideStats(stack);
+        stack.set(DataComponents.CUSTOM_NAME, styled(cat.title, color));
+        List<Component> lore = new ArrayList<>();
+        for (String line : LANE_DESCRIPTIONS.getOrDefault(cat.id,
+                new String[]{"Spend Shards to unlock this branch's skills."})) {
+            lore.add(styled(line, ChatFormatting.GRAY));
+        }
+        lore.add(Component.literal(""));
+        lore.add(styled(unlocked + "/" + total + " unlocked", color));
+        stack.set(DataComponents.LORE, new ItemLore(lore));
+        return stack;
+    }
+
+    /** Top-center (slot 4) for the lane header, or the nearest free slot in the top row. */
+    private int headerSlot() {
+        if (container.getItem(4).isEmpty()) return 4;
+        for (int i = 0; i < 9; i++) if (container.getItem(i).isEmpty()) return i;
+        return -1;
+    }
 
     private ItemStack buildNodeItem(SkillNode node, PlayerSkillData data) {
         boolean unlocked = data.hasUnlocked(node.id);

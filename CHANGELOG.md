@@ -1,5 +1,9 @@
 # VanillaSkills Changelog
 
+## [1.3.2] - 2026-07-06
+### Added
+- Opening a skill branch now shows a header at the top with the branch icon, its name, and a hover description of what that skill actually does, plus your unlock progress.
+
 ## [1.3.1] - 2026-07-06
 ### Changed
 - Moved the Feats button to the top-right of the Bounty Board, and laid the Feats tab out in a tidy 4-4-3 grid (bosses & the End on top, then overworld discoveries, then nether/end discoveries).
