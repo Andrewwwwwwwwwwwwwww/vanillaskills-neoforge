@@ -107,14 +107,12 @@ public class SkillTreeManager {
 
     // ---- Default starter tree (5 lanes: Health, Speed, Mining, Luck, Damage) ----
 
-    // Lane-relative slots for the 3 tiers (a vertical path up the centre of the lane view).
-    private static final int[] TIER_SLOTS = {40, 31, 22};
-    // Five-tier vertical path (centre column, rows 4..0) for the longer lanes — clear of the
-    // bottom-row Back/Points/Stats buttons.
-    private static final int[] TIER_SLOTS_5 = {40, 31, 22, 13, 4};
-    // Cost progression for the 5-node craft/brew lanes (start at 10, scaling).
-    // Two centred rows of five (rows 2-3, columns 2-6) for 10-node lanes.
-    private static final int[] FIVE_AND_FIVE = {20, 21, 22, 23, 24, 29, 30, 31, 32, 33};
+    // Every lane uses one centred layout (see gridSlots): rows of up to five, each centred, starting on
+    // row 1 directly under the lane header and clear of the bottom buttons. Named aliases below keep the
+    // lane definitions readable.
+    private static final int[] TIER_SLOTS = gridSlots(3);     // one centred row of 3
+    private static final int[] TIER_SLOTS_5 = gridSlots(5);   // one centred row of 5
+    private static final int[] FIVE_AND_FIVE = gridSlots(10); // two centred rows of 5 (5x2)
     // Quest-Shard cost ramp for the 10-tier Armorsmith/Toolsmith ladders (cheap early, steep at the top).
     private static final int[] TIER_COSTS = {1, 2, 3, 5, 8, 12, 20, 35, 60, 100};
     // Lane icons on the lane-select screen. Indexed by laneIndex. Two zones:
@@ -355,16 +353,22 @@ public class SkillTreeManager {
     }
 
     /**
-     * Lays {@code count} node slots in a tidy centred 7-wide block (columns 1–7, rows 1 down),
-     * leaving a border around the edges and the bottom button row — much neater than filling from
-     * the top-left corner. Handles up to 28 nodes (4 rows).
+     * Lays {@code count} node slots in a tidy CENTRED block: rows of up to five, each row centred
+     * horizontally, starting on row 1 (directly under the lane header on row 0) and staying clear of
+     * the bottom-row Back/Points/Stats buttons. 9 nodes form a 3x3; 10 → 5x2; 15 → 5x3; 1–5 → a single
+     * centred row. So every lane reads as an even, centred grid rather than a ragged top-left fill.
      */
     private static int[] gridSlots(int count) {
+        int width = switch (count) {        // nodes per row, chosen so the lane forms a tidy block
+            case 9 -> 3;                    // 3x3
+            default -> Math.min(5, Math.max(1, count)); // 1-5 -> one centred row; 10 -> 5x2; 15 -> 5x3
+        };
+        int startCol = (9 - width) / 2;     // centre each row (width 5 -> cols 2-6, width 3 -> cols 3-5)
         int[] slots = new int[count];
         for (int i = 0; i < count; i++) {
-            int row = i / 7;
-            int col = i % 7;
-            slots[i] = 10 + row * 9 + col; // start at slot 10 (row 1, col 1)
+            int row = 1 + i / width;        // row 1 down, snug under the header
+            int col = startCol + i % width;
+            slots[i] = row * 9 + col;
         }
         return slots;
     }

@@ -1,5 +1,14 @@
 # VanillaSkills Changelog
 
+## [1.3.3] - 2026-07-06
+### Changed
+- Feats tab reflowed to a 5-5-1 centered layout for a more even look.
+- Skill-branch node layouts unified onto one centered grid (rows of up to five, centered, starting right under the branch header) so every branch looks even and centered with no gap under the description. Ops: run /skill regen fresh once to apply the new layout to an existing world (player unlocks are kept).
+- Gather 32 Emeralds now rewards 5 Quest Shards (was 10).
+### Fixed
+- Structure-discovery Feats now only trigger when you are actually inside the structure. They previously fired from far away because the check matched the structure's oversized bounding box instead of its rooms.
+- Fortune Finder no longer places blank (un-enchanted) enchanted books as bonus loot.
+
 ## [1.3.2] - 2026-07-06
 ### Added
 - Opening a skill branch now shows a header at the top with the branch icon, its name, and a hover description of what that skill actually does, plus your unlock progress.

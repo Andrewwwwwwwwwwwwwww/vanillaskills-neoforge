@@ -47,7 +47,7 @@ public final class QuestPool {
             new Quest(Quest.Type.GATHER, "minecraft:leather", 24, 8, "Gather 24 Leather"),
             new Quest(Quest.Type.GATHER, "minecraft:gunpowder", 16, 6, "Gather 16 Gunpowder"),
             new Quest(Quest.Type.GATHER, "minecraft:redstone", 32, 5, "Gather 32 Redstone"),
-            new Quest(Quest.Type.GATHER, "minecraft:emerald", 32, 10, "Gather 32 Emeralds", 10, true),
+            new Quest(Quest.Type.GATHER, "minecraft:emerald", 32, 5, "Gather 32 Emeralds", 10, true),
             new Quest(Quest.Type.GATHER, "minecraft:coal", 64, 4, "Gather 64 Coal"),
             new Quest(Quest.Type.GATHER, "minecraft:ender_pearl", 8, 8, "Gather 8 Ender Pearls", 10, true),
             new Quest(Quest.Type.GATHER, "minecraft:bone", 32, 4, "Gather 32 Bones"),

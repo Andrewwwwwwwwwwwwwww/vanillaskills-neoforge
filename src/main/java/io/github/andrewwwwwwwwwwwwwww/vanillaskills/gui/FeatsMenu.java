@@ -23,11 +23,11 @@ import java.util.List;
 
 /** The Feats tab: a read-only checklist of one-time achievements (discoveries, bosses, the End). */
 public class FeatsMenu extends ChestMenu {
-    // 4-4-3 centered layout: bosses + End on top, then overworld and nether/end discoveries.
+    // 5-5-1 centered layout (rows of 5 sit dead-centre; the last feat is centered under them).
     private static final int[] FEAT_SLOTS = {
-            11, 12, 13, 14,
-            20, 21, 22, 23,
-            30, 31, 32};
+            11, 12, 13, 14, 15,
+            20, 21, 22, 23, 24,
+            31};
     private static final int TITLE_SLOT = 4;
     private static final int BACK_SLOT = 36;
     private static final int CLOSE_SLOT = 44;
