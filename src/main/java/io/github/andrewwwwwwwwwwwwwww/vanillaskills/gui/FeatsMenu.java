@@ -23,12 +23,14 @@ import java.util.List;
 
 /** The Feats tab: a read-only checklist of one-time achievements (discoveries, bosses, the End). */
 public class FeatsMenu extends ChestMenu {
+    // 4-4-3 centered layout: bosses + End on top, then overworld and nether/end discoveries.
     private static final int[] FEAT_SLOTS = {
-            10, 11, 12, 13, 14, 15, 16,
-            19, 20, 21, 22, 23, 24, 25};
+            11, 12, 13, 14,
+            20, 21, 22, 23,
+            30, 31, 32};
     private static final int TITLE_SLOT = 4;
-    private static final int BACK_SLOT = 45;
-    private static final int CLOSE_SLOT = 53;
+    private static final int BACK_SLOT = 36;
+    private static final int CLOSE_SLOT = 44;
 
     private final ServerPlayer player;
     private final SimpleContainer container;
@@ -40,14 +42,14 @@ public class FeatsMenu extends ChestMenu {
     }
 
     private FeatsMenu(int syncId, Inventory inv, ServerPlayer player) {
-        super(MenuType.GENERIC_9x6, syncId, inv, new SimpleContainer(54), 6);
+        super(MenuType.GENERIC_9x5, syncId, inv, new SimpleContainer(45), 5);
         this.player = player;
         this.container = (SimpleContainer) getContainer();
         populate();
     }
 
     private void populate() {
-        for (int i = 0; i < 54; i++) container.setItem(i, ItemStack.EMPTY);
+        for (int i = 0; i < 45; i++) container.setItem(i, ItemStack.EMPTY);
         container.setItem(TITLE_SLOT, titleItem());
         List<Feat> all = Feats.ALL;
         for (int i = 0; i < all.size() && i < FEAT_SLOTS.length; i++) {

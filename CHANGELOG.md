@@ -1,5 +1,9 @@
 # VanillaSkills Changelog
 
+## [1.3.1] - 2026-07-06
+### Changed
+- Moved the Feats button to the top-right of the Bounty Board, and laid the Feats tab out in a tidy 4-4-3 grid (bosses & the End on top, then overworld discoveries, then nether/end discoveries).
+
 ## [1.3.0] - 2026-07-06
 ### Added
 - **Repeatable stat quests** on the bounty board: Travel 5,000 blocks, Swim 1,500 blocks, and Jump 800 times. Progress counts from the moment the quest appears (baseline snapshot per rotation), so it is repeatable each window and veterans do not auto-complete.

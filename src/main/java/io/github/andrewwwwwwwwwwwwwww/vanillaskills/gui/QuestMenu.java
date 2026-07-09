@@ -66,7 +66,7 @@ public class QuestMenu extends ChestMenu {
         this.closeSlot = last;                       // bottom-right
         this.backSlot = last - 8;                    // bottom-left
         this.shopSlot = last - 4;                    // bottom-center
-        this.featsSlot = last - 2;                   // bottom-center-right
+        this.featsSlot = 8;                          // top-right corner
         populate();
     }
 
