@@ -3,11 +3,13 @@ package io.github.andrewwwwwwwwwwwwwww.vanillaskills.mixin;
 import java.util.ArrayList;
 import java.util.List;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemInstance;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.entity.vault.VaultBlockEntity;
 import net.minecraft.world.level.block.entity.vault.VaultConfig;
 import org.spongepowered.asm.mixin.Mixin;
@@ -50,7 +52,7 @@ public abstract class VaultLuckMixin {
             int placed = 0;
             for (ItemStack stack : resolveItemsToEject(level, config, pos, player, key)) {
                 if (placed >= bonus) break;
-                if (stack.isEmpty()) continue;
+                if (stack.isEmpty() || vanillaskills$isBlankBook(stack)) continue;
                 out.add(stack);
                 placed++;
             }
@@ -58,5 +60,13 @@ public abstract class VaultLuckMixin {
             VANILLASKILLS$REROLLING.set(false);
         }
         cir.setReturnValue(out);
+    }
+
+    /** An enchanted book with no stored enchantments is worthless "blank" loot — never eject it. */
+    @Unique
+    private static boolean vanillaskills$isBlankBook(ItemStack stack) {
+        if (!stack.is(Items.ENCHANTED_BOOK)) return false;
+        var ench = stack.get(DataComponents.STORED_ENCHANTMENTS);
+        return ench == null || ench.isEmpty();
     }
 }

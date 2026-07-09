@@ -107,10 +107,22 @@ public final class Feats {
                             .get(key).map(Holder::value).orElse(null);
                     if (structure == null) continue;
                     StructureStart start = level.structureManager().getStructureAt(pos, structure);
-                    if (start.isValid()) award(player, f);
+                    // getStructureAt matches the structure's whole (large) bounding box — require the
+                    // player to actually be inside a generated PIECE so it only fires on real arrival,
+                    // not hundreds of blocks away.
+                    if (start.isValid() && insidePiece(start, pos)) award(player, f);
                 }
                 default -> { /* KILL feats are pushed from onKill, not polled */ }
             }
         }
+    }
+
+    /** True only if pos lies inside one of the structure's generated pieces (a room/corridor), not just
+     *  within its overall bounding box — so discovery fires on real arrival, not from far away. */
+    private static boolean insidePiece(StructureStart start, BlockPos pos) {
+        for (var piece : start.getPieces()) {
+            if (piece.getBoundingBox().isInside(pos)) return true;
+        }
+        return false;
     }
 }
