@@ -27,8 +27,8 @@ import java.util.List;
  * once, no rotation); after graduating it shows the shared 3-quest rotating board.
  */
 public class QuestMenu extends ChestMenu {
-    // Graduated layout (9x3): 3 quests centered.
-    private static final int[] MAIN_SLOTS = {11, 13, 15};
+    // Graduated layout (9x4): 6 quests in a 3-3 block below the clock (rows 1-2, columns 2/4/6).
+    private static final int[] MAIN_SLOTS = {11, 13, 15, 20, 22, 24};
     // Starter layout (9x5): a centered 5-wide x 3-row block of quests (columns 2-6).
     private static final int[] STARTER_SLOTS = {
             11, 12, 13, 14, 15,
@@ -56,16 +56,16 @@ public class QuestMenu extends ChestMenu {
     }
 
     private QuestMenu(int syncId, Inventory inv, ServerPlayer player, boolean starterBoard) {
-        super(starterBoard ? MenuType.GENERIC_9x5 : MenuType.GENERIC_9x3, syncId, inv,
-                new SimpleContainer(starterBoard ? 45 : 27), starterBoard ? 5 : 3);
+        super(starterBoard ? MenuType.GENERIC_9x5 : MenuType.GENERIC_9x4, syncId, inv,
+                new SimpleContainer(starterBoard ? 45 : 36), starterBoard ? 5 : 4);
         this.player = player;
         this.container = (SimpleContainer) getContainer();
         this.starterBoard = starterBoard;
         this.questSlots = starterBoard ? STARTER_SLOTS : MAIN_SLOTS;
-        int last = container.getContainerSize() - 1; // 44 or 26
+        int last = container.getContainerSize() - 1; // 44 or 35
         this.closeSlot = last;                       // bottom-right
         this.backSlot = last - 8;                    // bottom-left
-        this.shopSlot = last - 4;                    // bottom-center
+        this.shopSlot = 0;                           // top-left
         this.featsSlot = 8;                          // top-right corner
         populate();
     }

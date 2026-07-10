@@ -1,5 +1,11 @@
 # VanillaSkills Changelog
 
+## [1.4.0] - 2026-07-06
+### Changed
+- The rotating bounty board now deals **6 quests per rotation** (was 3), shown in a 3-3 grid below the clock. Still random with no duplicates in a rotation.
+- Moved the **Quest Shop** button to the top-left of the board.
+- **Rebalanced rewards** for the bigger board: rotating quests -2 Quest Shards each (min 1), starter quests -1 each (min 1).
+
 ## [1.3.4] - 2026-07-06
 ### Changed
 - Skill-branch node layouts now leave an empty separator row between the branch header and the skills (row 1), so the header reads clearly as a description rather than a clickable skill. Still centered. Ops: run /skill regen fresh to apply.

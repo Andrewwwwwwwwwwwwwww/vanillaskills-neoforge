@@ -21,7 +21,7 @@ import java.util.Random;
  */
 public class QuestBoard {
     private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
-    private static final int ACTIVE_COUNT = 3;
+    private static final int ACTIVE_COUNT = 6;
     private final Random random = new Random();
 
     private State state = new State();
