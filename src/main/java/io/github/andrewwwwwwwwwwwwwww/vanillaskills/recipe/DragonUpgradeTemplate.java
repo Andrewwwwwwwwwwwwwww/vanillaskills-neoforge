@@ -38,16 +38,25 @@ public final class DragonUpgradeTemplate {
         return Component.literal("Dragon Upgrade").withStyle(s -> s.withColor(0xC23BD6).withItalic(false));
     }
 
+    /** The resource-pack model hook that gives the template its custom texture. */
+    public static CustomModelData modelData() {
+        return new CustomModelData(List.of(), List.of(), List.of("vanillaskills:dragon_template"), List.of());
+    }
+
+    /** The template's description lore. */
+    public static ItemLore lore() {
+        return new ItemLore(List.of(
+                line("Smithing: upgrade netherite armor", ChatFormatting.GRAY),
+                line("to Dragon armor with a Dragon Ingot.", ChatFormatting.GRAY),
+                line("Found in End City treasure.", ChatFormatting.DARK_GRAY)));
+    }
+
     public static ItemStack create() {
         ItemStack stack = new ItemStack(BASE);
         stack.set(DataComponents.CUSTOM_NAME, displayName());
         CustomData.set(DataComponents.CUSTOM_DATA, stack, markerTag());
-        stack.set(DataComponents.CUSTOM_MODEL_DATA,
-                new CustomModelData(List.of(), List.of(), List.of("vanillaskills:dragon_template"), List.of()));
-        stack.set(DataComponents.LORE, new ItemLore(List.of(
-                line("Smithing: upgrade netherite armor", ChatFormatting.GRAY),
-                line("to Dragon armor with a Dragon Ingot.", ChatFormatting.GRAY),
-                line("Found in End City treasure.", ChatFormatting.DARK_GRAY))));
+        stack.set(DataComponents.CUSTOM_MODEL_DATA, modelData());
+        stack.set(DataComponents.LORE, lore());
         return stack;
     }
 

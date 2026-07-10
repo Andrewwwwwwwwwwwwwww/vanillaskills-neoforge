@@ -1,5 +1,9 @@
 # VanillaSkills Changelog
 
+## [1.4.1] - 2026-07-06
+### Fixed
+- The Fortune Upgrade and Dragon Upgrade templates found in chest loot now show their proper custom texture and description. They were missing the model + lore components, so a chest-found one looked like the plain base item (echo shard / netherite template). The recipe-book/crafted versions were already correct.
+
 ## [1.4.0] - 2026-07-06
 ### Changed
 - The rotating bounty board now deals **6 quests per rotation** (was 3), shown in a 3-3 grid below the clock. Still random with no duplicates in a rotation.
