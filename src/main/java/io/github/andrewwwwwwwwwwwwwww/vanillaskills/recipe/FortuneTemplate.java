@@ -47,17 +47,26 @@ public final class FortuneTemplate {
     /** The base vanilla item the template is built on. */
     public static final net.minecraft.world.item.Item BASE = Items.ECHO_SHARD;
 
+    /** The resource-pack model hook that gives the template its custom texture. */
+    public static CustomModelData modelData() {
+        return new CustomModelData(List.of(), List.of(), List.of("vanillaskills:fortune_template"), List.of());
+    }
+
+    /** The template's description lore. */
+    public static ItemLore lore() {
+        return new ItemLore(List.of(
+                line("Upgrades Fortune books to the", ChatFormatting.GRAY),
+                line("next level (up to V).", ChatFormatting.GRAY),
+                line("Consumed when used.", ChatFormatting.DARK_GRAY)));
+    }
+
     /** Build a fresh Fortune Upgrade template stack. */
     public static ItemStack create() {
         ItemStack stack = new ItemStack(BASE);
         stack.set(DataComponents.CUSTOM_NAME, displayName());
         CustomData.set(DataComponents.CUSTOM_DATA, stack, markerTag());
-        stack.set(DataComponents.CUSTOM_MODEL_DATA,
-                new CustomModelData(List.of(), List.of(), List.of("vanillaskills:fortune_template"), List.of()));
-        stack.set(DataComponents.LORE, new ItemLore(List.of(
-                line("Upgrades Fortune books to the", ChatFormatting.GRAY),
-                line("next level (up to V).", ChatFormatting.GRAY),
-                line("Consumed when used.", ChatFormatting.DARK_GRAY))));
+        stack.set(DataComponents.CUSTOM_MODEL_DATA, modelData());
+        stack.set(DataComponents.LORE, lore());
         return stack;
     }
 
