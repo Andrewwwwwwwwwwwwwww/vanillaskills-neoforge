@@ -29,6 +29,7 @@ public class PlayerSkillData {
     // Repeatable STAT quests: baseline stat value snapshotted when the quest appears (keyed by the
     // active slot 0-2), so progress only counts what you do DURING the current rotation. Reset each roll.
     public Map<Integer, Long> questStatBase = new HashMap<>();
+    public Set<Integer> questStatNotified = new LinkedHashSet<>(); // STAT slots we've pinged as "ready"; reset per rotation
 
     // One-time Feats (structure discoveries, boss kills, entering the End). Permanent; never rotation-reset.
     public Set<String> featsDone = new LinkedHashSet<>();
@@ -48,6 +49,7 @@ public class PlayerSkillData {
         if (questKills == null) questKills = new HashMap<>();
         if (questClaimed == null) questClaimed = new LinkedHashSet<>();
         if (questStatBase == null) questStatBase = new HashMap<>();
+        if (questStatNotified == null) questStatNotified = new LinkedHashSet<>();
         if (featsDone == null) featsDone = new LinkedHashSet<>();
         if (starterSlots == null) starterSlots = new int[0];
         if (starterDone == null) starterDone = new LinkedHashSet<>();

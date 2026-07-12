@@ -64,15 +64,26 @@ public final class Quests {
             data.questKills.clear();
             data.questClaimed.clear();
             data.questStatBase.clear();
+            data.questStatNotified.clear();
             changed = true;
         }
-        // Snapshot the baseline for any active STAT quest not yet captured this rotation, so its
-        // progress counts only from now — a veteran with huge lifetime stats still starts at zero.
+        // For each active STAT quest: snapshot its baseline once (so progress counts only from now, not
+        // lifetime), then ping the player the first time it completes. STAT quests tally silently in the
+        // background, so without this ping there's no feedback while walking/swimming/jumping.
         if (data.graduated) {
             List<Quest> active = VanillaSkills.QUESTS.active();
             for (int i = 0; i < active.size(); i++) {
-                if (active.get(i).type() == Quest.Type.STAT && !data.questStatBase.containsKey(i)) {
-                    data.questStatBase.put(i, readStat(player, active.get(i).target()));
+                Quest q = active.get(i);
+                if (q.type() != Quest.Type.STAT) continue;
+                if (!data.questStatBase.containsKey(i)) {
+                    data.questStatBase.put(i, readStat(player, q.target()));
+                    changed = true;
+                }
+                if (!data.questStatNotified.contains(i) && !data.questClaimed.contains(i)
+                        && progress(player, i) >= q.amount()) {
+                    data.questStatNotified.add(i);
+                    player.sendSystemMessage(Component.literal("Bounty ready to claim: " + q.title()
+                            + " — /quests").withStyle(ChatFormatting.GREEN));
                     changed = true;
                 }
             }
