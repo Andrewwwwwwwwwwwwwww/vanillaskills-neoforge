@@ -1,5 +1,9 @@
 # VanillaSkills Changelog
 
+## [1.4.2] - 2026-07-06
+### Changed
+- Stat quests (walk/swim/jump) now ping you in chat the moment you complete one ("Bounty ready to claim ... /quests"). They always tallied in the background, but there was no feedback while doing it — now there is. Open the board to see live progress, or just keep going and wait for the ping.
+
 ## [1.4.1] - 2026-07-06
 ### Fixed
 - The Fortune Upgrade and Dragon Upgrade templates found in chest loot now show their proper custom texture and description. They were missing the model + lore components, so a chest-found one looked like the plain base item (echo shard / netherite template). The recipe-book/crafted versions were already correct.
