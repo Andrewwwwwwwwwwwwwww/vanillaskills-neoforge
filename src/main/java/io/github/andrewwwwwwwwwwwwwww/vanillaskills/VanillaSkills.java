@@ -188,6 +188,10 @@ public class VanillaSkills {
                 e.setCanceled(true);
                 return;
             }
+            // Fortune IV/V ore boost: one guaranteed extra base drop roll per level above III.
+            if (e.getLevel() instanceof ServerLevel fbLevel && e.getPlayer() instanceof ServerPlayer fbSp) {
+                io.github.andrewwwwwwwwwwwwwww.vanillaskills.skill.FortuneBoost.onBreak(fbLevel, fbSp, e.getPos(), e.getState());
+            }
             // Cultivator skill: bonus crops when harvesting a mature crop. Each Cultivator level rolls an
             // independent ~50% chance for one extra crop, so the bonus scales clearly with level — at max
             // (5) you average ~2.5 extra per crop, and at level 1 ~0.5.
