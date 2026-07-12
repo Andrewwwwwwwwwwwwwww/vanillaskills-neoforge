@@ -279,7 +279,12 @@ public final class Quests {
         long sum = 0;
         for (String id : targets.split(",")) {
             Identifier loc = Identifier.tryParse(id.trim());
-            if (loc != null) sum += player.getStats().getValue(net.minecraft.stats.Stats.CUSTOM, loc);
+            if (loc == null) continue;
+            // StatType keys its stats in an IdentityHashMap, so getValue only matches the EXACT registered
+            // Identifier object — a freshly parsed (equal but different) one silently returns 0. Resolve
+            // the id to the canonical registered object via the custom-stat registry first.
+            Identifier canonical = BuiltInRegistries.CUSTOM_STAT.get(loc).map(Holder::value).orElse(null);
+            if (canonical != null) sum += player.getStats().getValue(net.minecraft.stats.Stats.CUSTOM, canonical);
         }
         return sum;
     }

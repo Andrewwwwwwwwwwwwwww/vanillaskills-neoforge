@@ -1,5 +1,9 @@
 # VanillaSkills Changelog
 
+## [1.4.3] - 2026-07-06
+### Fixed
+- Stat quests (walk/swim/jump) now actually track progress. The stat read passed a freshly-parsed identifier that did not match Minecraft's identity-keyed stat map, so it always returned 0 and progress never moved. It now resolves to the registered stat object first. (Pairs with the 1.4.2 completion ping.)
+
 ## [1.4.2] - 2026-07-06
 ### Changed
 - Stat quests (walk/swim/jump) now ping you in chat the moment you complete one ("Bounty ready to claim ... /quests"). They always tallied in the background, but there was no feedback while doing it — now there is. Open the board to see live progress, or just keep going and wait for the ping.
