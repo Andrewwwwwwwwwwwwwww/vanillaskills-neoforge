@@ -1,5 +1,9 @@
 # VanillaSkills Changelog
 
+## [1.4.4] - 2026-07-07
+### Changed
+- Fortune IV and V are now real upgrades on ores. Vanilla only nudges the average per level (diamond ore: III ~2.2x, IV ~2.5x, V ~2.8x), so each level above III now also grants one guaranteed extra base drop (IV = +1, V = +2). Diamond ore now averages ~3.5x at IV and ~4.8x at V. Requires the correct tool; applies to all standard ores.
+
 ## [1.4.3] - 2026-07-06
 ### Fixed
 - Stat quests (walk/swim/jump) now actually track progress. The stat read passed a freshly-parsed identifier that did not match Minecraft's identity-keyed stat map, so it always returned 0 and progress never moved. It now resolves to the registered stat object first. (Pairs with the 1.4.2 completion ping.)
