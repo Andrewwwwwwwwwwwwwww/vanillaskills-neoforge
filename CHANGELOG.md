@@ -1,5 +1,9 @@
 # VanillaSkills Changelog
 
+## [1.4.6] - 2026-07-07
+### Changed
+- **Removed the anvil's "Too Expensive" cap for every operation.** Costs still scale exactly like vanilla (prior-work penalty untouched) - they just never block the result, however high they climb. You need the levels, you pay the levels. (Vanilla clients may still see the red "Too Expensive" label above 40 - cosmetic only; the result is there and takeable.) The Dragon flat repair (1 ingot + 20 levels) is separate and unchanged.
+
 ## [1.4.5] - 2026-07-07
 ### Changed
 - **Dragon gear anvil repair is now a flat rate:** put a Dragon tool or armor piece in an anvil with 1 Dragon Ingot and it FULLY repairs for exactly 20 levels. No prior-work scaling, no "Too Expensive" cap, exactly one ingot consumed per repair.

@@ -17,7 +17,9 @@ import net.minecraft.world.item.enchantment.ItemEnchantments;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Constant;
 import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.ModifyConstant;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
@@ -97,6 +99,20 @@ public class AnvilMenuMixin {
         ((AnvilMenu) (Object) this).createResult(); // refresh — forge another if iron remains
         self.broadcastChanges();
         ci.cancel();
+    }
+
+    /**
+     * Removes the anvil's "Too Expensive" 40-level cap for EVERY operation. Costs keep scaling
+     * exactly as vanilla (prior-work penalty untouched) — they just never block the result, however
+     * high they climb. Covers both the result-emptying check and the rename 39-clamp. The constant
+     * lives in {@code createResult} on Fabric and NeoForge's split-out {@code createResultInternal};
+     * require = 1 lets the same mixin serve both editions. (The Dragon flat repair below is separate
+     * and unaffected — it cancels before vanilla pricing runs.)
+     */
+    @ModifyConstant(method = {"createResult", "createResultInternal"},
+            constant = @Constant(intValue = 40), require = 1)
+    private int vanillaskills$uncapTooExpensive(int cap) {
+        return Integer.MAX_VALUE;
     }
 
     /** Dragon gear + 1 Dragon Ingot = a FULL repair for a flat 20 levels — no prior-work scaling, no
