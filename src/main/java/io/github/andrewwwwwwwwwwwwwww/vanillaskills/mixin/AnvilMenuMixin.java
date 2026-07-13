@@ -42,6 +42,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 public class AnvilMenuMixin {
 
     private static final int STEEL_FORGE_COST = 0; // free — mayPickup is overridden so a 0-cost result can still be taken
+    private static final int DRAGON_REPAIR_COST = 20; // flat: 1 Dragon Ingot + 20 levels = FULL repair, never scales, never caps
 
     @Shadow private int repairItemCountCost;
     @Shadow @org.spongepowered.asm.mixin.Final private DataSlot cost;
@@ -95,6 +96,25 @@ public class AnvilMenuMixin {
         this.cost.set(0);
         ((AnvilMenu) (Object) this).createResult(); // refresh — forge another if iron remains
         self.broadcastChanges();
+        ci.cancel();
+    }
+
+    /** Dragon gear + 1 Dragon Ingot = a FULL repair for a flat 20 levels — no prior-work scaling, no
+     *  "Too Expensive" cap. Replaces vanilla's 25%-per-unit material repair for the Dragon tier. */
+    @Inject(method = "createResult", at = @At("HEAD"), cancellable = true)
+    private void vanillaskills$dragonFlatRepair(CallbackInfo ci) {
+        AbstractContainerMenu self = (AbstractContainerMenu) (Object) this;
+        ItemStack left = self.getSlot(AnvilMenu.INPUT_SLOT).getItem();
+        ItemStack right = self.getSlot(AnvilMenu.ADDITIONAL_SLOT).getItem();
+        if (!io.github.andrewwwwwwwwwwwwwww.vanillaskills.armor.DragonIngot.isDragonIngot(right)) return;
+        boolean dragonGear = Markers.has(left, io.github.andrewwwwwwwwwwwwwww.vanillaskills.tool.ToolTiers.DRAGON.markerKey)
+                || io.github.andrewwwwwwwwwwwwwww.vanillaskills.armor.ArmorTiers.DRAGON.isWorn(left);
+        if (!dragonGear || !left.isDamaged()) return;
+        ItemStack result = left.copy();
+        result.setDamageValue(0);
+        self.getSlot(AnvilMenu.RESULT_SLOT).set(result);
+        this.repairItemCountCost = 1; // exactly one ingot per repair, however big the stack
+        this.cost.set(DRAGON_REPAIR_COST);
         ci.cancel();
     }
 

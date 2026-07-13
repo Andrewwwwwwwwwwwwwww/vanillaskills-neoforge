@@ -1,5 +1,9 @@
 # VanillaSkills Changelog
 
+## [1.4.5] - 2026-07-07
+### Changed
+- **Dragon gear anvil repair is now a flat rate:** put a Dragon tool or armor piece in an anvil with 1 Dragon Ingot and it FULLY repairs for exactly 20 levels. No prior-work scaling, no "Too Expensive" cap, exactly one ingot consumed per repair.
+
 ## [1.4.4] - 2026-07-07
 ### Changed
 - Fortune IV and V are now real upgrades on ores. Vanilla only nudges the average per level (diamond ore: III ~2.2x, IV ~2.5x, V ~2.8x), so each level above III now also grants one guaranteed extra base drop (IV = +1, V = +2). Diamond ore now averages ~3.5x at IV and ~4.8x at V. Requires the correct tool; applies to all standard ores.
