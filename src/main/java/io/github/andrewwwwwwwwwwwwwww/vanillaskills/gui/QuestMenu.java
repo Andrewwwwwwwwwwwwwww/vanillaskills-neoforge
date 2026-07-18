@@ -4,6 +4,7 @@ import io.github.andrewwwwwwwwwwwwwww.vanillaskills.VanillaSkills;
 import io.github.andrewwwwwwwwwwwwwww.vanillaskills.skill.Quest;
 import io.github.andrewwwwwwwwwwwwwww.vanillaskills.skill.QuestPool;
 import io.github.andrewwwwwwwwwwwwwww.vanillaskills.skill.Quests;
+import io.github.andrewwwwwwwwwwwwwww.vanillaskills.text.Lang;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.chat.Component;
@@ -24,7 +25,8 @@ import java.util.List;
 
 /**
  * The bounty board. Pre-graduation it shows ALL fixed starter quests (always active, complete each
- * once, no rotation); after graduating it shows the shared 3-quest rotating board.
+ * once, no rotation); after graduating it shows the shared 6-quest rotating board. All text is
+ * translated per player via {@link Lang} (server-side, keyed off the client's language).
  */
 public class QuestMenu extends ChestMenu {
     // Graduated layout (9x4): 6 quests in a 3-3 block below the clock (rows 1-2, columns 2/4/6).
@@ -52,7 +54,7 @@ public class QuestMenu extends ChestMenu {
         boolean starter = !Quests.isGraduated(player);
         player.openMenu(new SimpleMenuProvider(
                 (syncId, inv, p) -> new QuestMenu(syncId, inv, (ServerPlayer) p, starter),
-                Component.literal("Bounty Board")));
+                Component.literal(Lang.tr(player, "vanillaskills.menu.quests.title", "Bounty Board"))));
     }
 
     private QuestMenu(int syncId, Inventory inv, ServerPlayer player, boolean starterBoard) {
@@ -79,11 +81,17 @@ public class QuestMenu extends ChestMenu {
             container.setItem(questSlots[i], questItem(i, active.get(i)));
         }
         container.setItem(shopSlot, shopButton());
-        container.setItem(featsSlot, button(Items.WITHER_SKELETON_SKULL, "Feats", ChatFormatting.GOLD,
-                "One-time achievements: discoveries, bosses & the End."));
-        container.setItem(backSlot, button(Items.NETHER_STAR, "Skill Tree", ChatFormatting.AQUA,
-                "Open the skill tree."));
-        container.setItem(closeSlot, button(Items.BARRIER, "Close", ChatFormatting.RED, null));
+        container.setItem(featsSlot, button(Items.WITHER_SKELETON_SKULL,
+                t("vanillaskills.menu.feats.button", "Feats"), ChatFormatting.GOLD,
+                t("vanillaskills.menu.feats.button.desc", "One-time achievements: discoveries, bosses & the End.")));
+        container.setItem(backSlot, button(Items.NETHER_STAR,
+                t("vanillaskills.menu.quests.skilltree", "Skill Tree"), ChatFormatting.AQUA,
+                t("vanillaskills.menu.quests.skilltree.desc", "Open the skill tree.")));
+        container.setItem(closeSlot, button(Items.BARRIER, t("vanillaskills.menu.close", "Close"), ChatFormatting.RED, null));
+    }
+
+    private String t(String key, String fallback, Object... args) {
+        return Lang.tr(player, key, fallback, args);
     }
 
     private ItemStack infoItem() {
@@ -91,34 +99,37 @@ public class QuestMenu extends ChestMenu {
         List<Component> lore = new ArrayList<>();
         if (starterBoard) {
             int total = QuestPool.STARTER.size();
-            lore.add(styled("Your starter quests — all always available,", ChatFormatting.GRAY));
-            lore.add(styled("no rotation, complete them in any order.", ChatFormatting.GRAY));
-            lore.add(styled("Finish all " + total + " to join the main board: "
-                    + Quests.graduationProgress(player) + "/" + total, ChatFormatting.AQUA));
+            lore.add(styled(t("vanillaskills.menu.quests.starter.info1", "Your starter quests — all always available,"), ChatFormatting.GRAY));
+            lore.add(styled(t("vanillaskills.menu.quests.starter.info2", "no rotation, complete them in any order."), ChatFormatting.GRAY));
+            lore.add(styled(t("vanillaskills.menu.quests.starter.progress", "Finish all %d to join the main board: %d/%d",
+                    total, Quests.graduationProgress(player), total), ChatFormatting.AQUA));
         } else {
             long remaining = VanillaSkills.QUESTS.nextRotationMs() - System.currentTimeMillis();
-            String when = remaining <= 0 ? "any moment" : (remaining / 3_600_000) + "h " + (remaining % 3_600_000 / 60_000) + "m";
-            lore.add(styled("The main bounty board — shared by everyone.", ChatFormatting.GRAY));
-            lore.add(styled("New bounties in " + when, ChatFormatting.YELLOW));
+            String when = remaining <= 0 ? t("vanillaskills.menu.quests.any_moment", "any moment")
+                    : (remaining / 3_600_000) + "h " + (remaining % 3_600_000 / 60_000) + "m";
+            lore.add(styled(t("vanillaskills.menu.quests.info1", "The main bounty board — shared by everyone."), ChatFormatting.GRAY));
+            lore.add(styled(t("vanillaskills.menu.quests.rotation", "New bounties in %s", when), ChatFormatting.YELLOW));
         }
         lore.add(Component.literal(""));
-        lore.add(styled("Your Quest Shards: " + quest, ChatFormatting.LIGHT_PURPLE));
-        lore.add(styled("Click a quest to claim its reward.", ChatFormatting.DARK_GRAY));
+        lore.add(styled(t("vanillaskills.menu.quests.shards", "Your Quest Shards: %d", quest), ChatFormatting.LIGHT_PURPLE));
+        lore.add(styled(t("vanillaskills.menu.quests.click_hint", "Click a quest to claim its reward."), ChatFormatting.DARK_GRAY));
 
         ItemStack stack = new ItemStack(Items.CLOCK);
-        stack.set(DataComponents.CUSTOM_NAME, styled(starterBoard ? "Starter Quests" : "Bounty Board", ChatFormatting.GOLD));
+        stack.set(DataComponents.CUSTOM_NAME, styled(starterBoard
+                ? t("vanillaskills.menu.quests.starter.title", "Starter Quests")
+                : t("vanillaskills.menu.quests.title", "Bounty Board"), ChatFormatting.GOLD));
         stack.set(DataComponents.LORE, new ItemLore(lore));
         return stack;
     }
 
     private ItemStack shopButton() {
         ItemStack stack = new ItemStack(Items.EMERALD);
-        stack.set(DataComponents.CUSTOM_NAME, styled("Quest Shop", ChatFormatting.GREEN));
+        stack.set(DataComponents.CUSTOM_NAME, styled(t("vanillaskills.menu.shop.button", "Quest Shop"), ChatFormatting.GREEN));
         stack.set(DataComponents.LORE, new ItemLore(List.of(
-                styled("Spend Quest Shards on boost items,", ChatFormatting.GRAY),
-                styled("or convert them into Skill Shards.", ChatFormatting.GRAY),
+                styled(t("vanillaskills.menu.shop.button.desc1", "Spend Quest Shards on boost items,"), ChatFormatting.GRAY),
+                styled(t("vanillaskills.menu.shop.button.desc2", "or convert them into Skill Shards."), ChatFormatting.GRAY),
                 Component.literal(""),
-                styled("Click to open", ChatFormatting.GREEN))));
+                styled(t("vanillaskills.menu.click_to_open", "Click to open"), ChatFormatting.GREEN))));
         return stack;
     }
 
@@ -133,33 +144,40 @@ public class QuestMenu extends ChestMenu {
         boolean claimed = Quests.isClaimed(player, index);
         int progress = Quests.progress(player, index);
         boolean ready = progress >= q.amount();
+        String title = t(Lang.questKey(q.title()), q.title());
 
         ItemStack stack = new ItemStack(iconFor(q));
         ChatFormatting nameColor = claimed ? ChatFormatting.DARK_GRAY : ready ? ChatFormatting.GREEN : ChatFormatting.YELLOW;
-        stack.set(DataComponents.CUSTOM_NAME, styled(q.title() + (claimed ? " ✔" : ""), nameColor));
+        stack.set(DataComponents.CUSTOM_NAME, styled(title + (claimed ? " ✔" : ""), nameColor));
 
         List<Component> lore = new ArrayList<>();
         if (q.type() != Quest.Type.FREEBIE) {
             String verb = switch (q.type()) {
-                case KILL -> "Slain";
-                case SKILL -> "Skills unlocked";
-                case STAT -> "Progress";
-                default -> "Gathered";
+                case KILL -> t("vanillaskills.menu.quests.verb.kill", "Slain");
+                case SKILL -> t("vanillaskills.menu.quests.verb.skill", "Skills unlocked");
+                case STAT -> t("vanillaskills.menu.quests.verb.stat", "Progress");
+                default -> t("vanillaskills.menu.quests.verb.gather", "Gathered");
             };
             lore.add(styled(verb + ": " + progress + "/" + q.amount(), ChatFormatting.GRAY));
         }
-        lore.add(styled("Reward: +" + q.reward() + " Quest Shard" + (q.reward() == 1 ? "" : "s"), ChatFormatting.LIGHT_PURPLE));
+        lore.add(styled(q.reward() == 1
+                ? t("vanillaskills.menu.quests.reward.one", "Reward: +%d Quest Shard", q.reward())
+                : t("vanillaskills.menu.quests.reward.many", "Reward: +%d Quest Shards", q.reward()), ChatFormatting.LIGHT_PURPLE));
         lore.add(Component.literal(""));
         if (claimed) {
-            lore.add(styled(starterBoard ? "Completed" : "Claimed — come back next rotation", ChatFormatting.DARK_GRAY));
+            lore.add(styled(starterBoard
+                    ? t("vanillaskills.menu.quests.completed", "Completed")
+                    : t("vanillaskills.menu.quests.claimed", "Claimed — come back next rotation"), ChatFormatting.DARK_GRAY));
         } else if (ready) {
-            lore.add(styled(q.type() == Quest.Type.GATHER ? "Click to turn in & claim" : "Click to claim", ChatFormatting.GREEN));
+            lore.add(styled(q.type() == Quest.Type.GATHER
+                    ? t("vanillaskills.menu.quests.turn_in", "Click to turn in & claim")
+                    : t("vanillaskills.menu.quests.claim", "Click to claim"), ChatFormatting.GREEN));
         } else {
             String hint = switch (q.type()) {
-                case GATHER -> "Bring the items here";
-                case SKILL -> "Unlock skills in the skill tree (/skill)";
-                case STAT -> "Counts from when this appeared — keep going";
-                default -> "Keep hunting";
+                case GATHER -> t("vanillaskills.menu.quests.hint.gather", "Bring the items here");
+                case SKILL -> t("vanillaskills.menu.quests.hint.skill", "Unlock skills in the skill tree (/skill)");
+                case STAT -> t("vanillaskills.menu.quests.hint.stat", "Counts from when this appeared — keep going");
+                default -> t("vanillaskills.menu.quests.hint.kill", "Keep hunting");
             };
             lore.add(styled(hint, ChatFormatting.GRAY));
         }
@@ -194,8 +212,8 @@ public class QuestMenu extends ChestMenu {
                     boolean liveStarter = !Quests.isGraduated(sp);
                     if (liveStarter != starterBoard
                             || (!starterBoard && rotationAtBuild != VanillaSkills.QUESTS.rotationId())) {
-                        sp.sendSystemMessage(Component.literal("The board changed — reopening.")
-                                .withStyle(ChatFormatting.YELLOW));
+                        sp.sendSystemMessage(Component.literal(Lang.tr(sp, "vanillaskills.menu.quests.stale",
+                                "The board changed — reopening.")).withStyle(ChatFormatting.YELLOW));
                         open(sp);
                         return;
                     }

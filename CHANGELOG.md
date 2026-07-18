@@ -1,5 +1,10 @@
 # VanillaSkills Changelog
 
+## [1.5.0] - 2026-07-18
+### Added
+- **Language support.** The mod now translates its UI per player, server-side, using the language each client reports. Bundled defaults live in the jar (assets/vanillaskills/lang/en_us.json, 180+ keys covering the Bounty Board, Feats tab, quests and feats); server owners can drop community translations (e.g. ru_ru.json) into <world>/vanillaskills/lang/ - no jar editing. Missing keys safely fall back to English. More screens (skill tree, shop, recipe book) get keys next update.
+- **Config toggles for crafting requirements.** gameplay.json now has toolCraftingRequirements and armorCraftingRequirements (both default true). Set one false and that entire gate is off: anyone can craft any tier of that class, and the Toolsmith/Armorsmith lane disappears from the skill tree (ops still see it in edit mode; full-tree completion adjusts so it stays reachable).
+
 ## [1.4.6] - 2026-07-07
 ### Changed
 - **Removed the anvil's "Too Expensive" cap for every operation.** Costs still scale exactly like vanilla (prior-work penalty untouched) - they just never block the result, however high they climb. You need the levels, you pay the levels. (Vanilla clients may still see the red "Too Expensive" label above 40 - cosmetic only; the result is there and takeable.) The Dragon flat repair (1 ingot + 20 levels) is separate and unchanged.

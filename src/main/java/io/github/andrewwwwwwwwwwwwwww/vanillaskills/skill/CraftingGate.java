@@ -19,21 +19,33 @@ import net.minecraft.world.item.ItemStack;
 public final class CraftingGate {
     private CraftingGate() {}
 
-    /** True if this crafted stack is gear whose per-tier craft skill isn't unlocked (custom OR vanilla). */
+    /** True if this crafted stack is gear whose per-tier craft skill isn't unlocked (custom OR vanilla).
+     *  The tool/armor requirement systems can each be disabled entirely in gameplay.json. */
     public static boolean isLocked(Player player, ItemStack stack) {
         if (stack.isEmpty()) return false;
+        boolean armorReqs = io.github.andrewwwwwwwwwwwwwww.vanillaskills.config.GameplayConfig.ARMOR_REQS_ENABLED;
+        boolean toolReqs = io.github.andrewwwwwwwwwwwwwww.vanillaskills.config.GameplayConfig.TOOL_REQS_ENABLED;
         // Custom tiers first (marker-based) — these reuse vanilla base items + a marker.
         for (ArmorTier tier : ArmorTiers.TIERS) {
-            if (tier.isWorn(stack)) return !hasFlag(player, "craft_armor_" + tier.id);
+            if (tier.isWorn(stack)) return armorReqs && !hasFlag(player, "craft_armor_" + tier.id);
         }
         for (ToolTier tier : ToolTiers.TIERS) {
-            if (Markers.has(stack, tier.markerKey)) return !hasFlag(player, "craft_tool_" + tier.id);
+            if (Markers.has(stack, tier.markerKey)) return toolReqs && !hasFlag(player, "craft_tool_" + tier.id);
         }
         // Vanilla tiers (no custom marker): copper/gold/iron/diamond/netherite armour & tools.
         String armorTier = VANILLA_ARMOR.get(stack.getItem());
-        if (armorTier != null) return !hasFlag(player, "craft_armor_" + armorTier);
+        if (armorTier != null) return armorReqs && !hasFlag(player, "craft_armor_" + armorTier);
         String toolTier = VANILLA_TOOL.get(stack.getItem());
-        if (toolTier != null) return !hasFlag(player, "craft_tool_" + toolTier);
+        if (toolTier != null) return toolReqs && !hasFlag(player, "craft_tool_" + toolTier);
+        return false;
+    }
+
+    /** True if this skill-tree lane is turned off by config (its crafting is ungated and it's hidden). */
+    public static boolean laneDisabled(String categoryId) {
+        if ("toolsmith".equals(categoryId))
+            return !io.github.andrewwwwwwwwwwwwwww.vanillaskills.config.GameplayConfig.TOOL_REQS_ENABLED;
+        if ("armorsmith".equals(categoryId))
+            return !io.github.andrewwwwwwwwwwwwwww.vanillaskills.config.GameplayConfig.ARMOR_REQS_ENABLED;
         return false;
     }
 
@@ -72,6 +84,7 @@ public final class CraftingGate {
 
     /** True if the player has unlocked the Armorsmith node that permits the Dragon smithing upgrade. */
     public static boolean canSmithDragon(Player player) {
+        if (!io.github.andrewwwwwwwwwwwwwww.vanillaskills.config.GameplayConfig.ARMOR_REQS_ENABLED) return true;
         return hasFlag(player, "craft_armor_dragon");
     }
 
