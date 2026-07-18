@@ -32,6 +32,12 @@ public class GameplayConfig {
     public static volatile boolean PUSH_RESOURCE_PACK = true;
     public static volatile String RESOURCE_PACK_URL = DEFAULT_RP_URL;
     public static volatile String RESOURCE_PACK_SHA1 = DEFAULT_RP_SHA1;
+    /** Read by {@code CraftingGate}: when false, TOOL crafting has no skill requirement and the
+     *  Toolsmith lane is hidden from the skill tree. */
+    public static volatile boolean TOOL_REQS_ENABLED = true;
+    /** Read by {@code CraftingGate}: when false, ARMOR crafting has no skill requirement and the
+     *  Armorsmith lane is hidden from the skill tree. */
+    public static volatile boolean ARMOR_REQS_ENABLED = true;
     /** Read by {@code QuestBoard} when re-rolling: ms between bounty rotations. */
     public static volatile long BOUNTY_REFRESH_MS = 5L * 3_600_000L;
     /** Read by {@code QuestShop}: ms between shop rotations. */
@@ -51,6 +57,12 @@ public class GameplayConfig {
     /** LEGACY (pre-1.2.0): graduation is now "complete every fixed starter quest" — this value is
      *  ignored; kept so old gameplay.json files still parse. */
     public int graduateAt = 15;
+    /** Skill-gate TOOL crafting behind the Toolsmith lane (default true). Set false to let anyone
+     *  craft any tool tier — the Toolsmith lane disappears from the skill tree. */
+    public boolean toolCraftingRequirements = true;
+    /** Skill-gate ARMOR crafting behind the Armorsmith lane (default true). Set false to let anyone
+     *  craft any armor tier — the Armorsmith lane disappears from the skill tree. */
+    public boolean armorCraftingRequirements = true;
     /** Auto-push the VanillaSkills texture pack to joining clients (required). Default on. */
     public boolean serverResourcePack = true;
     /** Texture-pack download URL the server pushes (default = the GitHub release asset). */
@@ -87,6 +99,9 @@ public class GameplayConfig {
     /** Publish this config's values to the live flags / consumers (clamped to sane minimums). */
     public void apply() {
         MENDING_ENABLED = mendingEnabled;
+        TOOL_REQS_ENABLED = toolCraftingRequirements;
+        ARMOR_REQS_ENABLED = armorCraftingRequirements;
+        io.github.andrewwwwwwwwwwwwwww.vanillaskills.text.Lang.invalidate(); // re-read lang files on reload
         BOUNTY_REFRESH_MS = Math.max(1, bountyRefreshHours) * 3_600_000L;
         SHOP_REFRESH_MS = Math.max(1, shopRefreshHours) * 3_600_000L;
         QuestShop.CONVERT_RATIO = Math.max(1, convertRatio);

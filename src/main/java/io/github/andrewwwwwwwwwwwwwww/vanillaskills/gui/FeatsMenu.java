@@ -3,6 +3,7 @@ package io.github.andrewwwwwwwwwwwwwww.vanillaskills.gui;
 import io.github.andrewwwwwwwwwwwwwww.vanillaskills.skill.Feat;
 import io.github.andrewwwwwwwwwwwwwww.vanillaskills.skill.Feats;
 import io.github.andrewwwwwwwwwwwwwww.vanillaskills.skill.Quests;
+import io.github.andrewwwwwwwwwwwwwww.vanillaskills.text.Lang;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.chat.Component;
@@ -21,7 +22,8 @@ import net.minecraft.world.item.component.ItemLore;
 import java.util.ArrayList;
 import java.util.List;
 
-/** The Feats tab: a read-only checklist of one-time achievements (discoveries, bosses, the End). */
+/** The Feats tab: a read-only checklist of one-time achievements (discoveries, bosses, the End).
+ *  Feat titles/descriptions translate via {@code vanillaskills.feat.<id>} / {@code ...<id>.desc}. */
 public class FeatsMenu extends ChestMenu {
     // 5-5-1 centered layout (rows of 5 sit dead-centre; the last feat is centered under them).
     private static final int[] FEAT_SLOTS = {
@@ -38,7 +40,7 @@ public class FeatsMenu extends ChestMenu {
     public static void open(ServerPlayer player) {
         player.openMenu(new SimpleMenuProvider(
                 (syncId, inv, p) -> new FeatsMenu(syncId, inv, (ServerPlayer) p),
-                Component.literal("Feats")));
+                Component.literal(Lang.tr(player, "vanillaskills.menu.feats.title", "Feats"))));
     }
 
     private FeatsMenu(int syncId, Inventory inv, ServerPlayer player) {
@@ -55,34 +57,42 @@ public class FeatsMenu extends ChestMenu {
         for (int i = 0; i < all.size() && i < FEAT_SLOTS.length; i++) {
             container.setItem(FEAT_SLOTS[i], featItem(all.get(i)));
         }
-        container.setItem(BACK_SLOT, button(Items.ARROW, "Back to Bounty Board", ChatFormatting.YELLOW));
-        container.setItem(CLOSE_SLOT, button(Items.BARRIER, "Close", ChatFormatting.RED));
+        container.setItem(BACK_SLOT, button(Items.ARROW,
+                t("vanillaskills.menu.feats.back", "Back to Bounty Board"), ChatFormatting.YELLOW));
+        container.setItem(CLOSE_SLOT, button(Items.BARRIER, t("vanillaskills.menu.close", "Close"), ChatFormatting.RED));
+    }
+
+    private String t(String key, String fallback, Object... args) {
+        return Lang.tr(player, key, fallback, args);
     }
 
     private ItemStack titleItem() {
         int done = 0;
         for (Feat f : Feats.ALL) if (Feats.isDone(player, f.id())) done++;
         ItemStack stack = new ItemStack(Items.WITHER_SKELETON_SKULL);
-        stack.set(DataComponents.CUSTOM_NAME, styled("Feats", ChatFormatting.GOLD));
+        stack.set(DataComponents.CUSTOM_NAME, styled(t("vanillaskills.menu.feats.title", "Feats"), ChatFormatting.GOLD));
         stack.set(DataComponents.LORE, new ItemLore(List.of(
-                styled("One-time achievements — earned once, kept forever.", ChatFormatting.GRAY),
-                styled("They award Quest Shards automatically when you do them.", ChatFormatting.GRAY),
+                styled(t("vanillaskills.menu.feats.info1", "One-time achievements — earned once, kept forever."), ChatFormatting.GRAY),
+                styled(t("vanillaskills.menu.feats.info2", "They award Quest Shards automatically when you do them."), ChatFormatting.GRAY),
                 Component.literal(""),
-                styled("Completed: " + done + "/" + Feats.ALL.size(), ChatFormatting.AQUA))));
+                styled(t("vanillaskills.menu.feats.progress", "Completed: %d/%d", done, Feats.ALL.size()), ChatFormatting.AQUA))));
         return stack;
     }
 
     private ItemStack featItem(Feat f) {
         boolean done = Feats.isDone(player, f.id());
         ItemStack stack = new ItemStack(Quests.item(f.icon()));
-        stack.set(DataComponents.CUSTOM_NAME,
-                styled(f.title() + (done ? " ✔" : ""), done ? ChatFormatting.GREEN : ChatFormatting.GRAY));
+        stack.set(DataComponents.CUSTOM_NAME, styled(
+                t("vanillaskills.feat." + f.id(), f.title()) + (done ? " ✔" : ""),
+                done ? ChatFormatting.GREEN : ChatFormatting.GRAY));
         List<Component> lore = new ArrayList<>();
-        lore.add(styled(f.desc(), ChatFormatting.GRAY));
+        lore.add(styled(t("vanillaskills.feat." + f.id() + ".desc", f.desc()), ChatFormatting.GRAY));
         lore.add(Component.literal(""));
-        lore.add(styled("Reward: +" + f.reward() + " Quest Shards", ChatFormatting.LIGHT_PURPLE));
+        lore.add(styled(t("vanillaskills.menu.quests.reward.many", "Reward: +%d Quest Shards", f.reward()), ChatFormatting.LIGHT_PURPLE));
         lore.add(Component.literal(""));
-        lore.add(styled(done ? "Completed" : "Not yet earned", done ? ChatFormatting.GREEN : ChatFormatting.DARK_GRAY));
+        lore.add(styled(done ? t("vanillaskills.menu.quests.completed", "Completed")
+                        : t("vanillaskills.menu.feats.not_earned", "Not yet earned"),
+                done ? ChatFormatting.GREEN : ChatFormatting.DARK_GRAY));
         stack.set(DataComponents.LORE, new ItemLore(lore));
         if (done) stack.set(DataComponents.ENCHANTMENT_GLINT_OVERRIDE, true);
         return stack;

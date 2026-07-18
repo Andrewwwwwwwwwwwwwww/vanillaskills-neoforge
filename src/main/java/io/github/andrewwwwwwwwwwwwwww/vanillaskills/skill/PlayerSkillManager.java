@@ -434,11 +434,13 @@ public class PlayerSkillManager {
         SkillTree tree = VanillaSkills.TREE.tree();
         if (tree.nodes.isEmpty()) return;
         for (SkillNode n : tree.nodes) {
+            if (CraftingGate.laneDisabled(n.category)) continue; // hidden lanes don't count
             if (!data.hasUnlocked(n.id)) return; // tree not fully unlocked
         }
 
         data.completionRewarded = true;
         awardAdvancement(player, "vanillaskills:completionist", "complete");
+        // (note: the loop above skips config-disabled lanes, so completion stays reachable)
         net.minecraft.world.item.ItemStack reward =
                 io.github.andrewwwwwwwwwwwwwww.vanillaskills.armor.DragonIngot.create();
         reward.setCount(4);

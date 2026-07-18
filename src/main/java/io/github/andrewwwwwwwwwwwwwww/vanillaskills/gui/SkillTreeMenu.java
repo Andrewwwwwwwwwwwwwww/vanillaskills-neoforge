@@ -117,6 +117,8 @@ public class SkillTreeMenu extends ChestMenu {
 
         if (category == null) {
             for (SkillCategory cat : tree.categories()) {
+                // Config-disabled crafting lanes are hidden from players (ops still see them in edit mode).
+                if (!editMode && io.github.andrewwwwwwwwwwwwwww.vanillaskills.skill.CraftingGate.laneDisabled(cat.id)) continue;
                 container.setItem(cat.slot, buildCategoryItem(cat, data));
             }
             if (layoutMode) {
@@ -562,6 +564,9 @@ public class SkillTreeMenu extends ChestMenu {
         }
         SkillCategory cat = VanillaSkills.TREE.tree().categoryAtSlot(slotId);
         if (cat != null) {
+            if (!editMode && io.github.andrewwwwwwwwwwwwwww.vanillaskills.skill.CraftingGate.laneDisabled(cat.id)) {
+                return false; // lane hidden by config — its slot is empty for players
+            }
             if (!editMode && "recipes".equals(cat.id)) {
                 RecipeBookMenu.open(sp, 0);
                 return true;
