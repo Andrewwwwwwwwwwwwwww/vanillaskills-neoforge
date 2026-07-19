@@ -55,6 +55,9 @@ public class PlayerSkillManager {
             data.pointsEarned += points.startingPoints;
             if (tree.has(SkillTree.ROOT_ID)) data.unlocked.add(SkillTree.ROOT_ID);
             tallyExistingAdvancements(player, data);
+            if (!io.github.andrewwwwwwwwwwwwwww.vanillaskills.config.GameplayConfig.STARTER_QUESTS) {
+                data.graduated = true; // config: new players skip the starter board
+            }
             data.initialized = true;
             save(player.getUUID());
         } else if (tree.has(SkillTree.ROOT_ID)) {
@@ -278,7 +281,7 @@ public class PlayerSkillManager {
         checkPathAdvancement(player, node, data);
         checkCompletionist(player, data);
         save(player.getUUID());
-        player.sendSystemMessage(Component.literal("Unlocked " + node.title + "!").withStyle(ChatFormatting.GREEN));
+        player.sendSystemMessage(Component.literal(io.github.andrewwwwwwwwwwwwwww.vanillaskills.text.Lang.tr(player,"vanillaskills.msg.unlocked","Unlocked %s!", node.title)).withStyle(ChatFormatting.GREEN));
         return true;
     }
 

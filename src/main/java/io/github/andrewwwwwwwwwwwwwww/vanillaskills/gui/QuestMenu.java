@@ -81,9 +81,11 @@ public class QuestMenu extends ChestMenu {
             container.setItem(questSlots[i], questItem(i, active.get(i)));
         }
         container.setItem(shopSlot, shopButton());
-        container.setItem(featsSlot, button(Items.WITHER_SKELETON_SKULL,
-                t("vanillaskills.menu.feats.button", "Feats"), ChatFormatting.GOLD,
-                t("vanillaskills.menu.feats.button.desc", "One-time achievements: discoveries, bosses & the End.")));
+        if (io.github.andrewwwwwwwwwwwwwww.vanillaskills.config.GameplayConfig.FEATS_ENABLED) {
+            container.setItem(featsSlot, button(Items.WITHER_SKELETON_SKULL,
+                    t("vanillaskills.menu.feats.button", "Feats"), ChatFormatting.GOLD,
+                    t("vanillaskills.menu.feats.button.desc", "One-time achievements: discoveries, bosses & the End.")));
+        }
         container.setItem(backSlot, button(Items.NETHER_STAR,
                 t("vanillaskills.menu.quests.skilltree", "Skill Tree"), ChatFormatting.AQUA,
                 t("vanillaskills.menu.quests.skilltree.desc", "Open the skill tree.")));
@@ -203,7 +205,9 @@ public class QuestMenu extends ChestMenu {
             if (slotId == closeSlot) { sp.closeContainer(); return; }
             if (slotId == backSlot) { SkillTreeMenu.open(sp); return; }
             if (slotId == shopSlot) { ShopMenu.open(sp); return; }
-            if (slotId == featsSlot) { FeatsMenu.open(sp); return; }
+            if (slotId == featsSlot && io.github.andrewwwwwwwwwwwwwww.vanillaskills.config.GameplayConfig.FEATS_ENABLED) {
+                FeatsMenu.open(sp); return;
+            }
             for (int i = 0; i < questSlots.length; i++) {
                 if (slotId == questSlots[i]) {
                     // Stale-board guard: if graduation status or the rotation changed while this menu

@@ -151,34 +151,43 @@ public class SkillTreeMenu extends ChestMenu {
 
     // ---- lane select ----
 
+    private String t(String key, String fallback, Object... args) {
+        return io.github.andrewwwwwwwwwwwwwww.vanillaskills.text.Lang.tr(player, key, fallback, args);
+    }
+
+    /** Translated lane display name (key vanillaskills.lane.<id>, fallback to the tree's title). */
+    private String laneName(SkillCategory cat) {
+        return t("vanillaskills.lane." + cat.id, cat.title);
+    }
+
     private ItemStack buildCategoryItem(SkillCategory cat, PlayerSkillData data) {
         SkillTree tree = VanillaSkills.TREE.tree();
         // Recipes is a pseudo-lane that opens the custom-recipe book.
         if ("recipes".equals(cat.id)) {
             ItemStack r = new ItemStack(resolveItem(cat.icon));
             Guis.hideStats(r);
-            r.set(DataComponents.CUSTOM_NAME, styled("Recipes", ChatFormatting.GOLD));
+            r.set(DataComponents.CUSTOM_NAME, styled(t("vanillaskills.lane.recipes","Recipes"), ChatFormatting.GOLD));
             r.set(DataComponents.LORE, new ItemLore(List.of(
-                    styled("All custom crafting recipes", ChatFormatting.GRAY),
-                    styled(layoutMode ? "Click to pick up & move" : "Click to view", ChatFormatting.YELLOW))));
+                    styled(t("vanillaskills.lane.recipes.desc","All custom crafting recipes"), ChatFormatting.GRAY),
+                    styled(layoutMode ? t("vanillaskills.menu.skilltree.pickup","Click to pick up & move") : t("vanillaskills.menu.skilltree.view","Click to view"), ChatFormatting.YELLOW))));
             return r;
         }
         if ("guide".equals(cat.id)) {
             ItemStack r = new ItemStack(resolveItem(cat.icon));
             Guis.hideStats(r);
-            r.set(DataComponents.CUSTOM_NAME, styled("Guide", ChatFormatting.GOLD));
+            r.set(DataComponents.CUSTOM_NAME, styled(t("vanillaskills.lane.guide","Guide"), ChatFormatting.GOLD));
             r.set(DataComponents.LORE, new ItemLore(List.of(
-                    styled("How VanillaSkills works", ChatFormatting.GRAY),
-                    styled(layoutMode ? "Click to pick up & move" : "Click to open", ChatFormatting.YELLOW))));
+                    styled(t("vanillaskills.lane.guide.desc","How VanillaSkills works"), ChatFormatting.GRAY),
+                    styled(layoutMode ? t("vanillaskills.menu.skilltree.pickup","Click to pick up & move") : t("vanillaskills.menu.click_to_open","Click to open"), ChatFormatting.YELLOW))));
             return r;
         }
         if ("quests".equals(cat.id)) {
             ItemStack r = new ItemStack(resolveItem(cat.icon));
             Guis.hideStats(r);
-            r.set(DataComponents.CUSTOM_NAME, styled("Bounty Board", ChatFormatting.GOLD));
+            r.set(DataComponents.CUSTOM_NAME, styled(t("vanillaskills.lane.quests","Bounty Board"), ChatFormatting.GOLD));
             r.set(DataComponents.LORE, new ItemLore(List.of(
-                    styled("Quests & the Quest Shop", ChatFormatting.GRAY),
-                    styled(layoutMode ? "Click to pick up & move" : "Click to open", ChatFormatting.YELLOW))));
+                    styled(t("vanillaskills.lane.quests.desc","Quests & the Quest Shop"), ChatFormatting.GRAY),
+                    styled(layoutMode ? t("vanillaskills.menu.skilltree.pickup","Click to pick up & move") : t("vanillaskills.menu.click_to_open","Click to open"), ChatFormatting.YELLOW))));
             return r;
         }
         int total = 0, unlocked = 0;
@@ -204,17 +213,17 @@ public class SkillTreeMenu extends ChestMenu {
         // A locked lane (e.g. Night Vision) stays sealed until its earned-Shard gate is met — and we
         // deliberately don't reveal the requirement, so players can't bee-line to it.
         if (!editMode && isLaneLocked(cat, data)) {
-            stack.set(DataComponents.CUSTOM_NAME, styled(cat.title, ChatFormatting.DARK_GRAY));
-            stack.set(DataComponents.LORE, new ItemLore(List.of(styled("🔒 Locked", ChatFormatting.RED))));
+            stack.set(DataComponents.CUSTOM_NAME, styled(laneName(cat), ChatFormatting.DARK_GRAY));
+            stack.set(DataComponents.LORE, new ItemLore(List.of(styled(t("vanillaskills.menu.skilltree.locked","🔒 Locked"), ChatFormatting.RED))));
             return stack;
         }
         // Crafting lanes are tinted purple (Quest Shards); skill lanes stay aqua (Skill Shards).
         ChatFormatting nameColor = quest ? ChatFormatting.LIGHT_PURPLE : ChatFormatting.AQUA;
-        stack.set(DataComponents.CUSTOM_NAME, styled(cat.title, nameColor));
+        stack.set(DataComponents.CUSTOM_NAME, styled(laneName(cat), nameColor));
         stack.set(DataComponents.LORE, new ItemLore(List.of(
-                styled(unlocked + "/" + total + " unlocked", ChatFormatting.GRAY),
-                styled(quest ? "Quest Shards" : "Skill Shards", quest ? ChatFormatting.LIGHT_PURPLE : ChatFormatting.AQUA),
-                styled(editMode ? "Click to edit this lane" : "Click to open", ChatFormatting.YELLOW))));
+                styled(t("vanillaskills.menu.skilltree.unlocked","%d/%d unlocked", unlocked, total), ChatFormatting.GRAY),
+                styled(quest ? t("vanillaskills.menu.quest_shards","Quest Shards") : t("vanillaskills.menu.skill_shards","Skill Shards"), quest ? ChatFormatting.LIGHT_PURPLE : ChatFormatting.AQUA),
+                styled(editMode ? "Click to edit this lane" : t("vanillaskills.menu.click_to_open","Click to open"), ChatFormatting.YELLOW))));
         if (total > 0 && unlocked == total) stack.set(DataComponents.ENCHANTMENT_GLINT_OVERRIDE, true);
         return stack;
     }
@@ -271,14 +280,16 @@ public class SkillTreeMenu extends ChestMenu {
         ChatFormatting color = quest ? ChatFormatting.LIGHT_PURPLE : ChatFormatting.AQUA;
         ItemStack stack = new ItemStack(resolveItem(cat.icon));
         Guis.hideStats(stack);
-        stack.set(DataComponents.CUSTOM_NAME, styled(cat.title, color));
+        stack.set(DataComponents.CUSTOM_NAME, styled(laneName(cat), color));
         List<Component> lore = new ArrayList<>();
-        for (String line : LANE_DESCRIPTIONS.getOrDefault(cat.id,
-                new String[]{"Spend Shards to unlock this branch's skills."})) {
+        // Description translates as one key per lane (lines joined by \n), fallback to the built-in English.
+        String englishDesc = String.join("\n", LANE_DESCRIPTIONS.getOrDefault(cat.id,
+                new String[]{"Spend Shards to unlock this branch's skills."}));
+        for (String line : t("vanillaskills.lane." + cat.id + ".header", englishDesc).split("\n")) {
             lore.add(styled(line, ChatFormatting.GRAY));
         }
         lore.add(Component.literal(""));
-        lore.add(styled(unlocked + "/" + total + " unlocked", color));
+        lore.add(styled(t("vanillaskills.menu.skilltree.unlocked", "%d/%d unlocked", unlocked, total), color));
         stack.set(DataComponents.LORE, new ItemLore(lore));
         return stack;
     }
@@ -295,7 +306,7 @@ public class SkillTreeMenu extends ChestMenu {
         boolean prereqMet = node.requires.stream().allMatch(data::hasUnlocked);
 
         boolean quest = node.isQuestCurrency();
-        String curName = quest ? "Quest Shards" : "Skill Shards";
+        String curName = quest ? t("vanillaskills.menu.quest_shards","Quest Shards") : t("vanillaskills.menu.skill_shards","Skill Shards");
         ChatFormatting curColor = quest ? ChatFormatting.LIGHT_PURPLE : ChatFormatting.YELLOW;
         int balance = quest ? data.questShardsAvailable : data.pointsAvailable;
 
@@ -309,20 +320,20 @@ public class SkillTreeMenu extends ChestMenu {
                 : gated ? ChatFormatting.DARK_GRAY
                 : !prereqMet ? ChatFormatting.GRAY
                 : affordableChain ? curColor : ChatFormatting.RED;
-        stack.set(DataComponents.CUSTOM_NAME, styled(node.title + (unlocked ? " ✔" : ""), nameColor));
+        stack.set(DataComponents.CUSTOM_NAME, styled(t("vanillaskills.node."+node.id, node.title) + (unlocked ? " ✔" : ""), nameColor));
 
         List<Component> lore = new ArrayList<>();
         for (String line : node.description) lore.add(styled(line, ChatFormatting.GRAY));
         lore.add(Component.literal(""));
         if (unlocked) {
-            lore.add(styled("Unlocked", ChatFormatting.GREEN));
+            lore.add(styled(t("vanillaskills.menu.skilltree.node_unlocked","Unlocked"), ChatFormatting.GREEN));
         } else if (gated) {
-            lore.add(styled("🔒 Locked", ChatFormatting.RED)); // requirement intentionally hidden
+            lore.add(styled(t("vanillaskills.menu.skilltree.locked","🔒 Locked"), ChatFormatting.RED)); // requirement intentionally hidden
         } else {
-            lore.add(styled("Cost: " + chain + " " + curName, affordableChain ? curColor : ChatFormatting.RED));
-            if (!prereqMet) lore.add(styled("Buys this + the skills below it", ChatFormatting.DARK_GRAY));
-            else lore.add(styled("Left-click to unlock", ChatFormatting.DARK_GRAY));
-            if (!affordableChain) lore.add(styled("Not enough " + curName, ChatFormatting.RED));
+            lore.add(styled(t("vanillaskills.menu.skilltree.cost","Cost: %d %s", chain, curName), affordableChain ? curColor : ChatFormatting.RED));
+            if (!prereqMet) lore.add(styled(t("vanillaskills.menu.skilltree.buys_chain","Buys this + the skills below it"), ChatFormatting.DARK_GRAY));
+            else lore.add(styled(t("vanillaskills.menu.skilltree.left_unlock","Left-click to unlock"), ChatFormatting.DARK_GRAY));
+            if (!affordableChain) lore.add(styled(t("vanillaskills.menu.skilltree.not_enough","Not enough %s", curName), ChatFormatting.RED));
         }
         stack.set(DataComponents.LORE, new ItemLore(lore));
         if (unlocked) stack.set(DataComponents.ENCHANTMENT_GLINT_OVERRIDE, true);
@@ -349,25 +360,25 @@ public class SkillTreeMenu extends ChestMenu {
 
     private ItemStack buildCounter(PlayerSkillData data) {
         ItemStack stack = new ItemStack(Items.EXPERIENCE_BOTTLE);
-        stack.set(DataComponents.CUSTOM_NAME, styled("Your Shards", ChatFormatting.GOLD));
+        stack.set(DataComponents.CUSTOM_NAME, styled(t("vanillaskills.menu.skilltree.your_shards","Your Shards"), ChatFormatting.GOLD));
         stack.set(DataComponents.LORE, new ItemLore(List.of(
-                styled("Skill Shards: " + data.pointsAvailable, ChatFormatting.AQUA),
-                styled("Quest Shards: " + data.questShardsAvailable, ChatFormatting.LIGHT_PURPLE),
+                styled(t("vanillaskills.menu.skilltree.skill_bal","Skill Shards: %d", data.pointsAvailable), ChatFormatting.AQUA),
+                styled(t("vanillaskills.menu.skilltree.quest_bal","Quest Shards: %d", data.questShardsAvailable), ChatFormatting.LIGHT_PURPLE),
                 Component.literal(""),
-                styled("Click to see how to earn Skill Shards", ChatFormatting.GRAY))));
+                styled(t("vanillaskills.menu.skilltree.earn_hint","Click to see how to earn Skill Shards"), ChatFormatting.GRAY))));
         return stack;
     }
 
     private ItemStack buildStatsHead() {
         ItemStack stack = new ItemStack(Items.PLAYER_HEAD);
-        stack.set(DataComponents.CUSTOM_NAME, styled("Your Stats", ChatFormatting.AQUA));
-        stack.set(DataComponents.LORE, new ItemLore(List.of(styled("Click to view your current stats", ChatFormatting.GRAY))));
+        stack.set(DataComponents.CUSTOM_NAME, styled(t("vanillaskills.menu.skilltree.your_stats","Your Stats"), ChatFormatting.AQUA));
+        stack.set(DataComponents.LORE, new ItemLore(List.of(styled(t("vanillaskills.menu.skilltree.stats_hint","Click to view your current stats"), ChatFormatting.GRAY))));
         return stack;
     }
 
     private ItemStack backButton() {
         ItemStack stack = new ItemStack(Items.ARROW);
-        stack.set(DataComponents.CUSTOM_NAME, styled("Back to Lanes", ChatFormatting.YELLOW));
+        stack.set(DataComponents.CUSTOM_NAME, styled(t("vanillaskills.menu.skilltree.back_lanes","Back to Lanes"), ChatFormatting.YELLOW));
         return stack;
     }
 
@@ -535,9 +546,9 @@ public class SkillTreeMenu extends ChestMenu {
     private ItemStack skillsHeader() {
         ItemStack stack = new ItemStack(Items.NETHER_STAR);
         Guis.hideStats(stack);
-        stack.set(DataComponents.CUSTOM_NAME, styled("✦ Skills ✦", ChatFormatting.GOLD));
+        stack.set(DataComponents.CUSTOM_NAME, styled(t("vanillaskills.menu.skilltree.header","✦ Skills ✦"), ChatFormatting.GOLD));
         stack.set(DataComponents.LORE, new ItemLore(List.of(
-                styled("Spend Skill Shards & Quest Shards here", ChatFormatting.GRAY))));
+                styled(t("vanillaskills.menu.skilltree.header_desc","Spend Skill Shards & Quest Shards here"), ChatFormatting.GRAY))));
         return stack;
     }
 
@@ -580,7 +591,7 @@ public class SkillTreeMenu extends ChestMenu {
                 return true;
             }
             if (!editMode && isLaneLocked(cat, VanillaSkills.PLAYERS.get(sp.getUUID()))) {
-                sp.sendSystemMessage(net.minecraft.network.chat.Component.literal("🔒 That path is still locked.")
+                sp.sendSystemMessage(net.minecraft.network.chat.Component.literal(io.github.andrewwwwwwwwwwwwwww.vanillaskills.text.Lang.tr(sp,"vanillaskills.msg.lane_locked","🔒 That path is still locked."))
                         .withStyle(ChatFormatting.RED));
                 return false;
             }

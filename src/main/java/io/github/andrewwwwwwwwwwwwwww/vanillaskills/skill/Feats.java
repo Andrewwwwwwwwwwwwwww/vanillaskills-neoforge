@@ -72,6 +72,7 @@ public final class Feats {
 
     /** Boss-kill feats — call from the entity-kill handler with the player's victim. */
     public static void onKill(ServerPlayer killer, Entity dead) {
+        if (!io.github.andrewwwwwwwwwwwwwww.vanillaskills.config.GameplayConfig.FEATS_ENABLED) return;
         String id = BuiltInRegistries.ENTITY_TYPE.getKey(dead.getType()).toString();
         for (Feat f : ALL) {
             if (f.type() == Feat.Type.KILL && f.target().equals(id) && !isDone(killer, f.id())) {
@@ -83,9 +84,10 @@ public final class Feats {
     /** Throttled poll for discovery + dimension feats; also refreshes STAT-quest baselines. */
     public static void serverTick(MinecraftServer server) {
         if (server.getTickCount() % CHECK_INTERVAL_TICKS != 0) return;
+        boolean feats = io.github.andrewwwwwwwwwwwwwww.vanillaskills.config.GameplayConfig.FEATS_ENABLED;
         for (ServerPlayer p : server.getPlayerList().getPlayers()) {
-            Quests.sync(p);              // captures STAT-quest baselines at rotation start / on join
-            checkLocationFeats(p);
+            Quests.sync(p);              // captures STAT-quest baselines (still needed with feats off)
+            if (feats) checkLocationFeats(p);
         }
     }
 

@@ -21,7 +21,7 @@ import java.util.Random;
  */
 public class QuestBoard {
     private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
-    private static final int ACTIVE_COUNT = 6;
+    private static int activeCount() { return io.github.andrewwwwwwwwwwwwwww.vanillaskills.config.GameplayConfig.QUESTS_PER_ROTATION; }
     private final Random random = new Random();
 
     private State state = new State();
@@ -66,7 +66,7 @@ public class QuestBoard {
             VanillaSkills.LOGGER.error("Failed to load questboard.json", e);
         }
         long now = System.currentTimeMillis();
-        if (state.activeIndices.length != ACTIVE_COUNT || state.nextRotationMs <= now) {
+        if (state.activeIndices.length != activeCount() || state.nextRotationMs <= now) {
             reroll(now);
         }
     }
@@ -87,7 +87,7 @@ public class QuestBoard {
     private void reroll(long now) {
         state.rotationId++;
         state.nextRotationMs = now + GameplayConfig.BOUNTY_REFRESH_MS;
-        state.activeIndices = pickDistinct(ACTIVE_COUNT);
+        state.activeIndices = pickDistinct(activeCount());
         save();
     }
 

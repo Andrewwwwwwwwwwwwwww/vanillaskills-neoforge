@@ -82,8 +82,7 @@ public final class Quests {
                 if (!data.questStatNotified.contains(i) && !data.questClaimed.contains(i)
                         && progress(player, i) >= q.amount()) {
                     data.questStatNotified.add(i);
-                    player.sendSystemMessage(Component.literal("Bounty ready to claim: " + q.title()
-                            + " — /quests").withStyle(ChatFormatting.GREEN));
+                    player.sendSystemMessage(Component.literal(io.github.andrewwwwwwwwwwwwwww.vanillaskills.text.Lang.tr(player,"vanillaskills.msg.ready","Bounty ready to claim: %s — /quests", q.title())).withStyle(ChatFormatting.GREEN));
                     changed = true;
                 }
             }
@@ -141,7 +140,7 @@ public final class Quests {
             kills.put(i, cur + 1);
             changed = true;
             if (cur + 1 == q.amount()) {
-                killer.sendSystemMessage(Component.literal("Bounty ready to claim: " + q.title() + " — /quests")
+                killer.sendSystemMessage(Component.literal(io.github.andrewwwwwwwwwwwwwww.vanillaskills.text.Lang.tr(killer,"vanillaskills.msg.ready","Bounty ready to claim: %s — /quests", q.title()))
                         .withStyle(ChatFormatting.GREEN));
             }
         }
@@ -188,14 +187,14 @@ public final class Quests {
             case KILL -> {
                 int cur = killMap(data).getOrDefault(index, 0);
                 if (cur < q.amount()) {
-                    player.sendSystemMessage(Component.literal("Not done yet: " + cur + "/" + q.amount()).withStyle(ChatFormatting.RED));
+                    player.sendSystemMessage(Component.literal(io.github.andrewwwwwwwwwwwwwww.vanillaskills.text.Lang.tr(player,"vanillaskills.msg.not_done","Not done yet: %d/%d", cur, q.amount())).withStyle(ChatFormatting.RED));
                     return;
                 }
             }
             case GATHER -> {
                 int have = countItem(player, q.target());
                 if (have < q.amount()) {
-                    player.sendSystemMessage(Component.literal("You need " + (q.amount() - have) + " more.").withStyle(ChatFormatting.RED));
+                    player.sendSystemMessage(Component.literal(io.github.andrewwwwwwwwwwwwwww.vanillaskills.text.Lang.tr(player,"vanillaskills.msg.need_more","You need %d more.", q.amount() - have)).withStyle(ChatFormatting.RED));
                     return;
                 }
                 removeItem(player, q.target(), q.amount());
@@ -220,8 +219,7 @@ public final class Quests {
         }
         claimed.add(index);
         VanillaSkills.PLAYERS.addQuestShards(player, q.reward());
-        player.sendSystemMessage(Component.literal("Bounty complete: " + q.title() + "  +" + q.reward()
-                + " Quest Shard" + (q.reward() == 1 ? "" : "s")).withStyle(ChatFormatting.GOLD));
+        player.sendSystemMessage(Component.literal(io.github.andrewwwwwwwwwwwwwww.vanillaskills.text.Lang.tr(player,"vanillaskills.msg.complete","Bounty complete: %s  +%d Quest Shards", q.title(), q.reward())).withStyle(ChatFormatting.GOLD));
 
         if (!data.graduated) {
             data.questsCompleted++;
@@ -242,8 +240,7 @@ public final class Quests {
         data.questKills.clear();
         data.questClaimed.clear();
         data.questRotation = VanillaSkills.QUESTS.rotationId(); // start the universal board fresh
-        player.sendSystemMessage(Component.literal("★ You've graduated to the main Bounty Board! "
-                + "Every quest is now available.").withStyle(ChatFormatting.GOLD));
+        player.sendSystemMessage(Component.literal(io.github.andrewwwwwwwwwwwwwww.vanillaskills.text.Lang.tr(player,"vanillaskills.msg.graduated","★ You've graduated to the main Bounty Board! Every quest is now available.")).withStyle(ChatFormatting.GOLD));
     }
 
     /** Op: force a player onto the universal board. */

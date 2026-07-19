@@ -4,6 +4,7 @@ import io.github.andrewwwwwwwwwwwwwww.vanillaskills.VanillaSkills;
 import io.github.andrewwwwwwwwwwwwwww.vanillaskills.skill.QuestShop;
 import io.github.andrewwwwwwwwwwwwwww.vanillaskills.skill.QuestShop.ShopOffer;
 import io.github.andrewwwwwwwwwwwwwww.vanillaskills.skill.Quests;
+import io.github.andrewwwwwwwwwwwwwww.vanillaskills.text.Lang;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.chat.Component;
@@ -37,7 +38,11 @@ public class ShopMenu extends ChestMenu {
     public static void open(ServerPlayer player) {
         player.openMenu(new SimpleMenuProvider(
                 (syncId, inv, p) -> new ShopMenu(syncId, inv, (ServerPlayer) p),
-                Component.literal("Quest Shop")));
+                Component.literal(Lang.tr(player, "vanillaskills.menu.shop.title", "Quest Shop"))));
+    }
+
+    private String t(String key, String fallback, Object... args) {
+        return Lang.tr(player, key, fallback, args);
     }
 
     private ShopMenu(int syncId, Inventory inv, ServerPlayer player) {
@@ -57,9 +62,9 @@ public class ShopMenu extends ChestMenu {
             container.setItem(ITEM_SLOTS[i], stack);
         }
         container.setItem(CONVERT_SLOT, convertItem());
-        container.setItem(BACK_SLOT, button(Items.ARROW, "Back to Bounties", ChatFormatting.YELLOW,
-                "Return to the quest board."));
-        container.setItem(CLOSE_SLOT, button(Items.BARRIER, "Close", ChatFormatting.RED, null));
+        container.setItem(BACK_SLOT, button(Items.ARROW, t("vanillaskills.menu.shop.back", "Back to Bounties"),
+                ChatFormatting.YELLOW, t("vanillaskills.menu.shop.back.desc", "Return to the quest board.")));
+        container.setItem(CLOSE_SLOT, button(Items.BARRIER, t("vanillaskills.menu.close", "Close"), ChatFormatting.RED, null));
     }
 
     private ItemStack infoItem() {
@@ -68,12 +73,12 @@ public class ShopMenu extends ChestMenu {
         long ms = QuestShop.msUntilRotation();
         String when = (ms / 3_600_000) + "h " + (ms % 3_600_000 / 60_000) + "m";
         ItemStack stack = new ItemStack(Items.AMETHYST_SHARD);
-        stack.set(DataComponents.CUSTOM_NAME, styled("Your Shards", ChatFormatting.GOLD));
+        stack.set(DataComponents.CUSTOM_NAME, styled(t("vanillaskills.menu.shop.your_shards", "Your Shards"), ChatFormatting.GOLD));
         stack.set(DataComponents.LORE, new ItemLore(List.of(
-                styled("Quest Shards: " + quest, ChatFormatting.LIGHT_PURPLE),
-                styled("Skill Shards: " + skill, ChatFormatting.AQUA),
+                styled(t("vanillaskills.menu.shop.quest_shards", "Quest Shards: %d", quest), ChatFormatting.LIGHT_PURPLE),
+                styled(t("vanillaskills.menu.shop.skill_shards", "Skill Shards: %d", skill), ChatFormatting.AQUA),
                 Component.literal(""),
-                styled("New shop stock in " + when, ChatFormatting.GRAY))));
+                styled(t("vanillaskills.menu.shop.new_stock", "New shop stock in %s", when), ChatFormatting.GRAY))));
         return stack;
     }
 
@@ -88,16 +93,16 @@ public class ShopMenu extends ChestMenu {
 
         List<Component> lore = new ArrayList<>();
         if (offer.grants().size() > 1) {
-            lore.add(styled("Includes the full set", ChatFormatting.GRAY));
+            lore.add(styled(t("vanillaskills.menu.shop.full_set", "Includes the full set"), ChatFormatting.GRAY));
             lore.add(Component.literal(""));
         }
-        lore.add(styled("Left-click: " + offer.price() + " Quest Shards",
+        lore.add(styled(t("vanillaskills.menu.shop.left_click", "Left-click: %d Quest Shards", offer.price()),
                 canQuest ? ChatFormatting.LIGHT_PURPLE : ChatFormatting.DARK_GRAY));
-        lore.add(styled("Right-click: " + offer.skillPrice() + " Skill Shards",
+        lore.add(styled(t("vanillaskills.menu.shop.right_click", "Right-click: %d Skill Shards", offer.skillPrice()),
                 canSkill ? ChatFormatting.AQUA : ChatFormatting.DARK_GRAY));
         if (!canQuest && !canSkill) {
             lore.add(Component.literal(""));
-            lore.add(styled("You can't afford this yet", ChatFormatting.RED));
+            lore.add(styled(t("vanillaskills.menu.shop.cant_afford", "You can't afford this yet"), ChatFormatting.RED));
         }
         stack.set(DataComponents.LORE, new ItemLore(lore));
         return stack;
@@ -107,11 +112,12 @@ public class ShopMenu extends ChestMenu {
         int quest = VanillaSkills.PLAYERS.questShards(player);
         boolean can = quest >= QuestShop.CONVERT_RATIO;
         ItemStack stack = new ItemStack(Items.NETHER_STAR);
-        stack.set(DataComponents.CUSTOM_NAME, styled("Convert Shards", ChatFormatting.GOLD));
+        stack.set(DataComponents.CUSTOM_NAME, styled(t("vanillaskills.menu.shop.convert", "Convert Shards"), ChatFormatting.GOLD));
         stack.set(DataComponents.LORE, new ItemLore(List.of(
-                styled(QuestShop.CONVERT_RATIO + " Quest Shards → 1 Skill Shard", ChatFormatting.GRAY),
+                styled(t("vanillaskills.menu.shop.convert.rate", "%d Quest Shards → 1 Skill Shard", QuestShop.CONVERT_RATIO), ChatFormatting.GRAY),
                 Component.literal(""),
-                styled(can ? "Click to convert" : "Need " + QuestShop.CONVERT_RATIO + " Quest Shards",
+                styled(can ? t("vanillaskills.menu.shop.convert.do", "Click to convert")
+                                : t("vanillaskills.menu.shop.convert.need", "Need %d Quest Shards", QuestShop.CONVERT_RATIO),
                         can ? ChatFormatting.GREEN : ChatFormatting.RED))));
         if (can) stack.set(DataComponents.ENCHANTMENT_GLINT_OVERRIDE, true);
         return stack;

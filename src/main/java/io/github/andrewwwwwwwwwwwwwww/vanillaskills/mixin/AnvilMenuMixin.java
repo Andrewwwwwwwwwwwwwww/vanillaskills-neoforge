@@ -44,7 +44,6 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 public class AnvilMenuMixin {
 
     private static final int STEEL_FORGE_COST = 0; // free — mayPickup is overridden so a 0-cost result can still be taken
-    private static final int DRAGON_REPAIR_COST = 20; // flat: 1 Dragon Ingot + 20 levels = FULL repair, never scales, never caps
 
     @Shadow private int repairItemCountCost;
     @Shadow @org.spongepowered.asm.mixin.Final private DataSlot cost;
@@ -112,7 +111,9 @@ public class AnvilMenuMixin {
     @ModifyConstant(method = {"createResult", "createResultInternal"},
             constant = @Constant(intValue = 40), require = 1)
     private int vanillaskills$uncapTooExpensive(int cap) {
-        return Integer.MAX_VALUE;
+        // Config can restore the vanilla cap; default keeps it removed (costs still scale, never block).
+        return io.github.andrewwwwwwwwwwwwwww.vanillaskills.config.GameplayConfig.ANVIL_TOO_EXPENSIVE_CAP
+                ? cap : Integer.MAX_VALUE;
     }
 
     /** Dragon gear + 1 Dragon Ingot = a FULL repair for a flat 20 levels — no prior-work scaling, no
@@ -130,7 +131,7 @@ public class AnvilMenuMixin {
         result.setDamageValue(0);
         self.getSlot(AnvilMenu.RESULT_SLOT).set(result);
         this.repairItemCountCost = 1; // exactly one ingot per repair, however big the stack
-        this.cost.set(DRAGON_REPAIR_COST);
+        this.cost.set(io.github.andrewwwwwwwwwwwwwww.vanillaskills.config.GameplayConfig.DRAGON_REPAIR_COST);
         ci.cancel();
     }
 

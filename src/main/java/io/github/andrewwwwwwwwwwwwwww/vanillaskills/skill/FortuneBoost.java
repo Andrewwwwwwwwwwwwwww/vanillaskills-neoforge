@@ -39,6 +39,7 @@ public final class FortuneBoost {
 
     /** Call from the pre-break handler; spawns the bonus base drops for Fortune IV/V tools. */
     public static void onBreak(ServerLevel level, ServerPlayer player, BlockPos pos, BlockState state) {
+        if (!io.github.andrewwwwwwwwwwwwwww.vanillaskills.config.GameplayConfig.FORTUNE_BOOST) return;
         if (player.isCreative() || !ORES.contains(state.getBlock())) return;
         ItemStack tool = player.getMainHandItem();
         int fortune = fortuneLevel(tool);

@@ -168,11 +168,18 @@ public final class GuideBook {
     };
 
     public static ItemStack create() {
+        return create(null);
+    }
+
+    /** Build the guide, translated for {@code player} (null = English). Each page is one lang key
+     *  {@code vanillaskills.guide.page.<n>}; the two mending strings are keyed too. */
+    public static ItemStack create(ServerPlayer player) {
         String mending = GameplayConfig.MENDING_ENABLED
-                ? "Mending works normally on this server."
-                : "Mending is removed - it never appears anywhere.";
+                ? io.github.andrewwwwwwwwwwwwwww.vanillaskills.text.Lang.tr(player, "vanillaskills.guide.mending_on", "Mending works normally on this server.")
+                : io.github.andrewwwwwwwwwwwwwww.vanillaskills.text.Lang.tr(player, "vanillaskills.guide.mending_off", "Mending is removed - it never appears anywhere.");
         List<Filterable<Component>> pages = new ArrayList<>();
-        for (String page : PAGES) {
+        for (int pi = 0; pi < PAGES.length; pi++) {
+            String page = io.github.andrewwwwwwwwwwwwwww.vanillaskills.text.Lang.tr(player, "vanillaskills.guide.page." + pi, PAGES[pi]);
             // Fill the live-config tokens so the guide always matches the current settings.
             String text = page
                     .replace("{MENDING}", mending)
@@ -188,7 +195,7 @@ public final class GuideBook {
     }
 
     public static void open(ServerPlayer player) {
-        ItemStack book = create();
+        ItemStack book = create(player);
         int slot = 36 + player.getInventory().getSelectedSlot();
         int containerId = player.inventoryMenu.containerId;
         player.connection.send(new ClientboundContainerSetSlotPacket(
