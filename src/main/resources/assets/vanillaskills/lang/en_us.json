@@ -227,7 +227,7 @@
   "vanillaskills.lane.speed.header": "Move faster on foot.\n+2% walk speed per tier, up to +30%.",
   "vanillaskills.lane.mining.header": "Mine blocks faster.\nStacking mining efficiency — max it out to\ninstamine stone with an Efficiency V pickaxe.",
   "vanillaskills.lane.luck.header": "Raises your Luck (+0.5 per tier, up to +5).\nBetter loot from chests, vaults & fishing.",
-  "vanillaskills.lane.damage.header": "Hit harder in melee.\n+1 attack damage per tier, up to +10.",
+  "vanillaskills.lane.damage.header": "Hit harder in melee.\n+0.5 flat & +3% weapon damage per tier\n(up to +5 & +30%). Scales with your weapon.",
   "vanillaskills.lane.guardian.header": "Take less damage.\n+1 armor per tier, up to +10.",
   "vanillaskills.lane.reach.header": "Place and hit from further away.\n+0.5 block & entity reach per tier (max +2.5).",
   "vanillaskills.lane.mountaineer.header": "Auto-step up ledges up to 1.1 blocks tall.\nSneak to walk normally. Toggle: /skill toggle stepup.",

@@ -1,5 +1,10 @@
 # VanillaSkills Changelog
 
+## [1.6.2] - 2026-07-19
+### Changed
+- Warrior lane reworked: each tier now grants +0.5 flat AND +3% weapon damage (up to +5 and +30%) instead of +1 flat. The percentage scales with the weapon you hold, so swords stay ahead of an unarmed fist. Stacks with Sharpness as before.
+- Aquatic swim-speed nodes now grant Dolphin's Grace, which actually speeds up swimming and stacks with the Depth Strider enchantment (the old water-movement bonus only affected walking on the seabed and was capped).
+
 ## [1.6.1] - 2026-07-07
 ### Added
 - Completed the translation template: recipe names, all skill-lane header blurbs, and every Guide book page are now in en_us.json, and node titles auto-translate from their lane name (no per-tier keys needed). Added TRANSLATING.md. Community translations hot-reload with /skill reload.
