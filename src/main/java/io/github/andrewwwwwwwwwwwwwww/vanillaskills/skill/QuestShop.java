@@ -24,7 +24,7 @@ public final class QuestShop {
      *  Default 3 — set live from gameplay.json by {@link GameplayConfig}. */
     public static int CONVERT_RATIO = 3;
     /** How many rotating offers are shown each day. */
-    public static final int DAILY_COUNT = 8;
+    public static int dailyCount() { return io.github.andrewwwwwwwwwwwwwww.vanillaskills.config.GameplayConfig.SHOP_SLOTS; }
 
     /** A single granted stack within an offer. */
     public record Grant(String itemId, int count) {}
@@ -203,7 +203,7 @@ public final class QuestShop {
         Random rng = new Random(currentDay() * 0x9E3779B97F4A7C15L);
         List<ShopOffer> pool = new ArrayList<>(CATALOG);
         List<ShopOffer> chosen = new ArrayList<>();
-        int count = Math.min(DAILY_COUNT, pool.size());
+        int count = Math.min(dailyCount(), pool.size());
         for (int n = 0; n < count; n++) {
             int total = 0;
             for (ShopOffer o : pool) total += weight(o);
@@ -223,13 +223,13 @@ public final class QuestShop {
         if (paySkillShards) {
             int cost = offer.skillPrice();
             if (!VanillaSkills.PLAYERS.spendSkillShards(player, cost)) {
-                player.sendSystemMessage(Component.literal("Not enough Skill Shards (need " + cost + ").")
+                player.sendSystemMessage(Component.literal(io.github.andrewwwwwwwwwwwwwww.vanillaskills.text.Lang.tr(player,"vanillaskills.msg.need_skill","Not enough Skill Shards (need %d).", cost))
                         .withStyle(ChatFormatting.RED));
                 return false;
             }
         } else {
             if (!VanillaSkills.PLAYERS.spendQuestShards(player, offer.price())) {
-                player.sendSystemMessage(Component.literal("Not enough Quest Shards (need " + offer.price() + ").")
+                player.sendSystemMessage(Component.literal(io.github.andrewwwwwwwwwwwwwww.vanillaskills.text.Lang.tr(player,"vanillaskills.msg.need_quest","Not enough Quest Shards (need %d).", offer.price()))
                         .withStyle(ChatFormatting.RED));
                 return false;
             }
@@ -239,7 +239,7 @@ public final class QuestShop {
             player.getInventory().placeItemBackInInventory(stack);
         }
         String paid = paySkillShards ? (offer.skillPrice() + " Skill Shards") : (offer.price() + " Quest Shards");
-        player.sendSystemMessage(Component.literal("Purchased " + offer.displayName() + " for " + paid + ".")
+        player.sendSystemMessage(Component.literal(io.github.andrewwwwwwwwwwwwwww.vanillaskills.text.Lang.tr(player,"vanillaskills.msg.purchased","Purchased %s for %s.", offer.displayName(), paid))
                 .withStyle(ChatFormatting.GREEN));
         return true;
     }
@@ -247,7 +247,7 @@ public final class QuestShop {
     /** Convert Quest Shards → 1 Skill Shard at the 3:1 ratio; messages the player. */
     public static boolean convertOne(ServerPlayer player) {
         if (!VanillaSkills.PLAYERS.convertToSkillShards(player, 1)) {
-            player.sendSystemMessage(Component.literal("Not enough Quest Shards (need " + CONVERT_RATIO + ").")
+            player.sendSystemMessage(Component.literal(io.github.andrewwwwwwwwwwwwwww.vanillaskills.text.Lang.tr(player,"vanillaskills.msg.need_quest","Not enough Quest Shards (need %d).", CONVERT_RATIO))
                     .withStyle(ChatFormatting.RED));
             return false;
         }

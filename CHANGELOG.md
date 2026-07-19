@@ -1,5 +1,12 @@
 # VanillaSkills Changelog
 
+## [1.6.0] - 2026-07-07
+### Added
+- **Language file support.** Menus, quests, feats and messages are now translated server-side per player, from that player's client language. Bundled en_us.json is the template; drop community translations at <world>/vanillaskills/lang/<locale>.json (server-only) or send them in to bundle. Falls back to English for any missing key.
+- **Many new gameplay.json toggles:** toolCraftingRequirements / armorCraftingRequirements (disable = ungate crafting AND hide that lane), deepslateGate, fortuneBoost, questsPerRotation, questShopSlots, anvilTooExpensiveCap, dragonRepairCost, starterQuests (new players skip the starter board), and feats.
+### Changed
+- **Feats are now OFF by default** (removed as too strong). Re-enable with feats=true in gameplay.json if you want them back.
+
 ## [1.5.0] - 2026-07-18
 ### Added
 - **Language support.** The mod now translates its UI per player, server-side, using the language each client reports. Bundled defaults live in the jar (assets/vanillaskills/lang/en_us.json, 180+ keys covering the Bounty Board, Feats tab, quests and feats); server owners can drop community translations (e.g. ru_ru.json) into <world>/vanillaskills/lang/ - no jar editing. Missing keys safely fall back to English. More screens (skill tree, shop, recipe book) get keys next update.

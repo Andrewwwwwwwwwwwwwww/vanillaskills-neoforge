@@ -41,11 +41,12 @@ public final class DeepslateGate {
 
     /** True if this player may break the given block; messages them (action bar) when blocked. */
     public static boolean canBreak(Player player, BlockState state) {
+        if (!io.github.andrewwwwwwwwwwwwwww.vanillaskills.config.GameplayConfig.DEEPSLATE_GATE) return true;
         if (player.isCreative() || !isDeepslate(state)) return true;
         if (qualifies(player.getMainHandItem())) return true;
         if (player instanceof net.minecraft.server.level.ServerPlayer sp) {
             sp.connection.send(new net.minecraft.network.protocol.game.ClientboundSetActionBarTextPacket(
-                    Component.literal("You need a Steel-tier or better pickaxe to mine deepslate.")
+                    Component.literal(io.github.andrewwwwwwwwwwwwwww.vanillaskills.text.Lang.tr(sp,"vanillaskills.msg.deepslate","You need a Steel-tier or better pickaxe to mine deepslate."))
                             .withStyle(ChatFormatting.RED)));
         }
         return false;

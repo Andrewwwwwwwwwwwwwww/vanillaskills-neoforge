@@ -37,7 +37,7 @@ public class RecipeBookMenu extends ChestMenu {
     public static void open(ServerPlayer player, int page) {
         player.openMenu(new SimpleMenuProvider(
                 (syncId, inv, p) -> new RecipeBookMenu(syncId, inv, (ServerPlayer) p, page),
-                Component.literal("Recipes")));
+                Component.literal(io.github.andrewwwwwwwwwwwwwww.vanillaskills.text.Lang.tr(player,"vanillaskills.menu.recipe.title","Recipes"))));
     }
 
     private RecipeBookMenu(int syncId, Inventory inv, ServerPlayer player, int page) {
@@ -47,6 +47,15 @@ public class RecipeBookMenu extends ChestMenu {
         this.recipes = RecipeBook.all();
         this.page = Math.max(0, Math.min(page, recipes.size() - 1));
         populate();
+    }
+
+    private String t(String key, String fallback, Object... args) {
+        return io.github.andrewwwwwwwwwwwwwww.vanillaskills.text.Lang.tr(player, key, fallback, args);
+    }
+
+    /** Stable recipe key: "Rose Gold Ingot (x4)" -> vanillaskills.recipe.rose_gold_ingot_x4 */
+    private static String recipeKey(String title) {
+        return "vanillaskills.recipe." + title.toLowerCase().replaceAll("[^a-z0-9]+","_").replaceAll("^_+|_+$","");
     }
 
     private void populate() {
@@ -62,23 +71,24 @@ public class RecipeBookMenu extends ChestMenu {
         container.setItem(ARROW_SLOT, button(Items.SPECTRAL_ARROW, "→", ChatFormatting.WHITE, null));
         container.setItem(RESULT_SLOT, rec.result().copy());
 
-        container.setItem(BACK_SLOT, button(Items.ARROW, "Back to Skills", ChatFormatting.YELLOW, null));
-        container.setItem(INFO_SLOT, button(Items.PAPER, "Recipe " + (page + 1) + " / " + recipes.size(),
+        container.setItem(BACK_SLOT, button(Items.ARROW, t("vanillaskills.menu.recipe.back","Back to Skills"), ChatFormatting.YELLOW, null));
+        container.setItem(INFO_SLOT, button(Items.PAPER, t("vanillaskills.menu.recipe.page","Recipe %d / %d", page + 1, recipes.size()),
                 ChatFormatting.GRAY, null));
-        if (page > 0) container.setItem(PREV_SLOT, button(Items.ARROW, "◀ Previous", ChatFormatting.YELLOW, null));
-        if (page < recipes.size() - 1) container.setItem(NEXT_SLOT, button(Items.ARROW, "Next ▶", ChatFormatting.YELLOW, null));
-        container.setItem(CLOSE_SLOT, button(Items.BARRIER, "Close", ChatFormatting.RED, null));
+        if (page > 0) container.setItem(PREV_SLOT, button(Items.ARROW, t("vanillaskills.menu.recipe.prev","◀ Previous"), ChatFormatting.YELLOW, null));
+        if (page < recipes.size() - 1) container.setItem(NEXT_SLOT, button(Items.ARROW, t("vanillaskills.menu.recipe.next","Next ▶"), ChatFormatting.YELLOW, null));
+        container.setItem(CLOSE_SLOT, button(Items.BARRIER, t("vanillaskills.menu.close","Close"), ChatFormatting.RED, null));
     }
 
     /** The station icon at the top, titled, with the recipe's "what it's for" description as lore. */
     private ItemStack titleItem(RecipeBook.Display rec) {
         ItemStack stack = new ItemStack(rec.station());
         Guis.hideStats(stack);
-        stack.set(DataComponents.CUSTOM_NAME, Component.literal(rec.title())
+        stack.set(DataComponents.CUSTOM_NAME, Component.literal(t(recipeKey(rec.title()), rec.title()))
                 .withStyle(ChatFormatting.GOLD).withStyle(s -> s.withItalic(false)));
         if (rec.desc() != null && rec.desc().length > 0) {
             java.util.List<Component> lore = new java.util.ArrayList<>();
-            for (String line : rec.desc()) {
+            String d = t(recipeKey(rec.title()) + ".desc", String.join("\n", rec.desc()));
+            for (String line : d.split("\n")) {
                 lore.add(Component.literal(line).withStyle(ChatFormatting.GRAY).withStyle(s -> s.withItalic(false)));
             }
             stack.set(DataComponents.LORE, new ItemLore(lore));

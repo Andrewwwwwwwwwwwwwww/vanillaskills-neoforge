@@ -38,6 +38,22 @@ public class GameplayConfig {
     /** Read by {@code CraftingGate}: when false, ARMOR crafting has no skill requirement and the
      *  Armorsmith lane is hidden from the skill tree. */
     public static volatile boolean ARMOR_REQS_ENABLED = true;
+    /** Read by {@code DeepslateGate}: false = anyone can mine deepslate (no Steel-pick requirement). */
+    public static volatile boolean DEEPSLATE_GATE = true;
+    /** Read by {@code FortuneBoost}: false = Fortune IV/V behave like vanilla (no extra base drops). */
+    public static volatile boolean FORTUNE_BOOST = true;
+    /** Read by {@code Feats}: false = the whole Feats system is off (no tab, no auto-awards). */
+    public static volatile boolean FEATS_ENABLED = false;
+    /** Read by {@code PlayerSkillManager} on first join: false = new players skip the starter board. */
+    public static volatile boolean STARTER_QUESTS = true;
+    /** Read by {@code QuestBoard}: how many quests are dealt per rotation. */
+    public static volatile int QUESTS_PER_ROTATION = 6;
+    /** Read by {@code QuestShop}: how many offers appear per shop rotation. */
+    public static volatile int SHOP_SLOTS = 8;
+    /** Read by {@code AnvilMenuMixin}: true = restore the vanilla 40-level "Too Expensive" cap. */
+    public static volatile boolean ANVIL_TOO_EXPENSIVE_CAP = false;
+    /** Read by {@code AnvilMenuMixin}: flat level cost to fully repair Dragon gear with a Dragon Ingot. */
+    public static volatile int DRAGON_REPAIR_COST = 20;
     /** Read by {@code QuestBoard} when re-rolling: ms between bounty rotations. */
     public static volatile long BOUNTY_REFRESH_MS = 5L * 3_600_000L;
     /** Read by {@code QuestShop}: ms between shop rotations. */
@@ -63,6 +79,23 @@ public class GameplayConfig {
     /** Skill-gate ARMOR crafting behind the Armorsmith lane (default true). Set false to let anyone
      *  craft any armor tier — the Armorsmith lane disappears from the skill tree. */
     public boolean armorCraftingRequirements = true;
+    /** Require a Steel-tier or better pickaxe to mine deepslate (default true). Set false to disable. */
+    public boolean deepslateGate = true;
+    /** Fortune IV/V grant extra base ore drops (default true). Set false for vanilla fortune behaviour. */
+    public boolean fortuneBoost = true;
+    /** Enable the Feats system — one-time achievement rewards (default FALSE; was removed as too strong). */
+    public boolean feats = false;
+    /** New players start on the fixed starter board (default true). Set false to send new players
+     *  straight to the rotating board (players already mid-starter finish theirs normally). */
+    public boolean starterQuests = true;
+    /** How many quests the rotating board deals per rotation (default 6). */
+    public int questsPerRotation = 6;
+    /** How many offers the Quest Shop shows per rotation (default 8). */
+    public int questShopSlots = 8;
+    /** Restore vanilla's 40-level "Too Expensive" anvil cap (default false = no cap, costs still scale). */
+    public boolean anvilTooExpensiveCap = false;
+    /** Flat level cost to fully repair a Dragon tool/armor piece with 1 Dragon Ingot (default 20). */
+    public int dragonRepairCost = 20;
     /** Auto-push the VanillaSkills texture pack to joining clients (required). Default on. */
     public boolean serverResourcePack = true;
     /** Texture-pack download URL the server pushes (default = the GitHub release asset). */
@@ -101,6 +134,14 @@ public class GameplayConfig {
         MENDING_ENABLED = mendingEnabled;
         TOOL_REQS_ENABLED = toolCraftingRequirements;
         ARMOR_REQS_ENABLED = armorCraftingRequirements;
+        DEEPSLATE_GATE = deepslateGate;
+        FORTUNE_BOOST = fortuneBoost;
+        FEATS_ENABLED = feats;
+        STARTER_QUESTS = starterQuests;
+        QUESTS_PER_ROTATION = Math.max(1, Math.min(6, questsPerRotation));  // 6 quest slots in the GUI
+        SHOP_SLOTS = Math.max(1, Math.min(45, questShopSlots));
+        ANVIL_TOO_EXPENSIVE_CAP = anvilTooExpensiveCap;
+        DRAGON_REPAIR_COST = Math.max(0, dragonRepairCost);
         io.github.andrewwwwwwwwwwwwwww.vanillaskills.text.Lang.invalidate(); // re-read lang files on reload
         BOUNTY_REFRESH_MS = Math.max(1, bountyRefreshHours) * 3_600_000L;
         SHOP_REFRESH_MS = Math.max(1, shopRefreshHours) * 3_600_000L;
