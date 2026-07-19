@@ -160,6 +160,18 @@ public class SkillTreeMenu extends ChestMenu {
         return t("vanillaskills.lane." + cat.id, cat.title);
     }
 
+    /** Translated node title. Node titles are "<LaneName> <roman>", so swapping in the translated lane
+     *  name localizes them all for free — no per-node keys. A per-node key still overrides if present. */
+    private String nodeTitle(SkillNode node) {
+        String override = t("vanillaskills.node." + node.id, "");
+        if (!override.isEmpty()) return override;
+        SkillCategory cat = VanillaSkills.TREE.tree().category(node.category);
+        if (cat != null && cat.title != null && node.title.startsWith(cat.title)) {
+            return laneName(cat) + node.title.substring(cat.title.length());
+        }
+        return node.title;
+    }
+
     private ItemStack buildCategoryItem(SkillCategory cat, PlayerSkillData data) {
         SkillTree tree = VanillaSkills.TREE.tree();
         // Recipes is a pseudo-lane that opens the custom-recipe book.
@@ -320,7 +332,7 @@ public class SkillTreeMenu extends ChestMenu {
                 : gated ? ChatFormatting.DARK_GRAY
                 : !prereqMet ? ChatFormatting.GRAY
                 : affordableChain ? curColor : ChatFormatting.RED;
-        stack.set(DataComponents.CUSTOM_NAME, styled(t("vanillaskills.node."+node.id, node.title) + (unlocked ? " ✔" : ""), nameColor));
+        stack.set(DataComponents.CUSTOM_NAME, styled(nodeTitle(node) + (unlocked ? " ✔" : ""), nameColor));
 
         List<Component> lore = new ArrayList<>();
         for (String line : node.description) lore.add(styled(line, ChatFormatting.GRAY));

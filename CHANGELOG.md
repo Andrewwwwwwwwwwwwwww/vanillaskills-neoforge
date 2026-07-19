@@ -1,5 +1,9 @@
 # VanillaSkills Changelog
 
+## [1.6.1] - 2026-07-07
+### Added
+- Completed the translation template: recipe names, all skill-lane header blurbs, and every Guide book page are now in en_us.json, and node titles auto-translate from their lane name (no per-tier keys needed). Added TRANSLATING.md. Community translations hot-reload with /skill reload.
+
 ## [1.6.0] - 2026-07-07
 ### Added
 - **Language file support.** Menus, quests, feats and messages are now translated server-side per player, from that player's client language. Bundled en_us.json is the template; drop community translations at <world>/vanillaskills/lang/<locale>.json (server-only) or send them in to bundle. Falls back to English for any missing key.
