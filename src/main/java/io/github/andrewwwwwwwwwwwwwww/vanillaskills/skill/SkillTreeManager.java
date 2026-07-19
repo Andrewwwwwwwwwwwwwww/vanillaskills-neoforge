@@ -162,11 +162,24 @@ public class SkillTreeManager {
                 new int[]{1, 1, 2, 2, 3, 4, 5, 7, 11, 14},
                 n -> "+0.5 luck — +" + fmt(0.5 * n) + " total");
 
-        // Warrior: +1 attack damage per node, up to +10 (10 nodes). End-loaded cost ramp.
-        addScalingLane(t, "damage", "Warrior", "minecraft:iron_sword", 4,
-                "minecraft:attack_damage", "add_value", 1.0, gridSlots(10),
-                new int[]{2, 2, 3, 4, 5, 7, 10, 14, 23, 30},
-                n -> "+1 attack damage — +" + n + " total");
+        // Warrior: each node adds +0.5 FLAT attack damage AND +3% WEAPON damage. The percentage uses
+        // add_multiplied_total, so it scales with the total damage of whatever you're holding — a real
+        // weapon benefits far more than a bare fist, which keeps swords ahead (a flat-only bonus made
+        // the fast-swinging fist out-DPS slow weapons). Maxes at +5 flat and +30%. End-loaded ramp.
+        {
+            int n = 10;
+            SkillEffect[][] warrior = new SkillEffect[n][];
+            String[] warriorDesc = new String[n];
+            for (int i = 0; i < n; i++) {
+                warrior[i] = new SkillEffect[]{
+                        SkillEffect.attribute("minecraft:attack_damage", "add_value", 0.5),
+                        SkillEffect.attribute("minecraft:attack_damage", "add_multiplied_total", 0.03)};
+                int lvl = i + 1;
+                warriorDesc[i] = "+0.5 dmg & +3% weapon damage — +" + fmt(0.5 * lvl) + " flat, +" + (3 * lvl) + "%";
+            }
+            addLaneNodes(t, "damage", "Warrior", "minecraft:iron_sword", 4, gridSlots(10),
+                    new int[]{2, 2, 3, 4, 5, 7, 10, 14, 23, 30}, warrior, warriorDesc);
+        }
 
         // Guardian: +1 armor per node, up to +10 (10 nodes). End-loaded — maxing is a real investment.
         addScalingLane(t, "guardian", "Guardian", "minecraft:iron_chestplate", 5,
@@ -201,15 +214,23 @@ public class SkillTreeManager {
                         {SkillEffect.attribute("minecraft:oxygen_bonus", "add_value", 1.0)},
                         {SkillEffect.attribute("minecraft:oxygen_bonus", "add_value", 1.0)},
                         {SkillEffect.attribute("minecraft:oxygen_bonus", "add_value", 1.0)},
-                        {SkillEffect.attribute("minecraft:water_movement_efficiency", "add_value", 0.34)},
-                        {SkillEffect.attribute("minecraft:water_movement_efficiency", "add_value", 0.33)},
-                        {SkillEffect.attribute("minecraft:water_movement_efficiency", "add_value", 0.33)},
+                        // Swim speed: Dolphin's Grace actually speeds the swim stroke (water_movement_efficiency
+                        // only governs walking on the seabed and is capped at 1.0). Grace is a status effect, a
+                        // separate system from the Depth Strider enchantment, so the two stack.
+                        {SkillEffect.attribute("minecraft:water_movement_efficiency", "add_value", 0.34),
+                                SkillEffect.status("minecraft:dolphins_grace", 0)},
+                        {SkillEffect.attribute("minecraft:water_movement_efficiency", "add_value", 0.33),
+                                SkillEffect.status("minecraft:dolphins_grace", 1)},
+                        {SkillEffect.attribute("minecraft:water_movement_efficiency", "add_value", 0.33),
+                                SkillEffect.status("minecraft:dolphins_grace", 2)},
                         {SkillEffect.attribute("minecraft:submerged_mining_speed", "add_value", 0.27)},
                         {SkillEffect.attribute("minecraft:submerged_mining_speed", "add_value", 0.27)},
                         {SkillEffect.attribute("minecraft:submerged_mining_speed", "add_value", 0.26)}
                 },
                 new String[]{"+1 breath", "+1 breath (+2)", "+1 breath (+3)",
-                        "+34% swim speed", "+67% swim speed", "Full surface swim speed",
+                        "Faster swimming — Dolphin's Grace, stacks with Depth Strider",
+                        "Faster swimming + walk through water at land speed",
+                        "Full swim speed & water movement",
                         "+27% underwater mining", "+54% underwater mining", "Full underwater mining"});
 
         // Armorsmith: a 10-tier ladder (paid in QUEST SHARDS) that gates crafting each armour tier,
