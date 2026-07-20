@@ -1,6 +1,7 @@
 package io.github.andrewwwwwwwwwwwwwww.vanillaskills.gui;
 
 import io.github.andrewwwwwwwwwwwwwww.vanillaskills.VanillaSkills;
+import io.github.andrewwwwwwwwwwwwwww.vanillaskills.text.Lang;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.Holder;
 import net.minecraft.core.component.DataComponents;
@@ -26,27 +27,34 @@ public final class StatsScreen {
         // Currencies & progression first.
         var data = VanillaSkills.PLAYERS.get(player.getUUID());
         int total = VanillaSkills.PLAYERS.totalEarnable();
-        items.add(info(Items.EXPERIENCE_BOTTLE, "Skill Shards", ChatFormatting.AQUA, List.of(
-                data.pointsAvailable + " available",
-                "earned " + data.pointsEarned + (total > 0 ? " of ~" + total + " possible" : ""))));
-        items.add(info(Items.AMETHYST_SHARD, "Quest Shards", ChatFormatting.LIGHT_PURPLE, List.of(
-                data.questShardsAvailable + " available",
-                "spend them at the bounty board shop")));
+        String earned = total > 0
+                ? Lang.tr(player, "vanillaskills.stats.earned_of", "earned %d of ~%d possible", data.pointsEarned, total)
+                : Lang.tr(player, "vanillaskills.stats.earned", "earned %d", data.pointsEarned);
+        items.add(info(Items.EXPERIENCE_BOTTLE,
+                Lang.tr(player, "vanillaskills.menu.skill_shards", "Skill Shards"), ChatFormatting.AQUA, List.of(
+                Lang.tr(player, "vanillaskills.stats.available", "%d available", data.pointsAvailable),
+                earned)));
+        items.add(info(Items.AMETHYST_SHARD,
+                Lang.tr(player, "vanillaskills.menu.quest_shards", "Quest Shards"), ChatFormatting.LIGHT_PURPLE, List.of(
+                Lang.tr(player, "vanillaskills.stats.available", "%d available", data.questShardsAvailable),
+                Lang.tr(player, "vanillaskills.stats.spend_hint", "spend them at the bounty board shop"))));
 
         // Aquatic lane summary (what the player has unlocked in that lane).
         items.add(aquaticSummary(player));
 
         // Attribute totals.
-        add(items, player, Attributes.MAX_HEALTH, Items.APPLE, "Max Health");
-        add(items, player, Attributes.ARMOR, Items.IRON_CHESTPLATE, "Armor");
-        add(items, player, Attributes.ARMOR_TOUGHNESS, Items.DIAMOND_CHESTPLATE, "Armor Toughness");
-        add(items, player, Attributes.KNOCKBACK_RESISTANCE, Items.SHIELD, "Knockback Resistance");
-        add(items, player, Attributes.ATTACK_DAMAGE, Items.IRON_SWORD, "Attack Damage");
-        add(items, player, Attributes.ATTACK_SPEED, Items.CLOCK, "Attack Speed");
-        add(items, player, Attributes.MOVEMENT_SPEED, Items.FEATHER, "Movement Speed");
-        add(items, player, Attributes.MINING_EFFICIENCY, Items.IRON_PICKAXE, "Mining Efficiency");
-        add(items, player, Attributes.LUCK, Items.RABBIT_FOOT, "Luck");
-        InfoMenu.open(player, styled("Your Stats", ChatFormatting.AQUA), 4, items);
+        add(items, player, Attributes.MAX_HEALTH, Items.APPLE, "max_health", "Max Health");
+        add(items, player, Attributes.ARMOR, Items.IRON_CHESTPLATE, "armor", "Armor");
+        add(items, player, Attributes.ARMOR_TOUGHNESS, Items.DIAMOND_CHESTPLATE, "armor_toughness", "Armor Toughness");
+        add(items, player, Attributes.KNOCKBACK_RESISTANCE, Items.SHIELD, "knockback_resistance", "Knockback Resistance");
+        add(items, player, Attributes.ATTACK_DAMAGE, Items.IRON_SWORD, "attack_damage", "Attack Damage");
+        add(items, player, Attributes.ATTACK_SPEED, Items.CLOCK, "attack_speed", "Attack Speed");
+        add(items, player, Attributes.MOVEMENT_SPEED, Items.FEATHER, "movement_speed", "Movement Speed");
+        add(items, player, Attributes.MINING_EFFICIENCY, Items.IRON_PICKAXE, "mining_efficiency", "Mining Efficiency");
+        add(items, player, Attributes.LUCK, Items.RABBIT_FOOT, "luck", "Luck");
+        InfoMenu.open(player,
+                styled(Lang.tr(player, "vanillaskills.menu.skilltree.your_stats", "Your Stats"), ChatFormatting.AQUA),
+                4, items);
     }
 
     /** Summarises how much of the Aquatic lane the player has unlocked: breaths, swim speed, mine speed. */
@@ -65,10 +73,11 @@ public final class StatsScreen {
                 }
             }
         }
-        return info(Items.HEART_OF_THE_SEA, "Aquatic", ChatFormatting.AQUA, List.of(
-                "Breaths: +" + (int) Math.round(breaths),
-                "Swim Speed: +" + Math.round(swim * 100) + "%",
-                "Mine Speed: +" + Math.round(mine * 100) + "%"));
+        return info(Items.HEART_OF_THE_SEA,
+                Lang.tr(player, "vanillaskills.lane.aquatic", "Aquatic"), ChatFormatting.AQUA, List.of(
+                Lang.tr(player, "vanillaskills.stats.breaths", "Breaths: +%d", (int) Math.round(breaths)),
+                Lang.tr(player, "vanillaskills.stats.swim", "Swim Speed: +%d%%", Math.round(swim * 100)),
+                Lang.tr(player, "vanillaskills.stats.mine", "Mine Speed: +%d%%", Math.round(mine * 100))));
     }
 
     private static ItemStack info(Item icon, String label, ChatFormatting color, List<String> lore) {
@@ -81,10 +90,12 @@ public final class StatsScreen {
         return stack;
     }
 
-    private static void add(List<ItemStack> items, ServerPlayer player, Holder<Attribute> attribute, Item icon, String label) {
+    private static void add(List<ItemStack> items, ServerPlayer player, Holder<Attribute> attribute,
+                            Item icon, String key, String fallback) {
         ItemStack stack = new ItemStack(icon);
         Guis.hideStats(stack);
-        stack.set(DataComponents.CUSTOM_NAME, styled(label, ChatFormatting.AQUA));
+        stack.set(DataComponents.CUSTOM_NAME,
+                styled(Lang.tr(player, "vanillaskills.stats.attr." + key, fallback), ChatFormatting.AQUA));
         double value = player.getAttributeValue(attribute);
         stack.set(DataComponents.LORE, new ItemLore(List.of(styled(format(value), ChatFormatting.WHITE))));
         items.add(stack);

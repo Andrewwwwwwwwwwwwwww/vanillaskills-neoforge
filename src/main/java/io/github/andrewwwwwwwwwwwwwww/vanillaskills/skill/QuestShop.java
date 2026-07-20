@@ -238,7 +238,11 @@ public final class QuestShop {
             ItemStack stack = new ItemStack(Quests.item(g.itemId()), g.count());
             player.getInventory().placeItemBackInInventory(stack);
         }
-        String paid = paySkillShards ? (offer.skillPrice() + " Skill Shards") : (offer.price() + " Quest Shards");
+        String paid = paySkillShards
+                ? io.github.andrewwwwwwwwwwwwwww.vanillaskills.text.Lang.tr(player,
+                        "vanillaskills.msg.amount_skill", "%d Skill Shards", offer.skillPrice())
+                : io.github.andrewwwwwwwwwwwwwww.vanillaskills.text.Lang.tr(player,
+                        "vanillaskills.msg.amount_quest", "%d Quest Shards", offer.price());
         player.sendSystemMessage(Component.literal(io.github.andrewwwwwwwwwwwwwww.vanillaskills.text.Lang.tr(player,"vanillaskills.msg.purchased","Purchased %s for %s.", offer.displayName(), paid))
                 .withStyle(ChatFormatting.GREEN));
         return true;

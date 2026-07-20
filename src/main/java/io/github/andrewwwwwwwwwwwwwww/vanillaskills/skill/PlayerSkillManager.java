@@ -259,18 +259,21 @@ public class PlayerSkillManager {
             if (!data.hasUnlocked(req)) {
                 SkillNode reqNode = tree.byId(req);
                 String reqName = reqNode != null ? reqNode.title : req;
-                player.sendSystemMessage(Component.literal("Requires: " + reqName).withStyle(ChatFormatting.RED));
+                player.sendSystemMessage(Component.literal(io.github.andrewwwwwwwwwwwwwww.vanillaskills.text.Lang.tr(player,
+                        "vanillaskills.msg.requires", "Requires: %s", reqName)).withStyle(ChatFormatting.RED));
                 return false;
             }
         }
         if (node.minEarned > 0 && data.pointsEarned < node.minEarned) {
-            player.sendSystemMessage(Component.literal("Unlocks after earning " + node.minEarned
-                    + " Skill Shards (you've earned " + data.pointsEarned + ").").withStyle(ChatFormatting.RED));
+            player.sendSystemMessage(Component.literal(io.github.andrewwwwwwwwwwwwwww.vanillaskills.text.Lang.tr(player,
+                    "vanillaskills.msg.gate_locked", "Unlocks after earning %d Skill Shards (you've earned %d).",
+                    node.minEarned, data.pointsEarned)).withStyle(ChatFormatting.RED));
             return false;
         }
-        String cur = currencyName(node);
+        String cur = currencyName(player, node);
         if (available(data, node) < node.cost) {
-            player.sendSystemMessage(Component.literal("Not enough " + cur + " (need " + node.cost + ").")
+            player.sendSystemMessage(Component.literal(io.github.andrewwwwwwwwwwwwwww.vanillaskills.text.Lang.tr(player,
+                    "vanillaskills.msg.need_currency", "Not enough %s (need %d).", cur, node.cost))
                     .withStyle(ChatFormatting.RED));
             return false;
         }
@@ -298,7 +301,9 @@ public class PlayerSkillManager {
 
         LinkedHashSet<String> chain = new LinkedHashSet<>();
         if (!resolveChain(tree, data, nodeId, chain, new HashSet<>())) {
-            player.sendSystemMessage(Component.literal("This skill's requirements can't be resolved.").withStyle(ChatFormatting.RED));
+            player.sendSystemMessage(Component.literal(io.github.andrewwwwwwwwwwwwwww.vanillaskills.text.Lang.tr(player,
+                    "vanillaskills.msg.chain_unresolved", "This skill's requirements can't be resolved."))
+                    .withStyle(ChatFormatting.RED));
             return false;
         }
         int total = 0, maxGate = 0;
@@ -308,14 +313,16 @@ public class PlayerSkillManager {
             total += n.cost;
             maxGate = Math.max(maxGate, n.minEarned);
         }
-        String cur = currencyName(target);
+        String cur = currencyName(player, target);
         if (maxGate > 0 && data.pointsEarned < maxGate) {
-            player.sendSystemMessage(Component.literal("Unlocks after earning " + maxGate
-                    + " Skill Shards (you've earned " + data.pointsEarned + ").").withStyle(ChatFormatting.RED));
+            player.sendSystemMessage(Component.literal(io.github.andrewwwwwwwwwwwwwww.vanillaskills.text.Lang.tr(player,
+                    "vanillaskills.msg.gate_locked", "Unlocks after earning %d Skill Shards (you've earned %d).",
+                    maxGate, data.pointsEarned)).withStyle(ChatFormatting.RED));
             return false;
         }
         if (available(data, target) < total) {
-            player.sendSystemMessage(Component.literal("Not enough " + cur + " (need " + total + " for the chain).")
+            player.sendSystemMessage(Component.literal(io.github.andrewwwwwwwwwwwwwww.vanillaskills.text.Lang.tr(player,
+                    "vanillaskills.msg.chain_cost", "Not enough %s (need %d for the chain).", cur, total))
                     .withStyle(ChatFormatting.RED));
             return false;
         }
@@ -330,14 +337,20 @@ public class PlayerSkillManager {
         checkCompletionist(player, data);
         save(player.getUUID());
         int count = chain.size();
-        player.sendSystemMessage(Component.literal("Unlocked " + count + " skill" + (count == 1 ? "" : "s")
-                + " for " + total + " " + cur + ".").withStyle(ChatFormatting.GREEN));
+        String msg = count == 1
+                ? io.github.andrewwwwwwwwwwwwwww.vanillaskills.text.Lang.tr(player,
+                        "vanillaskills.msg.unlocked_one", "Unlocked 1 skill for %d %s.", total, cur)
+                : io.github.andrewwwwwwwwwwwwwww.vanillaskills.text.Lang.tr(player,
+                        "vanillaskills.msg.unlocked_many", "Unlocked %d skills for %d %s.", count, total, cur);
+        player.sendSystemMessage(Component.literal(msg).withStyle(ChatFormatting.GREEN));
         return true;
     }
 
-    /** The display name of a node's currency. */
-    private static String currencyName(SkillNode node) {
-        return node.isQuestCurrency() ? "Quest Shards" : "Skill Shards";
+    /** The display name of a node's currency, in the player's language. */
+    private static String currencyName(net.minecraft.server.level.ServerPlayer player, SkillNode node) {
+        return node.isQuestCurrency()
+                ? io.github.andrewwwwwwwwwwwwwww.vanillaskills.text.Lang.tr(player, "vanillaskills.menu.quest_shards", "Quest Shards")
+                : io.github.andrewwwwwwwwwwwwwww.vanillaskills.text.Lang.tr(player, "vanillaskills.menu.skill_shards", "Skill Shards");
     }
 
     /** The player's available balance in the node's currency. */
@@ -384,8 +397,13 @@ public class PlayerSkillManager {
         }
         save(player.getUUID());
         int count = remove.size();
-        player.sendSystemMessage(Component.literal("Refunded " + count + " skill" + (count == 1 ? "" : "s")
-                + " for " + refunded + " " + currencyName(target) + ".").withStyle(ChatFormatting.YELLOW));
+        String refundCur = currencyName(player, target);
+        String refundMsg = count == 1
+                ? io.github.andrewwwwwwwwwwwwwww.vanillaskills.text.Lang.tr(player,
+                        "vanillaskills.msg.refunded_one", "Refunded 1 skill for %d %s.", refunded, refundCur)
+                : io.github.andrewwwwwwwwwwwwwww.vanillaskills.text.Lang.tr(player,
+                        "vanillaskills.msg.refunded_many", "Refunded %d skills for %d %s.", count, refunded, refundCur);
+        player.sendSystemMessage(Component.literal(refundMsg).withStyle(ChatFormatting.YELLOW));
         return true;
     }
 
