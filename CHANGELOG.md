@@ -1,5 +1,9 @@
 # VanillaSkills Changelog
 
+## [1.6.3] - 2026-07-19
+### Added
+- Fortune V now has a flat **0.5% chance to drop a second Ancient Debris** when mining it (vanilla Fortune does nothing for debris). A rare bonus, not a reliable multiplier; requires the correct tool, not in creative, and respects the `fortuneBoost` config toggle.
+
 ## [1.6.2] - 2026-07-19
 ### Changed
 - Warrior lane reworked: each tier now grants +0.5 flat AND +3% weapon damage (up to +5 and +30%) instead of +1 flat. The percentage scales with the weapon you hold, so swords stay ahead of an unarmed fist. Stacks with Sharpness as before.
