@@ -37,14 +37,30 @@ public final class FortuneBoost {
             Blocks.EMERALD_ORE, Blocks.DEEPSLATE_EMERALD_ORE,
             Blocks.NETHER_QUARTZ_ORE);
 
+    /** Chance for Fortune V to yield a bonus Ancient Debris (which normally ignores Fortune entirely). */
+    private static final float ANCIENT_DEBRIS_V_CHANCE = 0.005f; // 0.5%
+
     /** Call from the pre-break handler; spawns the bonus base drops for Fortune IV/V tools. */
     public static void onBreak(ServerLevel level, ServerPlayer player, BlockPos pos, BlockState state) {
         if (!io.github.andrewwwwwwwwwwwwwww.vanillaskills.config.GameplayConfig.FORTUNE_BOOST) return;
-        if (player.isCreative() || !ORES.contains(state.getBlock())) return;
+        if (player.isCreative()) return;
         ItemStack tool = player.getMainHandItem();
         int fortune = fortuneLevel(tool);
         if (fortune <= 3) return;
-        if (!player.hasCorrectToolForDrops(state)) return; // no free ore via un-harvestable picks
+        if (!player.hasCorrectToolForDrops(state)) return; // no free drops via un-harvestable picks
+
+        Block block = state.getBlock();
+
+        // Ancient Debris: vanilla Fortune does nothing here. Give Fortune V a flat 0.5% chance at a
+        // second debris — a rare bonus, not a reliable multiplier.
+        if (block == Blocks.ANCIENT_DEBRIS) {
+            if (fortune >= 5 && level.getRandom().nextFloat() < ANCIENT_DEBRIS_V_CHANCE) {
+                Block.popResource(level, pos, new ItemStack(Blocks.ANCIENT_DEBRIS));
+            }
+            return;
+        }
+
+        if (!ORES.contains(block)) return;
         for (int i = 3; i < fortune; i++) {
             // EMPTY tool = a plain un-enchanted roll of the ore's own loot (no fortune multiplication,
             // no silk-touch branch) — one honest extra base drop per level above III.
