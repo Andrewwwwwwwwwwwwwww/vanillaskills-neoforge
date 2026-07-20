@@ -1,5 +1,9 @@
 # VanillaSkills Changelog
 
+## [1.6.4] - 2026-07-20
+### Added
+- Completed translation coverage: the "Earning Skill Shards" page, the "Your Stats" page (including attribute names and the Aquatic summary), every skill node description (`vanillaskills.node.<id>.desc`, overriding the per-world tree text), and the remaining unlock/refund/purchase chat messages are now all translatable. en_us.json grows from 256 to 420 keys.
+
 ## [1.6.3] - 2026-07-19
 ### Added
 - Fortune V now has a flat **0.5% chance to drop a second Ancient Debris** when mining it (vanilla Fortune does nothing for debris). A rare bonus, not a reliable multiplier; requires the correct tool, not in creative, and respects the `fortuneBoost` config toggle.

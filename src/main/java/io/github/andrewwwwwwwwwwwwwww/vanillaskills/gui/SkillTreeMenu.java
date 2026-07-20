@@ -336,7 +336,14 @@ public class SkillTreeMenu extends ChestMenu {
         stack.set(DataComponents.CUSTOM_NAME, styled(nodeTitle(node) + (unlocked ? " ✔" : ""), nameColor));
 
         List<Component> lore = new ArrayList<>();
-        for (String line : node.description) lore.add(styled(line, ChatFormatting.GRAY));
+        // Node descriptions live in the per-world tree (English); a lang key overrides them for
+        // translation — "vanillaskills.node.<id>.desc", multi-line via \n (same pattern as titles).
+        String descOverride = t("vanillaskills.node." + node.id + ".desc", "");
+        if (!descOverride.isEmpty()) {
+            for (String line : descOverride.split("\n")) lore.add(styled(line, ChatFormatting.GRAY));
+        } else {
+            for (String line : node.description) lore.add(styled(line, ChatFormatting.GRAY));
+        }
         lore.add(Component.literal(""));
         if (unlocked) {
             lore.add(styled(t("vanillaskills.menu.skilltree.node_unlocked","Unlocked"), ChatFormatting.GREEN));
