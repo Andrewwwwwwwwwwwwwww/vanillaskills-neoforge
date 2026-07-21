@@ -566,5 +566,10 @@
   "vanillaskills.config.narrator.on": "Default (vanilla)",
   "vanillaskills.config.narrator.off": "Disabled — smoother GUI opening",
   "vanillaskills.itemgroup": "VanillaSkills",
-  "vanillaskills.resourcepack.prompt": "VanillaSkills+ needs this pack to show the custom gear."
+  "vanillaskills.resourcepack.prompt": "VanillaSkills+ needs this pack to show the custom gear.",
+  "vanillaskills.menu.skilltree.title": "Skills",
+  "vanillaskills.menu.skilltree.layout_suffix": "(Layout)",
+  "vanillaskills.menu.skilltree.edit_suffix": "(Edit Mode)",
+  "vanillaskills.shop.iron_armor_set": "Iron Armor Set",
+  "vanillaskills.shop.leather_armor_set": "Leather Armor Set"
 }
