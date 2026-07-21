@@ -45,6 +45,12 @@ public class ShopMenu extends ChestMenu {
         return Lang.tr(player, key, fallback, args);
     }
 
+    /** Stable key for a shop offer's name, e.g. "Steel Ingot x4" -> "vanillaskills.shop.steel_ingot_x4". */
+    private static String offerKey(String title) {
+        return "vanillaskills.shop." + title.toLowerCase(java.util.Locale.ROOT)
+                .replaceAll("[^a-z0-9]+", "_").replaceAll("^_+|_+$", "");
+    }
+
     private ShopMenu(int syncId, Inventory inv, ServerPlayer player) {
         super(MenuType.GENERIC_9x4, syncId, inv, new SimpleContainer(36), 4);
         this.player = player;
@@ -89,7 +95,7 @@ public class ShopMenu extends ChestMenu {
         boolean canSkill = skill >= offer.skillPrice();
 
         ItemStack stack = new ItemStack(Quests.item(offer.icon().itemId()), offer.icon().count());
-        stack.set(DataComponents.CUSTOM_NAME, styled(offer.displayName(), ChatFormatting.WHITE));
+        stack.set(DataComponents.CUSTOM_NAME, styled(t(offerKey(offer.displayName()), offer.displayName()), ChatFormatting.WHITE));
 
         List<Component> lore = new ArrayList<>();
         if (offer.grants().size() > 1) {
