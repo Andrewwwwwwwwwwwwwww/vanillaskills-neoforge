@@ -1,5 +1,12 @@
 # VanillaSkills Changelog
 
+## [1.7.1] - 2026-07-21
+### Added
+- **Traditional Chinese (zh_tw)** translation — a complete 573/573 translation contributed by the community. Thank you!
+
+### Fixed
+- Two message keys took different arguments than translators would reasonably expect: `msg.mastered` now passes the Dragon Ingot count as `%d` instead of hardcoding it, and `msg.unlocked_one` now takes the same three arguments as `msg.unlocked_many` so the two can be translated identically.
+
 ## [1.7.0] - 2026-07-20
 ### Added
 - **Full translation coverage.** Everything a player can see is now translatable: all tiered gear names (every Hardwood/Rose Gold/Steel/Crystalline/Dragon armour piece and tool), the alloy ingots, Dragon Ingot/Scale, upgrade templates, armour set-bonus tooltips, the bounty-board hologram, every remaining chat message, `/help`, and the Mod Menu config screen. `en_us.json` grows from 420 to 568 keys and now also ships inside the resource pack.
