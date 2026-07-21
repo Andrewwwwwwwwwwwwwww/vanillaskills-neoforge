@@ -1,5 +1,9 @@
 # VanillaSkills Changelog
 
+## [1.6.5] - 2026-07-20
+### Changed
+- Moved the Quest Shop button on the Bounty Board back to the bottom-center, where it sat before 1.4.0.
+
 ## [1.6.4] - 2026-07-20
 ### Added
 - Completed translation coverage: the "Earning Skill Shards" page, the "Your Stats" page (including attribute names and the Aquatic summary), every skill node description (`vanillaskills.node.<id>.desc`, overriding the per-world tree text), and the remaining unlock/refund/purchase chat messages are now all translatable. en_us.json grows from 256 to 420 keys.
