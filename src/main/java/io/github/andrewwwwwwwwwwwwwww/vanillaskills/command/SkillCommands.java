@@ -8,6 +8,7 @@ import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import io.github.andrewwwwwwwwwwwwwww.vanillaskills.VanillaSkills;
+import io.github.andrewwwwwwwwwwwwwww.vanillaskills.text.Lang;
 import io.github.andrewwwwwwwwwwwwwww.vanillaskills.config.PointsConfig;
 import io.github.andrewwwwwwwwwwwwwww.vanillaskills.gui.SkillTreeMenu;
 import io.github.andrewwwwwwwwwwwwwww.vanillaskills.skill.PlayerSkillData;
@@ -140,19 +141,22 @@ public final class SkillCommands {
         PlayerSkillData data = VanillaSkills.PLAYERS.get(player.getUUID());
         boolean unlocked = data != null && data.unlocked.stream().anyMatch(id -> id.startsWith("nightvision"));
         if (!unlocked) {
-            ctx.getSource().sendFailure(Component.literal("You haven't unlocked Night Vision yet."));
+            ctx.getSource().sendFailure(Component.literal(Lang.tr(player,
+                    "vanillaskills.msg.no_nightvision", "You haven't unlocked Night Vision yet.")));
             return 0;
         }
         data.nightVisionDisabled = !data.nightVisionDisabled;
         VanillaSkills.PLAYERS.save(player.getUUID());
         if (data.nightVisionDisabled) {
             player.removeEffect(net.minecraft.world.effect.MobEffects.NIGHT_VISION);
-            ctx.getSource().sendSuccess(() -> Component.literal(
-                    "Night Vision OFF — run /skill toggle nightvision again to turn it back on."), false);
+            ctx.getSource().sendSuccess(() -> Component.literal(Lang.tr(player,
+                    "vanillaskills.msg.nightvision_off",
+                    "Night Vision OFF — run /skill toggle nightvision again to turn it back on.")), false);
         } else {
             io.github.andrewwwwwwwwwwwwwww.vanillaskills.skill.SkillEffects
                     .refreshStatusEffects(player, data, VanillaSkills.TREE.tree()); // instant re-apply
-            ctx.getSource().sendSuccess(() -> Component.literal("Night Vision ON."), false);
+            ctx.getSource().sendSuccess(() -> Component.literal(Lang.tr(player,
+                    "vanillaskills.msg.nightvision_on", "Night Vision ON.")), false);
         }
         return 1;
     }
@@ -161,7 +165,8 @@ public final class SkillCommands {
         ServerPlayer player = ctx.getSource().getPlayerOrException();
         PlayerSkillData data = VanillaSkills.PLAYERS.get(player.getUUID());
         if (!io.github.andrewwwwwwwwwwwwwww.vanillaskills.skill.StepHeight.hasStepSkill(data)) {
-            ctx.getSource().sendFailure(Component.literal("You haven't unlocked the Mountaineer (step-up) skill yet."));
+            ctx.getSource().sendFailure(Component.literal(Lang.tr(player,
+                    "vanillaskills.msg.no_stepup", "You haven't unlocked the Mountaineer (step-up) skill yet.")));
             return 0;
         }
         data.stepUpDisabled = !data.stepUpDisabled;
@@ -169,12 +174,14 @@ public final class SkillCommands {
         // Force StepHeight to re-evaluate next tick (applies/removes the modifier).
         io.github.andrewwwwwwwwwwwwwww.vanillaskills.skill.StepHeight.invalidate(player.getUUID());
         if (data.stepUpDisabled) {
-            ctx.getSource().sendSuccess(() -> Component.literal(
+            ctx.getSource().sendSuccess(() -> Component.literal(Lang.tr(player,
+                    "vanillaskills.msg.stepup_off",
                     "Step-up OFF — you'll step like vanilla. Run /skill toggle stepup to re-enable. "
-                    + "(Note: step-up is always off while you're sneaking.)"), false);
+                    + "(Note: step-up is always off while you're sneaking.)")), false);
         } else {
-            ctx.getSource().sendSuccess(() -> Component.literal(
-                    "Step-up ON — auto-step ledges (still off while sneaking)."), false);
+            ctx.getSource().sendSuccess(() -> Component.literal(Lang.tr(player,
+                    "vanillaskills.msg.stepup_on",
+                    "Step-up ON — auto-step ledges (still off while sneaking).")), false);
         }
         return 1;
     }

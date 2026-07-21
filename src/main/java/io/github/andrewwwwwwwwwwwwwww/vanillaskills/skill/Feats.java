@@ -66,8 +66,11 @@ public final class Feats {
         PlayerSkillData data = VanillaSkills.PLAYERS.get(player.getUUID());
         if (!data.featsDone.add(feat.id())) return; // already earned
         VanillaSkills.PLAYERS.addQuestShards(player, feat.reward()); // also persists the data
-        player.sendSystemMessage(Component.literal("★ Feat unlocked: " + feat.title() + "  +"
-                + feat.reward() + " Quest Shards").withStyle(ChatFormatting.GOLD));
+        String featName = io.github.andrewwwwwwwwwwwwwww.vanillaskills.text.Lang.tr(player,
+                "vanillaskills.feat." + feat.id(), feat.title());
+        player.sendSystemMessage(Component.literal(io.github.andrewwwwwwwwwwwwwww.vanillaskills.text.Lang.tr(player,
+                "vanillaskills.msg.feat_unlocked", "★ Feat unlocked: %s  +%d Quest Shards",
+                featName, feat.reward())).withStyle(ChatFormatting.GOLD));
     }
 
     /** Boss-kill feats — call from the entity-kill handler with the player's victim. */

@@ -76,17 +76,29 @@ public final class ArmorSetTooltips {
     }
 
     private static ItemLore liveLore(SetDef def, boolean[] present, int count) {
+        // Lore is baked into the item, so it can't be translated per-player server-side — use
+        // translation keys with English fallbacks and let the client render them (see Markers.name).
+        String base = "vanillaskills.set." + def.tier().id;
         List<Component> lines = new ArrayList<>();
         lines.add(Component.literal(""));
-        lines.add(styled(def.name() + " (" + count + "/4)", def.color()));
+        lines.add(tr(base + ".name", def.name() + " (%s/4)", def.color(), count));
         for (int i = 0; i < 4; i++) {
-            lines.add(styled((present[i] ? "+ " : "- ") + SLOT_NAMES[i],
-                    present[i] ? ChatFormatting.GREEN : ChatFormatting.GRAY));
+            // Keep the +/- marker out of the key so translators only see the piece word.
+            Component piece = Component.translatableWithFallback(
+                    "vanillaskills.gear.piece." + SLOT_NAMES[i].toLowerCase(), SLOT_NAMES[i]);
+            lines.add(Component.literal(present[i] ? "+ " : "- ").append(piece)
+                    .withStyle(present[i] ? ChatFormatting.GREEN : ChatFormatting.GRAY)
+                    .withStyle(s -> s.withItalic(false)));
         }
         lines.add(count == 4
-                ? styled(def.activeLine(), ChatFormatting.GREEN)
-                : styled(def.hintLine(), ChatFormatting.GRAY));
+                ? tr(base + ".active", def.activeLine(), ChatFormatting.GREEN)
+                : tr(base + ".hint", def.hintLine(), ChatFormatting.GRAY));
         return new ItemLore(lines);
+    }
+
+    private static Component tr(String key, String fallback, ChatFormatting color, Object... args) {
+        return Component.translatableWithFallback(key, fallback, args)
+                .withStyle(color).withStyle(s -> s.withItalic(false));
     }
 
     private static void ensureLore(ItemStack stack, ItemLore desired) {

@@ -62,7 +62,9 @@ public class ArmorTier {
     public ItemStack create(ArmorPiece piece) {
         int i = piece.ordinal();
         ItemStack stack = new ItemStack(baseItems[i]);
-        stack.set(DataComponents.CUSTOM_NAME, Markers.name(displayName + " " + pieceWord(piece), nameColor));
+        stack.set(DataComponents.CUSTOM_NAME, Markers.name(
+                "vanillaskills.gear." + id + "." + piece.lower(),
+                displayName + " " + pieceWord(piece), nameColor));
         Markers.applyMarker(stack, markerKey);
         stack.set(DataComponents.CUSTOM_MODEL_DATA,
                 new CustomModelData(List.of(), List.of(), List.of("vanillaskills:" + id + "_" + piece.lower()), List.of()));

@@ -202,16 +202,16 @@ public final class Quests {
             case SKILL -> {
                 int have = data.unlocked.size();
                 if (have < q.amount()) {
-                    player.sendSystemMessage(Component.literal("Unlock " + (q.amount() - have)
-                            + " more skill" + (q.amount() - have == 1 ? "" : "s")
-                            + " in the skill tree (/skill).").withStyle(ChatFormatting.RED));
+                    int need = q.amount() - have;
+                    player.sendSystemMessage(Component.literal(need == 1
+                            ? io.github.andrewwwwwwwwwwwwwww.vanillaskills.text.Lang.tr(player,"vanillaskills.msg.need_skills_one","Unlock 1 more skill in the skill tree (/skill).")
+                            : io.github.andrewwwwwwwwwwwwwww.vanillaskills.text.Lang.tr(player,"vanillaskills.msg.need_skills_many","Unlock %d more skills in the skill tree (/skill).", need)).withStyle(ChatFormatting.RED));
                     return;
                 }
             }
             case STAT -> {
                 if (progress(player, index) < q.amount()) {
-                    player.sendSystemMessage(Component.literal("Not done yet: " + progress(player, index)
-                            + "/" + q.amount()).withStyle(ChatFormatting.RED));
+                    player.sendSystemMessage(Component.literal(io.github.andrewwwwwwwwwwwwwww.vanillaskills.text.Lang.tr(player,"vanillaskills.msg.not_done_yet","Not done yet: %d/%d", progress(player, index), q.amount())).withStyle(ChatFormatting.RED));
                     return;
                 }
             }
@@ -228,8 +228,7 @@ public final class Quests {
             if (done >= total) {
                 graduate(player, data);
             } else {
-                player.sendSystemMessage(Component.literal("Starter quests: " + done + "/" + total
-                        + " complete.").withStyle(ChatFormatting.GRAY));
+                player.sendSystemMessage(Component.literal(io.github.andrewwwwwwwwwwwwwww.vanillaskills.text.Lang.tr(player,"vanillaskills.msg.starter_progress","Starter quests: %d/%d complete.", done, total)).withStyle(ChatFormatting.GRAY));
             }
         }
         VanillaSkills.PLAYERS.save(player.getUUID());

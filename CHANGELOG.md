@@ -1,5 +1,12 @@
 # VanillaSkills Changelog
 
+## [1.7.0] - 2026-07-20
+### Added
+- **Full translation coverage.** Everything a player can see is now translatable: all tiered gear names (every Hardwood/Rose Gold/Steel/Crystalline/Dragon armour piece and tool), the alloy ingots, Dragon Ingot/Scale, upgrade templates, armour set-bonus tooltips, the bounty-board hologram, every remaining chat message, `/help`, and the Mod Menu config screen. `en_us.json` grows from 420 to 568 keys and now also ships inside the resource pack.
+
+### Changed
+- Item names and lore are baked into the item, so they use client-resolved translation keys **with English fallbacks** — translated for anyone with the resource pack, plain English (never raw keys) for everyone else.
+
 ## [1.6.5] - 2026-07-20
 ### Changed
 - Moved the Quest Shop button on the Bounty Board back to the bottom-center, where it sat before 1.4.0.

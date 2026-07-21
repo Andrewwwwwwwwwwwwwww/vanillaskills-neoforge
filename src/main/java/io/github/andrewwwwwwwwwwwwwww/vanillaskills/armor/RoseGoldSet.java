@@ -43,9 +43,9 @@ public final class RoseGoldSet {
     public static ItemLore baseLore() {
         List<Component> lines = new ArrayList<>();
         lines.add(Component.literal(""));
-        lines.add(styled("Rose Gold Set", ChatFormatting.AQUA));
-        lines.add(styled("Full set: immune to all", ChatFormatting.GRAY));
-        lines.add(styled("negative status effects", ChatFormatting.GRAY));
+        lines.add(trStyled("vanillaskills.set.rose_gold.name_plain", "Rose Gold Set", ChatFormatting.AQUA));
+        lines.add(trStyled("vanillaskills.set.rose_gold.desc1", "Full set: immune to all", ChatFormatting.GRAY));
+        lines.add(trStyled("vanillaskills.set.rose_gold.desc2", "negative status effects", ChatFormatting.GRAY));
         return new ItemLore(lines);
     }
 
@@ -64,5 +64,11 @@ public final class RoseGoldSet {
 
     private static Component styled(String text, ChatFormatting color) {
         return Component.literal(text).withStyle(color).withStyle(s -> s.withItalic(false));
+    }
+
+    /** Translatable, non-italic lore line — item lore is baked in, so the client resolves the key. */
+    private static Component trStyled(String key, String fallback, ChatFormatting color) {
+        return Component.translatableWithFallback(key, fallback)
+                .withStyle(color).withStyle(s -> s.withItalic(false));
     }
 }

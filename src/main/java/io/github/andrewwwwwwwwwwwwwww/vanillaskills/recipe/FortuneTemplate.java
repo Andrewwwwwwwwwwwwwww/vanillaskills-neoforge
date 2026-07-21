@@ -34,7 +34,7 @@ public final class FortuneTemplate {
 
     /** The display name shown on the template. */
     public static Component displayName() {
-        return Component.literal("Fortune Upgrade").withStyle(ChatFormatting.AQUA).withStyle(s -> s.withItalic(false));
+        return Component.translatableWithFallback("vanillaskills.item.fortune_upgrade_template", "Fortune Upgrade").withStyle(ChatFormatting.AQUA).withStyle(s -> s.withItalic(false));
     }
 
     /** A fresh marker tag identifying our template. */

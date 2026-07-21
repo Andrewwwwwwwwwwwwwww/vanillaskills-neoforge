@@ -50,7 +50,9 @@ public final class Alloys {
 
     private static ItemStack stamp(net.minecraft.world.item.Item base, String marker, String name, int color, String modelHook) {
         ItemStack stack = new ItemStack(base);
-        stack.set(DataComponents.CUSTOM_NAME, Markers.name(name, color));
+        // modelHook is "vanillaskills:<id>" — reuse that id for the translation key.
+        stack.set(DataComponents.CUSTOM_NAME,
+                Markers.name("vanillaskills.item." + modelHook.substring(modelHook.indexOf(':') + 1), name, color));
         Markers.applyMarker(stack, marker);
         stack.set(DataComponents.CUSTOM_MODEL_DATA,
                 new CustomModelData(List.of(), List.of(), List.of(modelHook), List.of()));

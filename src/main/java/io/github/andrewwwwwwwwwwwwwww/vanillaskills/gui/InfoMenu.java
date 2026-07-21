@@ -53,7 +53,7 @@ public class InfoMenu extends ChestMenu {
         }
 
         ItemStack back = new ItemStack(Items.ARROW);
-        back.set(DataComponents.CUSTOM_NAME, Component.literal("Back")
+        back.set(DataComponents.CUSTOM_NAME, Component.literal(io.github.andrewwwwwwwwwwwwwww.vanillaskills.text.Lang.tr(player,"vanillaskills.menu.back","Back"))
                 .withStyle(ChatFormatting.YELLOW).withStyle(s -> s.withItalic(false)));
         container.setItem(container.getContainerSize() - 1, back);
     }

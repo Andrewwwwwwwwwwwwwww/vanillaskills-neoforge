@@ -51,7 +51,9 @@ public class ToolTier {
     public ItemStack create(ToolKind kind) {
         Item baseItem = baseItems[kind.ordinal()];
         ItemStack stack = new ItemStack(baseItem);
-        stack.set(DataComponents.CUSTOM_NAME, Markers.name(displayName + " " + kind.word, nameColor));
+        stack.set(DataComponents.CUSTOM_NAME, Markers.name(
+                "vanillaskills.gear." + id + "." + kind.lower(),
+                displayName + " " + kind.word, nameColor));
         Markers.applyMarker(stack, markerKey);
         stack.set(DataComponents.CUSTOM_MODEL_DATA,
                 new CustomModelData(List.of(), List.of(), List.of("vanillaskills:" + id + "_" + kind.lower()), List.of()));

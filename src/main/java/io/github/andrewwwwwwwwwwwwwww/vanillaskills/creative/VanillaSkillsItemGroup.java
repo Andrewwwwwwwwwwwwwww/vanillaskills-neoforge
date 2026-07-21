@@ -25,7 +25,7 @@ public final class VanillaSkillsItemGroup {
 
     static {
         TABS.register("items", () -> CreativeModeTab.builder()
-                .title(Component.literal("VanillaSkills"))
+                .title(Component.translatableWithFallback("vanillaskills.itemgroup", "VanillaSkills"))
                 .icon(io.github.andrewwwwwwwwwwwwwww.vanillaskills.recipe.DragonUpgradeTemplate::create)
                 .displayItems((params, output) -> {
                     output.accept(Alloys.roseGoldIngot());
