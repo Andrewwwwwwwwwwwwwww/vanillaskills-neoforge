@@ -339,7 +339,9 @@ public class PlayerSkillManager {
         int count = chain.size();
         String msg = count == 1
                 ? io.github.andrewwwwwwwwwwwwwww.vanillaskills.text.Lang.tr(player,
-                        "vanillaskills.msg.unlocked_one", "Unlocked 1 skill for %d %s.", total, cur)
+                        // Same three args as the plural form, so a translation can use %1$/%2$/%3$
+                        // interchangeably between the two and reorder for its own grammar.
+                        "vanillaskills.msg.unlocked_one", "Unlocked %1$d skill for %2$d %3$s.", count, total, cur)
                 : io.github.andrewwwwwwwwwwwwwww.vanillaskills.text.Lang.tr(player,
                         "vanillaskills.msg.unlocked_many", "Unlocked %d skills for %d %s.", count, total, cur);
         player.sendSystemMessage(Component.literal(msg).withStyle(ChatFormatting.GREEN));
@@ -463,11 +465,14 @@ public class PlayerSkillManager {
         data.completionRewarded = true;
         awardAdvancement(player, "vanillaskills:completionist", "complete");
         // (note: the loop above skips config-disabled lanes, so completion stays reachable)
+        final int rewardIngots = 4;
         net.minecraft.world.item.ItemStack reward =
                 io.github.andrewwwwwwwwwwwwwww.vanillaskills.armor.DragonIngot.create();
-        reward.setCount(4);
+        reward.setCount(rewardIngots);
         if (!player.getInventory().add(reward)) player.drop(reward, false);
-        player.sendSystemMessage(Component.literal(io.github.andrewwwwwwwwwwwwwww.vanillaskills.text.Lang.tr(player,"vanillaskills.msg.mastered","Skill tree mastered! +4 Dragon Ingots"))
+        // Pass the count so translations can place the number where their language needs it.
+        player.sendSystemMessage(Component.literal(io.github.andrewwwwwwwwwwwwwww.vanillaskills.text.Lang.tr(player,
+                "vanillaskills.msg.mastered", "Skill tree mastered! +%d Dragon Ingots", rewardIngots))
                 .withStyle(ChatFormatting.GOLD));
         save(player.getUUID());
     }
