@@ -79,14 +79,20 @@ public final class DragonSet {
     public static ItemLore baseLore() {
         List<Component> lines = new ArrayList<>();
         lines.add(Component.literal(""));
-        lines.add(styled("Dragon Set", ChatFormatting.LIGHT_PURPLE));
-        lines.add(styled("Full set: immune to fire, lava", ChatFormatting.GRAY));
-        lines.add(styled("and dragon's breath", ChatFormatting.GRAY));
-        lines.add(styled("Hold sneak while airborne to dive-dash", ChatFormatting.GRAY));
+        lines.add(trStyled("vanillaskills.set.dragon.name_plain", "Dragon Set", ChatFormatting.LIGHT_PURPLE));
+        lines.add(trStyled("vanillaskills.set.dragon.desc1", "Full set: immune to fire, lava", ChatFormatting.GRAY));
+        lines.add(trStyled("vanillaskills.set.dragon.desc2", "and dragon's breath", ChatFormatting.GRAY));
+        lines.add(trStyled("vanillaskills.set.dragon.desc3", "Hold sneak while airborne to dive-dash", ChatFormatting.GRAY));
         return new ItemLore(lines);
     }
 
     private static Component styled(String text, ChatFormatting color) {
         return Component.literal(text).withStyle(color).withStyle(s -> s.withItalic(false));
+    }
+
+    /** Translatable, non-italic lore line — item lore is baked in, so the client resolves the key. */
+    private static Component trStyled(String key, String fallback, ChatFormatting color) {
+        return Component.translatableWithFallback(key, fallback)
+                .withStyle(color).withStyle(s -> s.withItalic(false));
     }
 }

@@ -36,13 +36,19 @@ public final class CrystalSet {
     public static ItemLore baseLore() {
         List<Component> lines = new ArrayList<>();
         lines.add(Component.literal(""));
-        lines.add(styled("Crystalline Set", ChatFormatting.LIGHT_PURPLE));
-        lines.add(styled("Full set: reflect 25% of", ChatFormatting.GRAY));
-        lines.add(styled("melee damage back at attackers", ChatFormatting.GRAY));
+        lines.add(trStyled("vanillaskills.set.crystal.name_plain", "Crystalline Set", ChatFormatting.LIGHT_PURPLE));
+        lines.add(trStyled("vanillaskills.set.crystal.desc1", "Full set: reflect 25% of", ChatFormatting.GRAY));
+        lines.add(trStyled("vanillaskills.set.crystal.desc2", "melee damage back at attackers", ChatFormatting.GRAY));
         return new ItemLore(lines);
     }
 
     private static Component styled(String text, ChatFormatting color) {
         return Component.literal(text).withStyle(color).withStyle(s -> s.withItalic(false));
+    }
+
+    /** Translatable, non-italic lore line — item lore is baked in, so the client resolves the key. */
+    private static Component trStyled(String key, String fallback, ChatFormatting color) {
+        return Component.translatableWithFallback(key, fallback)
+                .withStyle(color).withStyle(s -> s.withItalic(false));
     }
 }

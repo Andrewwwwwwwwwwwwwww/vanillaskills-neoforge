@@ -131,7 +131,7 @@ public class PlayerSkillManager {
         data.creditedAdvancements.add(advancementId);
         if (amount > 0) {
             data.grantPoints(amount);
-            player.sendSystemMessage(Component.literal("+" + amount + " Skill Shard" + (amount == 1 ? "" : "s"))
+            player.sendSystemMessage(Component.literal(amount == 1 ? io.github.andrewwwwwwwwwwwwwww.vanillaskills.text.Lang.tr(player,"vanillaskills.msg.gain_shard_one","+1 Skill Shard") : io.github.andrewwwwwwwwwwwwwww.vanillaskills.text.Lang.tr(player,"vanillaskills.msg.gain_shard_many","+%d Skill Shards", amount))
                     .withStyle(ChatFormatting.GREEN));
         }
         save(player.getUUID());
@@ -249,7 +249,7 @@ public class PlayerSkillManager {
         SkillTree tree = VanillaSkills.TREE.tree();
         SkillNode node = tree.byId(nodeId);
         if (node == null) {
-            player.sendSystemMessage(Component.literal("That skill no longer exists.").withStyle(ChatFormatting.RED));
+            player.sendSystemMessage(Component.literal(io.github.andrewwwwwwwwwwwwwww.vanillaskills.text.Lang.tr(player,"vanillaskills.msg.node_gone","That skill no longer exists.")).withStyle(ChatFormatting.RED));
             return false;
         }
         PlayerSkillData data = get(player.getUUID());
@@ -293,7 +293,7 @@ public class PlayerSkillManager {
         SkillTree tree = VanillaSkills.TREE.tree();
         SkillNode target = tree.byId(nodeId);
         if (target == null) {
-            player.sendSystemMessage(Component.literal("That skill no longer exists.").withStyle(ChatFormatting.RED));
+            player.sendSystemMessage(Component.literal(io.github.andrewwwwwwwwwwwwwww.vanillaskills.text.Lang.tr(player,"vanillaskills.msg.node_gone","That skill no longer exists.")).withStyle(ChatFormatting.RED));
             return false;
         }
         PlayerSkillData data = get(player.getUUID());
@@ -376,7 +376,8 @@ public class PlayerSkillManager {
         SkillNode target = tree.byId(nodeId);
         if (target == null) return false;
         if (SkillTree.ROOT_ID.equals(nodeId)) {
-            player.sendSystemMessage(Component.literal("The base node can't be refunded.").withStyle(ChatFormatting.RED));
+            player.sendSystemMessage(Component.literal(io.github.andrewwwwwwwwwwwwwww.vanillaskills.text.Lang.tr(player,
+                    "vanillaskills.msg.base_no_refund", "The base node can't be refunded.")).withStyle(ChatFormatting.RED));
             return false;
         }
         PlayerSkillData data = get(player.getUUID());
@@ -466,7 +467,7 @@ public class PlayerSkillManager {
                 io.github.andrewwwwwwwwwwwwwww.vanillaskills.armor.DragonIngot.create();
         reward.setCount(4);
         if (!player.getInventory().add(reward)) player.drop(reward, false);
-        player.sendSystemMessage(Component.literal("Skill tree mastered! +4 Dragon Ingots")
+        player.sendSystemMessage(Component.literal(io.github.andrewwwwwwwwwwwwwww.vanillaskills.text.Lang.tr(player,"vanillaskills.msg.mastered","Skill tree mastered! +4 Dragon Ingots"))
                 .withStyle(ChatFormatting.GOLD));
         save(player.getUUID());
     }

@@ -63,7 +63,8 @@ public class BountyBoards {
         }
         for (Entry e : boards) {
             if (e.dim.equals(dimId(level)) && e.x == base.getX() && e.y == base.getY() && e.z == base.getZ()) {
-                op.sendSystemMessage(Component.literal("There's already a board there.").withStyle(ChatFormatting.RED));
+                op.sendSystemMessage(Component.literal(io.github.andrewwwwwwwwwwwwwww.vanillaskills.text.Lang.tr(op,
+                        "vanillaskills.msg.board_exists", "There's already a board there.")).withStyle(ChatFormatting.RED));
                 return;
             }
         }
@@ -73,7 +74,9 @@ public class BountyBoards {
 
         boards.add(new Entry(dimId(level), base.getX(), base.getY(), base.getZ()));
         save();
-        op.sendSystemMessage(Component.literal("Bounty board placed — right-click the floating text to open the quests.")
+        op.sendSystemMessage(Component.literal(io.github.andrewwwwwwwwwwwwwww.vanillaskills.text.Lang.tr(op,
+                "vanillaskills.msg.board_placed",
+                "Bounty board placed — right-click the floating text to open the quests."))
                 .withStyle(ChatFormatting.GREEN));
     }
 
@@ -103,20 +106,34 @@ public class BountyBoards {
         e.addTag(TAG);
     }
 
-    /** The board's text: title, a generic prompt (bounties are per-player), and a live reset countdown. */
+    /**
+     * The board's text: title, a generic prompt (bounties are per-player), and a live reset countdown.
+     *
+     * <p>This is a text_display entity — one entity seen by everyone — so it can't be translated
+     * per-player server-side. Translation keys let each CLIENT render the board in its own language
+     * (keys ship in the jar and the auto-pushed resource pack); the fallbacks keep it readable in
+     * English for anyone without them.
+     */
     private static Component boardText() {
-        MutableComponent c = Component.literal("✦  BOUNTY BOARD  ✦")
+        MutableComponent c = Component.translatableWithFallback(
+                        "vanillaskills.board.title", "✦  BOUNTY BOARD  ✦")
                 .withStyle(s -> s.withColor(0xFFD700).withBold(true).withItalic(false));
         long rem = VanillaSkills.QUESTS.nextRotationMs() - System.currentTimeMillis();
-        String when = rem <= 0 ? "any moment" : (rem / 3_600_000) + "h " + (rem % 3_600_000 / 60_000) + "m";
+        Component when = rem <= 0
+                ? Component.translatableWithFallback("vanillaskills.board.any_moment", "any moment")
+                : Component.literal((rem / 3_600_000) + "h " + (rem % 3_600_000 / 60_000) + "m");
         c.append(Component.literal("\n\n"));
-        c.append(Component.literal("Right-click to view your bounties").withStyle(s -> s.withColor(0xFFFFFF).withItalic(false)));
+        c.append(Component.translatableWithFallback("vanillaskills.board.view", "Right-click to view your bounties")
+                .withStyle(s -> s.withColor(0xFFFFFF).withItalic(false)));
         c.append(Component.literal("\n"));
-        c.append(Component.literal("⏳ New bounties in " + when).withStyle(s -> s.withColor(0xFFD54A).withItalic(false)));
+        c.append(Component.translatableWithFallback("vanillaskills.board.rotation", "⏳ New bounties in %s", when)
+                .withStyle(s -> s.withColor(0xFFD54A).withItalic(false)));
         c.append(Component.literal("\n"));
-        c.append(Component.literal("▶ Right-click to open ◀").withStyle(s -> s.withColor(0xBBBBBB).withItalic(false)));
+        c.append(Component.translatableWithFallback("vanillaskills.board.open", "▶ Right-click to open ◀")
+                .withStyle(s -> s.withColor(0xBBBBBB).withItalic(false)));
         c.append(Component.literal("\n"));
-        c.append(Component.literal("or use /quests").withStyle(s -> s.withColor(0x888888).withItalic(false)));
+        c.append(Component.translatableWithFallback("vanillaskills.board.command", "or use /quests")
+                .withStyle(s -> s.withColor(0x888888).withItalic(false)));
         return c;
     }
 
@@ -170,7 +187,7 @@ public class BountyBoards {
             if (d <= REMOVE_RANGE_SQR && d < bestD) { best = e; bestD = d; }
         }
         if (best == null) {
-            op.sendSystemMessage(Component.literal("No bounty board within 6 blocks.").withStyle(ChatFormatting.RED));
+            op.sendSystemMessage(Component.literal(io.github.andrewwwwwwwwwwwwwww.vanillaskills.text.Lang.tr(op,"vanillaskills.msg.board_none","No bounty board within 6 blocks.")).withStyle(ChatFormatting.RED));
             return;
         }
         AABB box = new AABB(new BlockPos(best.x, best.y, best.z)).inflate(4.0);
@@ -179,7 +196,7 @@ public class BountyBoards {
         }
         boards.remove(best);
         save();
-        op.sendSystemMessage(Component.literal("Bounty board removed.").withStyle(ChatFormatting.GREEN));
+        op.sendSystemMessage(Component.literal(io.github.andrewwwwwwwwwwwwwww.vanillaskills.text.Lang.tr(op,"vanillaskills.msg.board_removed","Bounty board removed.")).withStyle(ChatFormatting.GREEN));
     }
 
     // ---- persistence ----

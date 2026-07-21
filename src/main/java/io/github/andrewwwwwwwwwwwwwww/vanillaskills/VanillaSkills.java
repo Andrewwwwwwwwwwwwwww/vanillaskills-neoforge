@@ -141,7 +141,7 @@ public class VanillaSkills {
                     RESOURCE_PACK_ID, url,
                     io.github.andrewwwwwwwwwwwwwww.vanillaskills.config.GameplayConfig.RESOURCE_PACK_SHA1,
                     true,
-                    java.util.Optional.of(Component.literal("VanillaSkills+ needs this pack to show the custom gear."))));
+                    java.util.Optional.of(Component.translatableWithFallback("vanillaskills.resourcepack.prompt", "VanillaSkills+ needs this pack to show the custom gear."))));
         });
 
         NeoForge.EVENT_BUS.addListener((PlayerEvent.PlayerLoggedOutEvent e) -> {

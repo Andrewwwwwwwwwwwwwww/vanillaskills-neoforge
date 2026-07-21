@@ -141,7 +141,7 @@ public final class RecipeBook {
     private static ItemStack fortuneBook(int level) {
         ItemStack book = new ItemStack(Items.ENCHANTED_BOOK);
         String roman = switch (level) { case 3 -> "III"; case 4 -> "IV"; case 5 -> "V"; default -> String.valueOf(level); };
-        book.set(DataComponents.CUSTOM_NAME, Component.literal("Fortune " + roman)
+        book.set(DataComponents.CUSTOM_NAME, Component.translatableWithFallback("vanillaskills.item.fortune_book", "Fortune %s", roman)
                 .withStyle(ChatFormatting.AQUA).withStyle(s -> s.withItalic(false)));
         book.set(DataComponents.ENCHANTMENT_GLINT_OVERRIDE, true);
         return book;

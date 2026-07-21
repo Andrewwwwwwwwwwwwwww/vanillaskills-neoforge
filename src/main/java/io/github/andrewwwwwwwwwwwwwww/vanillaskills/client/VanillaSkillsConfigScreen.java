@@ -22,7 +22,7 @@ public class VanillaSkillsConfigScreen extends Screen {
     private ClientConfig clientCfg;
 
     public VanillaSkillsConfigScreen(Screen parent) {
-        super(Component.literal("VanillaSkills"));
+        super(Component.translatableWithFallback("vanillaskills.config.title", "VanillaSkills"));
         this.parent = parent;
     }
 
@@ -42,7 +42,7 @@ public class VanillaSkillsConfigScreen extends Screen {
             // Gameplay settings are per-world; nothing to edit with no single-player world loaded.
             // (On a multiplayer server the server's own config is authoritative.)
             Button notice = Button.builder(
-                    Component.literal("Open a single-player world to edit gameplay settings"), b -> {})
+                    Component.translatableWithFallback("vanillaskills.config.singleplayer_only", "Open a single-player world to edit gameplay settings"), b -> {})
                     .bounds(x, top + gap * row++, w, 20).build();
             notice.active = false;
             addRenderableWidget(notice);
@@ -75,7 +75,7 @@ public class VanillaSkillsConfigScreen extends Screen {
             }).bounds(x, top + gap * row++, w, 20).build());
         }
 
-        addRenderableWidget(Button.builder(Component.literal("Done"), b -> onClose())
+        addRenderableWidget(Button.builder(Component.translatableWithFallback("vanillaskills.config.done", "Done"), b -> onClose())
                 .bounds(x, top + gap * row + 10, w, 20).build());
     }
 
@@ -87,14 +87,25 @@ public class VanillaSkillsConfigScreen extends Screen {
         return presets[0];
     }
 
-    private Component mendingLabel() { return Component.literal("Mending: " + (cfg.mendingEnabled ? "Enabled" : "Removed (default)")); }
-    private Component bountyLabel() { return Component.literal("Bounty board refresh: " + cfg.bountyRefreshHours + "h"); }
-    private Component shopLabel() { return Component.literal("Quest Shop refresh: " + cfg.shopRefreshHours + "h"); }
-    private Component ratioLabel() { return Component.literal("Convert: " + cfg.convertRatio + " Quest → 1 Skill Shard"); }
-    private Component graduateLabel() { return Component.literal("Graduate after: " + cfg.graduateAt + " quests"); }
+    // This screen is client-side, so it uses ordinary translation keys resolved from the client's
+    // own language files, with English fallbacks for anyone missing them.
+    private static Component tr(String key, String fallback, Object... args) {
+        return Component.translatableWithFallback(key, fallback, args);
+    }
+
+    private Component mendingLabel() {
+        return tr("vanillaskills.config.mending", "Mending: %s",
+                tr(cfg.mendingEnabled ? "vanillaskills.config.mending.on" : "vanillaskills.config.mending.off",
+                        cfg.mendingEnabled ? "Enabled" : "Removed (default)"));
+    }
+    private Component bountyLabel() { return tr("vanillaskills.config.bounty_refresh", "Bounty board refresh: %sh", cfg.bountyRefreshHours); }
+    private Component shopLabel() { return tr("vanillaskills.config.shop_refresh", "Quest Shop refresh: %sh", cfg.shopRefreshHours); }
+    private Component ratioLabel() { return tr("vanillaskills.config.convert", "Convert: %s Quest → 1 Skill Shard", cfg.convertRatio); }
+    private Component graduateLabel() { return tr("vanillaskills.config.graduate", "Graduate after: %s quests", cfg.graduateAt); }
     private Component narratorLabel() {
-        return Component.literal("Narrator: " + (clientCfg.disableNarrator
-                ? "Disabled — smoother GUI opening" : "Default (vanilla)"));
+        return tr("vanillaskills.config.narrator", "Narrator: %s",
+                tr(clientCfg.disableNarrator ? "vanillaskills.config.narrator.off" : "vanillaskills.config.narrator.on",
+                        clientCfg.disableNarrator ? "Disabled — smoother GUI opening" : "Default (vanilla)"));
     }
 
     @Override

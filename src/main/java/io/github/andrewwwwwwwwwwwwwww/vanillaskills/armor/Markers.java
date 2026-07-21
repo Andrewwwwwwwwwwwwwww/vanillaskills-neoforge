@@ -45,4 +45,18 @@ public final class Markers {
     public static Component name(String text, int rgb) {
         return Component.literal(text).withStyle(s -> s.withColor(rgb).withItalic(false));
     }
+
+    /**
+     * A translatable non-italic colored display name for gear/items.
+     *
+     * <p>Item names are baked into the stack's data components, so they can't be translated
+     * per-player server-side the way menu text is. Using a translation key lets the CLIENT render
+     * it in its own language — the keys ship in the mod jar and in the auto-pushed resource pack.
+     * The fallback means anyone without those (e.g. a vanilla client that declined the pack) sees
+     * the plain English name instead of a raw key.
+     */
+    public static Component name(String key, String fallback, int rgb) {
+        return Component.translatableWithFallback(key, fallback)
+                .withStyle(s -> s.withColor(rgb).withItalic(false));
+    }
 }

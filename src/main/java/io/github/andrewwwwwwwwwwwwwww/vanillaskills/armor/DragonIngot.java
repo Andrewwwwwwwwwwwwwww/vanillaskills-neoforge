@@ -20,7 +20,7 @@ public final class DragonIngot {
 
     public static ItemStack create() {
         ItemStack stack = new ItemStack(Items.NETHERITE_INGOT);
-        stack.set(DataComponents.CUSTOM_NAME, Markers.name("Dragon Ingot", COLOR));
+        stack.set(DataComponents.CUSTOM_NAME, Markers.name("vanillaskills.item.dragon_ingot", "Dragon Ingot", COLOR));
         Markers.applyMarker(stack, MARKER);
         stack.set(DataComponents.CUSTOM_MODEL_DATA,
                 new CustomModelData(List.of(), List.of(), List.of("vanillaskills:dragon_ingot"), List.of()));

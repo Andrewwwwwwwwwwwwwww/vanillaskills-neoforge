@@ -35,7 +35,7 @@ public final class DragonUpgradeTemplate {
     }
 
     public static Component displayName() {
-        return Component.literal("Dragon Upgrade").withStyle(s -> s.withColor(0xC23BD6).withItalic(false));
+        return Component.translatableWithFallback("vanillaskills.item.dragon_upgrade_template", "Dragon Upgrade").withStyle(s -> s.withColor(0xC23BD6).withItalic(false));
     }
 
     /** The resource-pack model hook that gives the template its custom texture. */

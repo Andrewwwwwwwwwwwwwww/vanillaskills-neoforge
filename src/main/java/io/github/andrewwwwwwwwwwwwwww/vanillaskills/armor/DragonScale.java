@@ -20,7 +20,7 @@ public final class DragonScale {
 
     public static ItemStack create() {
         ItemStack stack = new ItemStack(Items.PHANTOM_MEMBRANE);
-        stack.set(DataComponents.CUSTOM_NAME, Markers.name("Dragon Scale", COLOR));
+        stack.set(DataComponents.CUSTOM_NAME, Markers.name("vanillaskills.item.dragon_scale", "Dragon Scale", COLOR));
         Markers.applyMarker(stack, MARKER);
         stack.set(DataComponents.CUSTOM_MODEL_DATA,
                 new CustomModelData(List.of(), List.of(), List.of("vanillaskills:dragon_scale"), List.of()));

@@ -550,7 +550,7 @@ public class SkillTreeMenu extends ChestMenu {
         if (sel == null) { selectedCategory = null; return; }
         if (cat != null && cat.id.equals(selectedCategory)) { selectedCategory = null; return; } // deselect
         if (slotId == POINTS_SLOT || slotId == STATS_SLOT || slotId == 4 || slotId == container.getContainerSize() - 1) {
-            sp.sendSystemMessage(Component.literal("That spot is reserved (header / Points / Stats).")
+            sp.sendSystemMessage(Component.literal(io.github.andrewwwwwwwwwwwwwww.vanillaskills.text.Lang.tr(sp,"vanillaskills.msg.slot_reserved","That spot is reserved (header / Points / Stats)."))
                     .withStyle(ChatFormatting.RED));
             return;
         }

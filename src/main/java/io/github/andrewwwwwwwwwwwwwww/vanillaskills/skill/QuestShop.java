@@ -255,7 +255,8 @@ public final class QuestShop {
                     .withStyle(ChatFormatting.RED));
             return false;
         }
-        player.sendSystemMessage(Component.literal("Converted " + CONVERT_RATIO + " Quest Shards → 1 Skill Shard.")
+        player.sendSystemMessage(Component.literal(io.github.andrewwwwwwwwwwwwwww.vanillaskills.text.Lang.tr(player,
+                "vanillaskills.msg.converted", "Converted %d Quest Shards → 1 Skill Shard.", CONVERT_RATIO))
                 .withStyle(ChatFormatting.GREEN));
         return true;
     }
