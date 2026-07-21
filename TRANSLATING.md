@@ -1,5 +1,14 @@
 # Translating VanillaSkills
 
+## Thanks to our translators
+
+| Language | Contributor |
+| --- | --- |
+| Traditional Chinese (`zh_tw`) | **caprese502** (Discord) |
+
+Contribute a language and you'll be credited here, in the README, and in the release notes.
+
+
 Everything a player can see is translatable. There is **one file to translate** — `en_us.json` —
 and it covers both of the mod's text systems (see "How it works" at the end if you're curious).
 

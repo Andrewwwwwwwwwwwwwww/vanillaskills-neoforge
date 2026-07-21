@@ -2,7 +2,7 @@
 
 ## [1.7.1] - 2026-07-21
 ### Added
-- **Traditional Chinese (zh_tw)** translation — a complete 573/573 translation contributed by the community. Thank you!
+- **Traditional Chinese (zh_tw)** translation — a complete 573/573 translation contributed by **caprese502** (Discord). Thank you!
 
 ### Fixed
 - Two message keys took different arguments than translators would reasonably expect: `msg.mastered` now passes the Dragon Ingot count as `%d` instead of hardcoding it, and `msg.unlocked_one` now takes the same three arguments as `msg.unlocked_many` so the two can be translated identically.
