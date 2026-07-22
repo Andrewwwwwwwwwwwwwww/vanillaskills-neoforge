@@ -29,9 +29,18 @@ public final class DragonElytra {
     public static final String MARKER = "vs_dragon_elytra";
     private static final String STORED_ELYTRA = "vs_stored_elytra";
 
-    private static final String ELYTRA_LABEL_TEXT = "+ Elytra";
+    private static final String ELYTRA_LABEL_TEXT = "+ Elytra"; // legacy literal (older combined items)
+    private static final String ELYTRA_LABEL_KEY = "vanillaskills.gear.dragon.elytra_label";
     private static final Component ELYTRA_LABEL =
-            Component.literal(ELYTRA_LABEL_TEXT).withStyle(s -> s.withColor(0x9D7BE0).withItalic(false));
+            Component.translatableWithFallback(ELYTRA_LABEL_KEY, ELYTRA_LABEL_TEXT)
+                    .withStyle(s -> s.withColor(0x9D7BE0).withItalic(false));
+
+    /** Our elytra label, whether it's the new translatable form or a legacy literal on an old item. */
+    private static boolean isElytraLabel(Component c) {
+        return (c.getContents() instanceof net.minecraft.network.chat.contents.TranslatableContents t
+                    && ELYTRA_LABEL_KEY.equals(t.getKey()))
+                || ELYTRA_LABEL_TEXT.equals(c.getString());
+    }
 
     public static boolean isCombined(ItemStack stack) {
         return Markers.has(stack, MARKER);
@@ -64,7 +73,7 @@ public final class DragonElytra {
         List<Component> lore = new ArrayList<>();
         ItemLore existing = out.get(DataComponents.LORE);
         if (existing != null) lore.addAll(existing.lines());
-        if (lore.stream().noneMatch(c -> ELYTRA_LABEL_TEXT.equals(c.getString()))) lore.add(ELYTRA_LABEL);
+        if (lore.stream().noneMatch(DragonElytra::isElytraLabel)) lore.add(ELYTRA_LABEL);
         out.set(DataComponents.LORE, new ItemLore(lore));
         return out;
     }
@@ -85,7 +94,7 @@ public final class DragonElytra {
         if (existing != null) {
             List<Component> lore = new ArrayList<>();
             for (Component c : existing.lines()) {
-                if (!ELYTRA_LABEL_TEXT.equals(c.getString())) lore.add(c);
+                if (!isElytraLabel(c)) lore.add(c);
             }
             chest.set(DataComponents.LORE, new ItemLore(lore));
         }

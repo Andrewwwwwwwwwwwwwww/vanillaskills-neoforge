@@ -51,7 +51,7 @@ public final class SteelShield {
      */
     public static ItemStack create(HolderLookup.Provider registries) {
         ItemStack stack = new ItemStack(Items.SHIELD);
-        stack.set(DataComponents.CUSTOM_NAME, Markers.name("Steel-Infused Shield", COLOR));
+        stack.set(DataComponents.CUSTOM_NAME, Markers.name("vanillaskills.item.steel_shield", "Steel-Infused Shield", COLOR));
         Markers.applyMarker(stack, MARKER);
         // Render as a steel shield via a custom banner pattern: the vanilla shield renderer draws
         // bannered shields in full 3D everywhere (inventory/held/blocking), and plain shields with
@@ -72,8 +72,8 @@ public final class SteelShield {
         stack.set(DataComponents.MAX_DAMAGE, DURABILITY);
         stack.set(DataComponents.REPAIRABLE, new Repairable(repairItems()));
         stack.set(DataComponents.LORE, new ItemLore(List.of(
-                line("Hardened with steel for great durability.", ChatFormatting.GRAY),
-                line("Blocking a melee hit injures the attacker.", ChatFormatting.GRAY))));
+                line("vanillaskills.item.steel_shield.desc1", "Hardened with steel for great durability.", ChatFormatting.GRAY),
+                line("vanillaskills.item.steel_shield.desc2", "Blocking a melee hit injures the attacker.", ChatFormatting.GRAY))));
         return stack;
     }
 
@@ -85,7 +85,9 @@ public final class SteelShield {
         return HolderSet.direct(List.<Holder<Item>>of(Items.IRON_INGOT.builtInRegistryHolder()));
     }
 
-    private static Component line(String text, ChatFormatting color) {
-        return Component.literal(text).withStyle(color).withStyle(s -> s.withItalic(false));
+    /** A translatable lore line: the client renders {@code key} from its language, falling back to the
+     *  English {@code fallback} (item lore is baked into the stack, so it's resolved client-side). */
+    private static Component line(String key, String fallback, ChatFormatting color) {
+        return Component.translatableWithFallback(key, fallback).withStyle(color).withStyle(s -> s.withItalic(false));
     }
 }
