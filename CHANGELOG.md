@@ -1,5 +1,9 @@
 # VanillaSkills Changelog
 
+## [1.7.2] - 2026-07-21
+### Fixed
+- **Custom item and gear names now translate for vanilla clients.** The server was auto-pushing an old resource pack (from before localization) that carried no language files, so on clients without the mod jar every custom item name fell back to English. The default pushed pack now points at the current localized pack, and servers still pinned to the old pack are auto-upgraded on load.
+
 ## [1.7.1] - 2026-07-21
 ### Added
 - **Traditional Chinese (zh_tw)** translation — a complete 573/573 translation contributed by **caprese502** (Discord). Thank you!
