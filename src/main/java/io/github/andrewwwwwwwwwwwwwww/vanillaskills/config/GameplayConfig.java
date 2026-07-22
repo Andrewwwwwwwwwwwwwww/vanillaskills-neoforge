@@ -23,9 +23,12 @@ public class GameplayConfig {
     /** Read by {@code ItemEnchantmentsMutableMixin}. false (default) = Mending is stripped everywhere. */
     public static volatile boolean MENDING_ENABLED = false;
 
+    // The pushed pack must carry the language files: vanilla clients have no mod jar, so their gear
+    // and item NAMES come only from this pack's lang. A stale pack (pre-localization) makes every
+    // custom item name fall back to English. Bump BOTH the URL and the SHA-1 whenever the pack changes.
     private static final String DEFAULT_RP_URL =
-            "https://github.com/Andrewwwwwwwwwwwwwww/vanillaskills/releases/download/v1.0.5/VanillaSkills-TexturePack.zip";
-    private static final String DEFAULT_RP_SHA1 = "88e8d95b46367a7b4d6c17860ffe493b60e88d2a";
+            "https://github.com/Andrewwwwwwwwwwwwwww/vanillaskills/releases/download/v1.7.1/VanillaSkills-TexturePack.zip";
+    private static final String DEFAULT_RP_SHA1 = "4860cacdfe655949bd9a69d065174077829c4782";
 
     /** When true, the server force-pushes the VanillaSkills texture pack to every joining client
      *  (so vanilla clients see the custom gear with no server.properties setup). Read on player join. */
@@ -116,7 +119,10 @@ public class GameplayConfig {
             try {
                 if (Files.exists(path)) {
                     GameplayConfig loaded = GSON.fromJson(Files.readString(path), GameplayConfig.class);
-                    if (loaded != null) cfg = loaded;
+                    if (loaded != null) {
+                        cfg = loaded;
+                        if (cfg.migrateStalePack()) cfg.save(); // upgrade servers pinned to a superseded pack
+                    }
                 } else {
                     cfg.save();
                 }
@@ -127,6 +133,22 @@ public class GameplayConfig {
         }
         cfg.apply();
         return cfg;
+    }
+
+    /** URLs of packs we've shipped as the default before; a config pinned to one of these predates the
+     *  localized pack, so its custom item names show English. Auto-upgraded to the current default. */
+    private static final java.util.Set<String> SUPERSEDED_RP_URLS = java.util.Set.of(
+            "https://github.com/Andrewwwwwwwwwwwwwww/vanillaskills/releases/download/v1.0.5/VanillaSkills-TexturePack.zip");
+
+    /** If this config still points at a superseded default pack, move it to the current default.
+     *  Only touches the exact old-default URLs — a hand-set custom URL is left alone. Returns true if changed. */
+    private boolean migrateStalePack() {
+        if (resourcePackUrl != null && SUPERSEDED_RP_URLS.contains(resourcePackUrl.trim())) {
+            resourcePackUrl = DEFAULT_RP_URL;
+            resourcePackSha1 = DEFAULT_RP_SHA1;
+            return true;
+        }
+        return false;
     }
 
     /** Publish this config's values to the live flags / consumers (clamped to sane minimums). */
