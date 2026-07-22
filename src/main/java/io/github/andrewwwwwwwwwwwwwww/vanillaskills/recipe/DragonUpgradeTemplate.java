@@ -46,9 +46,9 @@ public final class DragonUpgradeTemplate {
     /** The template's description lore. */
     public static ItemLore lore() {
         return new ItemLore(List.of(
-                line("Smithing: upgrade netherite armor", ChatFormatting.GRAY),
-                line("to Dragon armor with a Dragon Ingot.", ChatFormatting.GRAY),
-                line("Found in End City treasure.", ChatFormatting.DARK_GRAY)));
+                line("vanillaskills.item.dragon_upgrade_template.desc1", "Smithing: upgrade netherite armor", ChatFormatting.GRAY),
+                line("vanillaskills.item.dragon_upgrade_template.desc2", "to Dragon armor with a Dragon Ingot.", ChatFormatting.GRAY),
+                line("vanillaskills.item.dragon_upgrade_template.note", "Found in End City treasure.", ChatFormatting.DARK_GRAY)));
     }
 
     public static ItemStack create() {
@@ -66,7 +66,7 @@ public final class DragonUpgradeTemplate {
         return data != null && data.matchedBy(MARKER);
     }
 
-    private static Component line(String text, ChatFormatting color) {
-        return Component.literal(text).withStyle(color).withStyle(s -> s.withItalic(false));
+    private static Component line(String key, String fallback, ChatFormatting color) {
+        return Component.translatableWithFallback(key, fallback).withStyle(color).withStyle(s -> s.withItalic(false));
     }
 }

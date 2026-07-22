@@ -571,5 +571,16 @@
   "vanillaskills.menu.skilltree.layout_suffix": "(Layout)",
   "vanillaskills.menu.skilltree.edit_suffix": "(Edit Mode)",
   "vanillaskills.shop.iron_armor_set": "Iron Armor Set",
-  "vanillaskills.shop.leather_armor_set": "Leather Armor Set"
+  "vanillaskills.shop.leather_armor_set": "Leather Armor Set",
+  "vanillaskills.item.steel_shield": "Steel-Infused Shield",
+  "vanillaskills.item.steel_shield.desc1": "Hardened with steel for great durability.",
+  "vanillaskills.item.steel_shield.desc2": "Blocking a melee hit injures the attacker.",
+  "vanillaskills.item.fortune_upgrade_template.desc1": "Upgrades Fortune books to the",
+  "vanillaskills.item.fortune_upgrade_template.desc2": "next level (up to V).",
+  "vanillaskills.item.fortune_upgrade_template.note": "Consumed when used.",
+  "vanillaskills.item.dragon_upgrade_template.desc1": "Smithing: upgrade netherite armor",
+  "vanillaskills.item.dragon_upgrade_template.desc2": "to Dragon armor with a Dragon Ingot.",
+  "vanillaskills.item.dragon_upgrade_template.note": "Found in End City treasure.",
+  "vanillaskills.gear.dragon.elytra_label": "+ Elytra",
+  "vanillaskills.shop.stack": "%d× %s"
 }

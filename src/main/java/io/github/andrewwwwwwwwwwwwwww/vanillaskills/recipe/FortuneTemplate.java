@@ -55,9 +55,9 @@ public final class FortuneTemplate {
     /** The template's description lore. */
     public static ItemLore lore() {
         return new ItemLore(List.of(
-                line("Upgrades Fortune books to the", ChatFormatting.GRAY),
-                line("next level (up to V).", ChatFormatting.GRAY),
-                line("Consumed when used.", ChatFormatting.DARK_GRAY)));
+                line("vanillaskills.item.fortune_upgrade_template.desc1", "Upgrades Fortune books to the", ChatFormatting.GRAY),
+                line("vanillaskills.item.fortune_upgrade_template.desc2", "next level (up to V).", ChatFormatting.GRAY),
+                line("vanillaskills.item.fortune_upgrade_template.note", "Consumed when used.", ChatFormatting.DARK_GRAY)));
     }
 
     /** Build a fresh Fortune Upgrade template stack. */
@@ -70,8 +70,8 @@ public final class FortuneTemplate {
         return stack;
     }
 
-    private static Component line(String text, ChatFormatting color) {
-        return Component.literal(text).withStyle(color).withStyle(s -> s.withItalic(false));
+    private static Component line(String key, String fallback, ChatFormatting color) {
+        return Component.translatableWithFallback(key, fallback).withStyle(color).withStyle(s -> s.withItalic(false));
     }
 
     /** True if the stack is our marked Fortune Upgrade template. */

@@ -1,5 +1,13 @@
 # VanillaSkills Changelog
 
+## [1.7.3] - 2026-07-21
+### Added
+- The last hardcoded item text is now translatable: the Steel-Infused Shield name and lore, the Fortune and Dragon upgrade template lore, and the "+ Elytra" fusion label. Traditional Chinese (zh_tw) translations for these were provided by **caprese502** (Discord).
+- Quest Shop offer names now show each item in the player's own language (they were built from a server-resolved English name before).
+
+### Fixed
+- The auto-pushed resource pack now includes these new strings, so vanilla clients see the translated item lore too.
+
 ## [1.7.2] - 2026-07-21
 ### Fixed
 - **Custom item and gear names now translate for vanilla clients.** The server was auto-pushing an old resource pack (from before localization) that carried no language files, so on clients without the mod jar every custom item name fell back to English. The default pushed pack now points at the current localized pack, and servers still pinned to the old pack are auto-upgraded on load.

@@ -45,10 +45,27 @@ public class ShopMenu extends ChestMenu {
         return Lang.tr(player, key, fallback, args);
     }
 
-    /** Stable key for a shop offer's name, e.g. "Steel Ingot x4" -> "vanillaskills.shop.steel_ingot_x4". */
+    /** Stable key for a custom set offer's label, e.g. "Iron Armor Set" -> "vanillaskills.shop.iron_armor_set". */
     private static String offerKey(String title) {
         return "vanillaskills.shop." + title.toLowerCase(java.util.Locale.ROOT)
                 .replaceAll("[^a-z0-9]+", "_").replaceAll("^_+|_+$", "");
+    }
+
+    /** The offer's display name, fully translatable client-side. Custom sets use their label key;
+     *  plain item offers use the item's OWN (translatable) name plus the stack count, so vanilla item
+     *  names show in each player's language rather than a server-resolved English string. */
+    private Component offerName(ShopOffer offer) {
+        Component c;
+        if (offer.label() != null) {
+            c = Component.translatableWithFallback(offerKey(offer.label()), offer.label());
+        } else {
+            var g = offer.icon();
+            Component item = new ItemStack(Quests.item(g.itemId())).getHoverName();
+            c = g.count() > 1
+                    ? Component.translatableWithFallback("vanillaskills.shop.stack", "%d× %s", g.count(), item)
+                    : item.copy();
+        }
+        return c.copy().withStyle(ChatFormatting.WHITE).withStyle(s -> s.withItalic(false));
     }
 
     private ShopMenu(int syncId, Inventory inv, ServerPlayer player) {
@@ -95,7 +112,7 @@ public class ShopMenu extends ChestMenu {
         boolean canSkill = skill >= offer.skillPrice();
 
         ItemStack stack = new ItemStack(Quests.item(offer.icon().itemId()), offer.icon().count());
-        stack.set(DataComponents.CUSTOM_NAME, styled(t(offerKey(offer.displayName()), offer.displayName()), ChatFormatting.WHITE));
+        stack.set(DataComponents.CUSTOM_NAME, offerName(offer));
 
         List<Component> lore = new ArrayList<>();
         if (offer.grants().size() > 1) {
