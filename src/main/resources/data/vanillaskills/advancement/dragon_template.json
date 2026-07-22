@@ -1,13 +1,47 @@
 {
   "parent": "vanillaskills:root",
   "display": {
-    "icon": { "id": "minecraft:netherite_upgrade_smithing_template", "components": { "minecraft:custom_model_data": { "strings": ["vanillaskills:dragon_template"] } } },
-    "title": "Dragon's Legacy",
-    "description": "Discover a Dragon Upgrade template",
-    "show_toast": true, "announce_to_chat": true
+    "icon": {
+      "id": "minecraft:netherite_upgrade_smithing_template",
+      "components": {
+        "minecraft:custom_model_data": {
+          "strings": [
+            "vanillaskills:dragon_template"
+          ]
+        }
+      }
+    },
+    "title": {
+      "translate": "vanillaskills.advancement.dragon_template.title",
+      "fallback": "Dragon's Legacy"
+    },
+    "description": {
+      "translate": "vanillaskills.advancement.dragon_template.description",
+      "fallback": "Discover a Dragon Upgrade template"
+    },
+    "show_toast": true,
+    "announce_to_chat": true
   },
   "criteria": {
-    "obtain": { "trigger": "minecraft:inventory_changed", "conditions": { "items": [ { "items": ["minecraft:netherite_upgrade_smithing_template"], "predicates": { "minecraft:custom_data": "{vs_dragon_template:1b}" } } ] } }
+    "obtain": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": [
+              "minecraft:netherite_upgrade_smithing_template"
+            ],
+            "predicates": {
+              "minecraft:custom_data": "{vs_dragon_template:1b}"
+            }
+          }
+        ]
+      }
+    }
   },
-  "requirements": [ ["obtain"] ]
+  "requirements": [
+    [
+      "obtain"
+    ]
+  ]
 }

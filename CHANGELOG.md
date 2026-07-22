@@ -1,5 +1,9 @@
 # VanillaSkills Changelog
 
+## [1.7.4] - 2026-07-21
+### Added
+- The **advancement screen** is now translatable — all 14 VanillaSkills advancement titles and descriptions use translation keys (English fallback). This was the last untranslated surface. en_us.json is now 612 keys.
+
 ## [1.7.3] - 2026-07-21
 ### Added
 - The last hardcoded item text is now translatable: the Steel-Infused Shield name and lore, the Fortune and Dragon upgrade template lore, and the "+ Elytra" fusion label. Traditional Chinese (zh_tw) translations for these were provided by **caprese502** (Discord).

@@ -1,12 +1,36 @@
 {
   "parent": "vanillaskills:specialist",
   "display": {
-    "icon": { "id": "minecraft:netherite_ingot", "components": { "minecraft:custom_model_data": { "strings": ["vanillaskills:dragon_ingot"] } } },
-    "title": "Skill Master",
-    "description": "Unlock every node in the skill tree — rewarded with 4 Dragon Ingots",
+    "icon": {
+      "id": "minecraft:netherite_ingot",
+      "components": {
+        "minecraft:custom_model_data": {
+          "strings": [
+            "vanillaskills:dragon_ingot"
+          ]
+        }
+      }
+    },
+    "title": {
+      "translate": "vanillaskills.advancement.completionist.title",
+      "fallback": "Skill Master"
+    },
+    "description": {
+      "translate": "vanillaskills.advancement.completionist.description",
+      "fallback": "Unlock every node in the skill tree — rewarded with 4 Dragon Ingots"
+    },
     "frame": "challenge",
-    "show_toast": true, "announce_to_chat": true
+    "show_toast": true,
+    "announce_to_chat": true
   },
-  "criteria": { "complete": { "trigger": "minecraft:impossible" } },
-  "requirements": [ ["complete"] ]
+  "criteria": {
+    "complete": {
+      "trigger": "minecraft:impossible"
+    }
+  },
+  "requirements": [
+    [
+      "complete"
+    ]
+  ]
 }
