@@ -1,5 +1,11 @@
 # VanillaSkills Changelog
 
+## [1.7.5] - 2026-07-22
+### Added
+- **Traditional Chinese (zh_tw) is now complete** — the 14 advancement titles and descriptions are translated, bringing zh_tw to full parity with English (612 keys). Thanks to caprese502 for the translation.
+### Changed
+- Bundled texture pack refreshed with the completed zh_tw language file, so vanilla clients receive the translated advancement and item names.
+
 ## [1.7.4] - 2026-07-21
 ### Added
 - The **advancement screen** is now translatable — all 14 VanillaSkills advancement titles and descriptions use translation keys (English fallback). This was the last untranslated surface. en_us.json is now 612 keys.
