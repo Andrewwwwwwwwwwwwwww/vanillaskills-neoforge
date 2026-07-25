@@ -51,6 +51,8 @@ public class SkillTreeMenu extends ChestMenu {
     private final String category;   // null = lane-select view
     private String selected;         // node id picked up in edit mode
     private String selectedCategory; // lane id picked up in layout mode
+    /** Home screen only: slot -> add-on extension id, resolved fresh on every populate(). */
+    private final java.util.Map<Integer, String> extensionSlots = new java.util.HashMap<>();
 
     public static void open(ServerPlayer player) {
         openInternal(player, false, false, null);
@@ -138,6 +140,7 @@ public class SkillTreeMenu extends ChestMenu {
                 container.setItem(4, skillsHeader());
                 container.setItem(POINTS_SLOT, buildCounter(data));
                 container.setItem(STATS_SLOT, buildStatsHead());
+                placeExtensions();
             }
         } else {
             for (SkillNode node : tree.nodesIn(category)) {
@@ -156,6 +159,55 @@ public class SkillTreeMenu extends ChestMenu {
                 container.setItem(STATS_SLOT, buildStatsHead());
             }
         }
+    }
+
+    /**
+     * Home screen only: lay out buttons registered by add-on mods (see {@code SkillMenuExtensions}).
+     *
+     * <p>Runs after the lanes and the header/Points/Stats controls are placed, so "is this slot
+     * free?" reflects the player's own lane layout — a lane moved onto slot 44 with
+     * {@code /skill layout} simply pushes the add-on button elsewhere instead of being overwritten.
+     * An entry with nowhere to go is skipped.
+     */
+    private void placeExtensions() {
+        extensionSlots.clear();
+        if (io.github.andrewwwwwwwwwwwwwww.vanillaskills.api.SkillMenuExtensions.isEmpty()) return;
+        for (var entry : io.github.andrewwwwwwwwwwwwwww.vanillaskills.api.SkillMenuExtensions.all()) {
+            ItemStack icon;
+            try {
+                icon = entry.icon().apply(player);
+            } catch (Exception e) {
+                VanillaSkills.LOGGER.warn("Skill menu extension '{}' failed to build its icon", entry.id(), e);
+                continue;
+            }
+            if (icon == null || icon.isEmpty()) continue; // entry opted out for this player
+            int slot = freeExtensionSlot(entry.preferredSlot());
+            if (slot < 0) continue;                       // no room; better than clobbering a lane
+            container.setItem(slot, icon);
+            extensionSlots.put(slot, entry.id());
+        }
+    }
+
+    /** The preferred slot if usable, else the next usable slot scanning backwards. -1 if none. */
+    private int freeExtensionSlot(int preferred) {
+        if (isExtensionSlotFree(preferred)) return preferred;
+        for (int i = container.getContainerSize() - 1; i >= 0; i--) {
+            if (isExtensionSlotFree(i)) return i;
+        }
+        return -1;
+    }
+
+    private boolean isExtensionSlotFree(int slot) {
+        if (slot < 0 || slot >= container.getContainerSize()) return false;
+        if (isReservedSlot(slot)) return false;
+        if (extensionSlots.containsKey(slot)) return false;
+        return container.getItem(slot).isEmpty();
+    }
+
+    /** Control slots that lanes and add-on buttons must never take over. */
+    private boolean isReservedSlot(int slot) {
+        return slot == POINTS_SLOT || slot == STATS_SLOT || slot == 4
+                || slot == container.getContainerSize() - 1;
     }
 
     // ---- lane select ----
@@ -558,7 +610,7 @@ public class SkillTreeMenu extends ChestMenu {
         SkillCategory sel = tree.category(selectedCategory);
         if (sel == null) { selectedCategory = null; return; }
         if (cat != null && cat.id.equals(selectedCategory)) { selectedCategory = null; return; } // deselect
-        if (slotId == POINTS_SLOT || slotId == STATS_SLOT || slotId == 4 || slotId == container.getContainerSize() - 1) {
+        if (isReservedSlot(slotId)) {
             sp.sendSystemMessage(Component.literal(io.github.andrewwwwwwwwwwwwwww.vanillaskills.text.Lang.tr(sp,"vanillaskills.msg.slot_reserved","That spot is reserved (header / Points / Stats)."))
                     .withStyle(ChatFormatting.RED));
             return;
@@ -601,6 +653,21 @@ public class SkillTreeMenu extends ChestMenu {
         if (!editMode && slotId == STATS_SLOT) {
             StatsScreen.open(sp);
             return true;
+        }
+        if (!editMode) {
+            String extensionId = extensionSlots.get(slotId);
+            if (extensionId != null) {
+                for (var entry : io.github.andrewwwwwwwwwwwwwww.vanillaskills.api.SkillMenuExtensions.all()) {
+                    if (!entry.id().equals(extensionId)) continue;
+                    try {
+                        entry.onClick().accept(sp);
+                    } catch (Exception e) {
+                        VanillaSkills.LOGGER.warn("Skill menu extension '{}' threw on click", extensionId, e);
+                    }
+                    return true; // the add-on owns the screen now (it usually opens its own menu)
+                }
+                return false; // unregistered since this menu was built
+            }
         }
         SkillCategory cat = VanillaSkills.TREE.tree().categoryAtSlot(slotId);
         if (cat != null) {
