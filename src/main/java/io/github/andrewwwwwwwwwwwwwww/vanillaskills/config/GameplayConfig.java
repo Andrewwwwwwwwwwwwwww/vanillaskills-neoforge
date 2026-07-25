@@ -27,8 +27,8 @@ public class GameplayConfig {
     // and item NAMES come only from this pack's lang. A stale pack (pre-localization) makes every
     // custom item name fall back to English. Bump BOTH the URL and the SHA-1 whenever the pack changes.
     private static final String DEFAULT_RP_URL =
-            "https://github.com/Andrewwwwwwwwwwwwwww/vanillaskills/releases/download/v1.7.5/VanillaSkills-TexturePack.zip";
-    private static final String DEFAULT_RP_SHA1 = "110e852dfeae6dc8a3658af5d2fc977d8b39d134";
+            "https://github.com/Andrewwwwwwwwwwwwwww/vanillaskills/releases/download/v1.7.6/VanillaSkills-TexturePack.zip";
+    private static final String DEFAULT_RP_SHA1 = "bb0b9b587593e5335906bc7d3a9c54199eec781e";
 
     /** When true, the server force-pushes the VanillaSkills texture pack to every joining client
      *  (so vanilla clients see the custom gear with no server.properties setup). Read on player join. */
@@ -138,6 +138,7 @@ public class GameplayConfig {
     /** URLs of packs we've shipped as the default before; a config pinned to one of these predates the
      *  localized pack, so its custom item names show English. Auto-upgraded to the current default. */
     private static final java.util.Set<String> SUPERSEDED_RP_URLS = java.util.Set.of(
+            "https://github.com/Andrewwwwwwwwwwwwwww/vanillaskills/releases/download/v1.7.5/VanillaSkills-TexturePack.zip",
             "https://github.com/Andrewwwwwwwwwwwwwww/vanillaskills/releases/download/v1.0.5/VanillaSkills-TexturePack.zip",
             "https://github.com/Andrewwwwwwwwwwwwwww/vanillaskills/releases/download/v1.7.1/VanillaSkills-TexturePack.zip",
             "https://github.com/Andrewwwwwwwwwwwwwww/vanillaskills/releases/download/v1.7.4/VanillaSkills-TexturePack.zip");
