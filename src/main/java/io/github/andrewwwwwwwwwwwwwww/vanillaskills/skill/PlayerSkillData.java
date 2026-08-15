@@ -22,26 +22,43 @@ public class PlayerSkillData {
     public Set<String> creditedAdvancements = new LinkedHashSet<>();
     public boolean initialized = false;
 
-    // Bounty board progress for the current rotation (slot 0-2 -> kills / claimed).
+    // Bounty board progress for the current rotation, keyed by QUEST ID (was the board slot number
+    // before 2.0 — see QUEST_ID_VERSION). Cleared on every rotation.
     public long questRotation = -1;
-    public Map<Integer, Integer> questKills = new HashMap<>();
-    public Set<Integer> questClaimed = new LinkedHashSet<>();
-    // Repeatable STAT quests: baseline stat value snapshotted when the quest appears (keyed by the
-    // active slot 0-2), so progress only counts what you do DURING the current rotation. Reset each roll.
-    public Map<Integer, Long> questStatBase = new HashMap<>();
-    public Set<Integer> questStatNotified = new LinkedHashSet<>(); // STAT slots we've pinged as "ready"; reset per rotation
+    public Map<String, Integer> questKills = new HashMap<>();
+    public Set<String> questClaimed = new LinkedHashSet<>();
+    // Repeatable STAT quests: baseline stat value snapshotted when the quest appears, so progress only
+    // counts what you do DURING the current rotation. Reset each roll.
+    public Map<String, Long> questStatBase = new HashMap<>();
+    public Set<String> questStatNotified = new LinkedHashSet<>(); // STAT quests pinged as "ready"; reset per rotation
 
     // One-time Feats (structure discoveries, boss kills, entering the End). Permanent; never rotation-reset.
     public Set<String> featsDone = new LinkedHashSet<>();
 
-    // Starter board: new players complete ALL fixed starter quests (QuestPool.STARTER) to graduate
+    // Starter board: new players complete ALL fixed starter quests (QuestPool.starter()) to graduate
     // to the universal rotating board. Starter progress never rotation-resets.
     public int questsCompleted = 0;
     public boolean graduated = false;
     public int[] starterSlots = new int[0]; // LEGACY (pre-1.2.0 random starter board); unused, kept for old saves
-    public Set<Integer> starterDone = new LinkedHashSet<>();      // claimed starter indices (one-time)
-    public Map<Integer, Integer> starterKills = new HashMap<>();  // kill progress per starter index
+    public Set<String> starterDone = new LinkedHashSet<>();      // claimed starter quest ids (one-time)
+    public Map<String, Integer> starterKills = new HashMap<>();  // kill progress per starter quest id
     public int starterVersion = 0; // 2 = fixed-starter system (1.2.0 migration marker)
+
+    /**
+     * Save-format version for quest progress.
+     *
+     * <p>0/absent = pre-2.0, where the six quest collections above were keyed by an integer. Gson
+     * writes map keys as strings and reads JSON numbers into strings, so an old file still parses —
+     * the values just arrive as numeric strings like {@code "3"}, which {@link Quests} converts to
+     * real quest ids on first sync.
+     *
+     * <p>⚠ The two families of index meant different things, which the migration has to respect:
+     * {@code starterDone}/{@code starterKills} were indices into the pre-2.0 hardcoded starter list and are
+     * permanent, while the four rotating collections were <b>board slot numbers</b> (0-5) that only
+     * made sense for the current rotation.
+     */
+    public int questDataVersion = 0;
+    public static final int QUEST_ID_VERSION = 1;
 
     public void normalize() {
         if (unlocked == null) unlocked = new LinkedHashSet<>();

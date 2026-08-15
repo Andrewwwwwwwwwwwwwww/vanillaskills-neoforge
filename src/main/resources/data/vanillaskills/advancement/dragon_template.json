@@ -4,11 +4,7 @@
     "icon": {
       "id": "minecraft:netherite_upgrade_smithing_template",
       "components": {
-        "minecraft:custom_model_data": {
-          "strings": [
-            "vanillaskills:dragon_template"
-          ]
-        }
+        "minecraft:item_model": "vanillaskills:dragon_template"
       }
     },
     "title": {

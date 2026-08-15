@@ -28,7 +28,7 @@ public class ShieldThornsMixin {
         if (!SteelShield.isSteelShield(self.getUseItem())) return;
         Entity attacker = source.getDirectEntity();
         if (attacker instanceof LivingEntity living && living != self) {
-            living.hurtServer(level, self.damageSources().thorns(self), SteelShield.THORNS_DAMAGE);
+            living.hurtServer(level, self.damageSources().thorns(self), SteelShield.thornsDamage());
         }
     }
 }

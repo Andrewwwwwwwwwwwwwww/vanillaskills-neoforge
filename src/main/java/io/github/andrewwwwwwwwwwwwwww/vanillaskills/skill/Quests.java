@@ -21,9 +21,9 @@ import java.util.Set;
 
 /**
  * Per-player bounty progress. New players work the FIXED starter board — every quest in
- * {@link QuestPool#STARTER} is always active and completable once, in any order; progress never
+ * {@link QuestPool#starter()} is always active and completable once, in any order; progress never
  * rotation-resets. Completing ALL of them graduates the player to the shared universal board
- * (3 rotating quests from {@link QuestPool#ALL} on the 5-hour timer).
+ * (3 rotating quests from {@link QuestPool#all()} on the 5-hour timer).
  */
 public final class Quests {
     private Quests() {}
@@ -42,6 +42,14 @@ public final class Quests {
     public static void sync(ServerPlayer player) {
         PlayerSkillData data = VanillaSkills.PLAYERS.get(player.getUUID());
         boolean changed = false;
+
+        // 2.0 migration: quest progress moved from integer keys to stable quest ids. Runs before the
+        // rest of sync so everything below already sees ids.
+        if (data.questDataVersion < PlayerSkillData.QUEST_ID_VERSION) {
+            migrateQuestIds(data);
+            data.questDataVersion = PlayerSkillData.QUEST_ID_VERSION;
+            changed = true;
+        }
 
         // 1.2.0 migration: the starter board changed from 3 random rotating quests to the fixed
         // 15 — players mid-starter are fully reset (user decision); graduated players are untouched.
@@ -75,13 +83,13 @@ public final class Quests {
             for (int i = 0; i < active.size(); i++) {
                 Quest q = active.get(i);
                 if (q.type() != Quest.Type.STAT) continue;
-                if (!data.questStatBase.containsKey(i)) {
-                    data.questStatBase.put(i, readStat(player, q.target()));
+                if (!data.questStatBase.containsKey(q.id())) {
+                    data.questStatBase.put(q.id(), readStat(player, q.target()));
                     changed = true;
                 }
-                if (!data.questStatNotified.contains(i) && !data.questClaimed.contains(i)
+                if (!data.questStatNotified.contains(q.id()) && !data.questClaimed.contains(q.id())
                         && progress(player, i) >= q.amount()) {
-                    data.questStatNotified.add(i);
+                    data.questStatNotified.add(q.id());
                     player.sendSystemMessage(Component.literal(io.github.andrewwwwwwwwwwwwwww.vanillaskills.text.Lang.tr(player,"vanillaskills.msg.ready","Bounty ready to claim: %s — /quests", q.title())).withStyle(ChatFormatting.GREEN));
                     changed = true;
                 }
@@ -93,7 +101,7 @@ public final class Quests {
     /** The player's current quest list: all fixed starters pre-graduation, else the shared 3. */
     public static List<Quest> activeFor(ServerPlayer player) {
         PlayerSkillData data = VanillaSkills.PLAYERS.get(player.getUUID());
-        return data.graduated ? VanillaSkills.QUESTS.active() : QuestPool.STARTER;
+        return data.graduated ? VanillaSkills.QUESTS.active() : QuestPool.starter();
     }
 
     public static Quest questFor(ServerPlayer player, int index) {
@@ -111,13 +119,85 @@ public final class Quests {
     }
 
     /** The claimed-set for the player's current board (starter claims are permanent). */
-    private static Set<Integer> claimedSet(PlayerSkillData data) {
+    private static Set<String> claimedSet(PlayerSkillData data) {
         return data.graduated ? data.questClaimed : data.starterDone;
     }
 
     /** The kill-progress map for the player's current board. */
-    private static Map<Integer, Integer> killMap(PlayerSkillData data) {
+    private static Map<String, Integer> killMap(PlayerSkillData data) {
         return data.graduated ? data.questKills : data.starterKills;
+    }
+
+    /** The stable id of the quest in a board slot, or null if that slot is empty. */
+    private static String idAt(ServerPlayer player, int index) {
+        Quest q = questFor(player, index);
+        return q == null ? null : q.id();
+    }
+
+    // ---- 2.0 migration: quest progress moved from integer keys to stable quest ids ----
+
+    /**
+     * Rewrites a pre-2.0 player's quest progress onto quest ids.
+     *
+     * <p>The two families of key meant different things and must be remapped against different lists:
+     * {@code starterDone}/{@code starterKills} were positions in the old hardcoded starter list and are
+     * permanent, whereas the four rotating collections were <b>board slot numbers</b> for whatever
+     * rotation was live when they were written — so those resolve against the live board, which is
+     * itself only meaningful for the rotation that is currently dealt.
+     *
+     * <p>The starter side uses {@link QuestPool#LEGACY_STARTER_IDS}, the frozen pre-2.0 ordering,
+     * rather than the datapack pool: the old numbers only mean anything against the ordering that
+     * wrote them, so a pack that reorders the starter board must not be able to shuffle anyone's
+     * completed quests.
+     *
+     * <p>Keys that are already ids pass through untouched, so running this twice is harmless.
+     */
+    private static void migrateQuestIds(PlayerSkillData data) {
+        List<String> legacy = QuestPool.LEGACY_STARTER_IDS;
+        data.starterDone = remapSet(data.starterDone, i -> legacyId(legacy, i));
+        data.starterKills = remapMap(data.starterKills, i -> legacyId(legacy, i));
+
+        List<Quest> board = VanillaSkills.QUESTS.active();
+        data.questClaimed = remapSet(data.questClaimed, i -> idIn(board, i));
+        data.questStatNotified = remapSet(data.questStatNotified, i -> idIn(board, i));
+        data.questKills = remapMap(data.questKills, i -> idIn(board, i));
+        data.questStatBase = remapMap(data.questStatBase, i -> idIn(board, i));
+    }
+
+    private static String idIn(List<Quest> list, int index) {
+        return (index >= 0 && index < list.size()) ? list.get(index).id() : null;
+    }
+
+    /** Same lookup against a frozen list of raw ids (the pre-2.0 orderings). */
+    private static String legacyId(List<String> ids, int index) {
+        return (index >= 0 && index < ids.size()) ? ids.get(index) : null;
+    }
+
+    /** Old keys were integers; anything non-numeric is already an id and is kept as-is. */
+    private static String migrateKey(String key, java.util.function.IntFunction<String> lookup) {
+        try {
+            return lookup.apply(Integer.parseInt(key.trim()));
+        } catch (NumberFormatException e) {
+            return key;
+        }
+    }
+
+    private static Set<String> remapSet(Set<String> old, java.util.function.IntFunction<String> lookup) {
+        Set<String> out = new java.util.LinkedHashSet<>();
+        for (String key : old) {
+            String id = migrateKey(key, lookup);
+            if (id != null) out.add(id);
+        }
+        return out;
+    }
+
+    private static <V> Map<String, V> remapMap(Map<String, V> old, java.util.function.IntFunction<String> lookup) {
+        Map<String, V> out = new java.util.HashMap<>();
+        for (Map.Entry<String, V> entry : old.entrySet()) {
+            String id = migrateKey(entry.getKey(), lookup);
+            if (id != null) out.put(id, entry.getValue());
+        }
+        return out;
     }
 
     /** Called when a player kills something — advances any matching active KILL quests on their board. */
@@ -125,19 +205,19 @@ public final class Quests {
         sync(killer);
         PlayerSkillData data = VanillaSkills.PLAYERS.get(killer.getUUID());
         List<Quest> active = activeFor(killer);
-        Set<Integer> claimed = claimedSet(data);
-        Map<Integer, Integer> kills = killMap(data);
+        Set<String> claimed = claimedSet(data);
+        Map<String, Integer> kills = killMap(data);
         String id = BuiltInRegistries.ENTITY_TYPE.getKey(dead.getType()).toString();
         boolean hostile = dead instanceof Enemy;
         boolean changed = false;
         for (int i = 0; i < active.size(); i++) {
             Quest q = active.get(i);
-            if (q.type() != Quest.Type.KILL || claimed.contains(i)) continue;
+            if (q.type() != Quest.Type.KILL || claimed.contains(q.id())) continue;
             boolean match = q.target().equals(Quest.ANY_HOSTILE) ? hostile : q.target().equals(id);
             if (!match) continue;
-            int cur = kills.getOrDefault(i, 0);
+            int cur = kills.getOrDefault(q.id(), 0);
             if (cur >= q.amount()) continue;
-            kills.put(i, cur + 1);
+            kills.put(q.id(), cur + 1);
             changed = true;
             if (cur + 1 == q.amount()) {
                 killer.sendSystemMessage(Component.literal(io.github.andrewwwwwwwwwwwwwww.vanillaskills.text.Lang.tr(killer,"vanillaskills.msg.ready","Bounty ready to claim: %s — /quests", q.title()))
@@ -148,7 +228,8 @@ public final class Quests {
     }
 
     public static boolean isClaimed(ServerPlayer player, int index) {
-        return claimedSet(VanillaSkills.PLAYERS.get(player.getUUID())).contains(index);
+        String id = idAt(player, index);
+        return id != null && claimedSet(VanillaSkills.PLAYERS.get(player.getUUID())).contains(id);
     }
 
     /** Progress toward the quest (kills done, items held, or skills unlocked), capped at the amount. */
@@ -159,10 +240,10 @@ public final class Quests {
         return switch (q.type()) {
             case FREEBIE -> q.amount(); // always ready
             case SKILL -> Math.min(q.amount(), data.unlocked.size());
-            case KILL -> Math.min(q.amount(), killMap(data).getOrDefault(index, 0));
+            case KILL -> Math.min(q.amount(), killMap(data).getOrDefault(q.id(), 0));
             case GATHER -> Math.min(q.amount(), countItem(player, q.target()));
             case STAT -> {
-                long base = data.questStatBase.getOrDefault(index, readStat(player, q.target()));
+                long base = data.questStatBase.getOrDefault(q.id(), readStat(player, q.target()));
                 long delta = Math.max(0, readStat(player, q.target()) - base);
                 long done = q.target().contains("_one_cm") ? delta / 100 : delta; // cm -> blocks
                 yield (int) Math.min(q.amount(), done);
@@ -176,8 +257,9 @@ public final class Quests {
         Quest q = questFor(player, index);
         if (q == null) return;
         PlayerSkillData data = VanillaSkills.PLAYERS.get(player.getUUID());
-        Set<Integer> claimed = claimedSet(data);
-        if (claimed.contains(index)) {
+        String questId = q.id();
+        Set<String> claimed = claimedSet(data);
+        if (claimed.contains(questId)) {
             player.sendSystemMessage(Component.literal(data.graduated
                     ? "You've already claimed this bounty."
                     : "You've already completed this starter quest.").withStyle(ChatFormatting.RED));
@@ -185,7 +267,7 @@ public final class Quests {
         }
         switch (q.type()) {
             case KILL -> {
-                int cur = killMap(data).getOrDefault(index, 0);
+                int cur = killMap(data).getOrDefault(questId, 0);
                 if (cur < q.amount()) {
                     player.sendSystemMessage(Component.literal(io.github.andrewwwwwwwwwwwwwww.vanillaskills.text.Lang.tr(player,"vanillaskills.msg.not_done","Not done yet: %d/%d", cur, q.amount())).withStyle(ChatFormatting.RED));
                     return;
@@ -217,13 +299,13 @@ public final class Quests {
             }
             case FREEBIE -> { /* nothing to verify or consume */ }
         }
-        claimed.add(index);
+        claimed.add(questId);
         VanillaSkills.PLAYERS.addQuestShards(player, q.reward());
         player.sendSystemMessage(Component.literal(io.github.andrewwwwwwwwwwwwwww.vanillaskills.text.Lang.tr(player,"vanillaskills.msg.complete","Bounty complete: %s  +%d Quest Shards", q.title(), q.reward())).withStyle(ChatFormatting.GOLD));
 
         if (!data.graduated) {
             data.questsCompleted++;
-            int total = QuestPool.STARTER.size();
+            int total = QuestPool.starter().size();
             int done = data.starterDone.size();
             if (done >= total) {
                 graduate(player, data);

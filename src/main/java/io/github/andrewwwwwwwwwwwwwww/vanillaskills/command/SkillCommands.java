@@ -21,16 +21,20 @@ import net.minecraft.commands.Commands;
 import net.minecraft.commands.arguments.EntityArgument;
 import net.minecraft.commands.arguments.IdentifierArgument;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.item.ItemStack;
 
 /**
- * /skill         open the tree GUI (all players)
- * /skill points  show own points; (op) /skill points &lt;player&gt; add|set &lt;n&gt;
- * /skill reset|recalc &lt;player&gt;   (op)
- * /skill reload                    (op) reload tree + points config from disk
- * /skill mending on|off            (op) enable/remove Mending for this world (restart to apply)
- * /skill regen                     (op) overwrite skilltree.json with the built-in default (backs up the old one)
- * /skill edit ...                  (op) live-edit the server's skill tree
+ * /skill                             open the skill tree (all players)
+ * /skill toggle nightvision|stepup   toggle an unlocked toggleable skill (all players)
+ * /skill skillshards &lt;player&gt; ...    (op) add|set|reset a player's Skill Shards
+ * /skill questshards &lt;player&gt; ...    (op) add|set|reset a player's Quest Shards
+ * /skill give &lt;item&gt; [n] [player]    (op) give any VanillaSkills item; "list" prints every id
+ * /skill reset|recalc &lt;player&gt;       (op) refund all unlocks / reprice against current config
+ * /skill reload                      (op) reload tree + configs from disk
+ * /skill mending on|off              (op) enable or strip Mending for this world
+ * /skill regenpoints                 (op) reset points.json to defaults
  */
 public final class SkillCommands {
     private SkillCommands() {}
@@ -39,27 +43,16 @@ public final class SkillCommands {
         LiteralArgumentBuilder<CommandSourceStack> root = Commands.literal("skill")
                 .executes(SkillCommands::openSelf);
 
-        root.then(Commands.literal("open").executes(SkillCommands::openSelf));
-
-        root.then(Commands.literal("editor")
-                .requires(Commands.hasPermission(Commands.LEVEL_GAMEMASTERS))
-                .executes(SkillCommands::openEditor));
-
-        root.then(Commands.literal("layout")
-                .requires(Commands.hasPermission(Commands.LEVEL_GAMEMASTERS))
-                .executes(SkillCommands::openLayout));
-
-        root.then(Commands.literal("guide").executes(SkillCommands::guide));
-
         // Toggle unlocked toggleable skills on/off (per player, persisted): /skill toggle <skill>
         root.then(Commands.literal("toggle")
                 .then(Commands.literal("nightvision").executes(SkillCommands::toggleNightVision))
                 .then(Commands.literal("stepup").executes(SkillCommands::toggleStepUp)));
 
-        root.then(Commands.literal("points")
-                .executes(SkillCommands::showOwnPoints)
+        // Op-only and shaped exactly like /skill questshards. Players read their balance off the skill
+        // tree and the experience bar, so a self-view command here would just be a third way to say it.
+        root.then(Commands.literal("skillshards")
+                .requires(Commands.hasPermission(Commands.LEVEL_GAMEMASTERS))
                 .then(Commands.argument("player", EntityArgument.player())
-                        .requires(Commands.hasPermission(Commands.LEVEL_GAMEMASTERS))
                         .then(Commands.literal("add")
                                 .then(Commands.argument("amount", IntegerArgumentType.integer())
                                         .executes(ctx -> adjustPoints(ctx, true))))
@@ -95,21 +88,36 @@ public final class SkillCommands {
                 .requires(Commands.hasPermission(Commands.LEVEL_GAMEMASTERS))
                 .executes(SkillCommands::reload));
 
+        // /skill give <item> [count] [player] — the only way to obtain our items, since none are
+        // registered and so /give cannot name them.
+        root.then(Commands.literal("give")
+                .requires(Commands.hasPermission(Commands.LEVEL_GAMEMASTERS))
+                .then(Commands.literal("list").executes(SkillCommands::giveList))
+                .then(Commands.argument("item", StringArgumentType.word())
+                        .suggests((ctx, builder) -> {
+                            String typed = builder.getRemaining().toLowerCase(java.util.Locale.ROOT);
+                            for (String id : io.github.andrewwwwwwwwwwwwwww.vanillaskills.command.ModItems.all().keySet()) {
+                                if (id.startsWith(typed)) builder.suggest(id);
+                            }
+                            return builder.buildFuture();
+                        })
+                        .executes(ctx -> give(ctx, 1, null))
+                        .then(Commands.argument("count", IntegerArgumentType.integer(1, 6400))
+                                .executes(ctx -> give(ctx, IntegerArgumentType.getInteger(ctx, "count"), null))
+                                .then(Commands.argument("player", EntityArgument.player())
+                                        .executes(ctx -> give(ctx, IntegerArgumentType.getInteger(ctx, "count"),
+                                                EntityArgument.getPlayer(ctx, "player")))))));
+
         root.then(Commands.literal("mending")
                 .requires(Commands.hasPermission(Commands.LEVEL_GAMEMASTERS))
                 .then(Commands.literal("on").executes(ctx -> setMending(ctx, true)))
                 .then(Commands.literal("off").executes(ctx -> setMending(ctx, false))));
 
-        root.then(Commands.literal("regen")
-                .requires(Commands.hasPermission(Commands.LEVEL_GAMEMASTERS))
-                .executes(ctx -> regen(ctx, true))
-                .then(Commands.literal("fresh").executes(ctx -> regen(ctx, false))));
-
         root.then(Commands.literal("regenpoints")
                 .requires(Commands.hasPermission(Commands.LEVEL_GAMEMASTERS))
                 .executes(SkillCommands::regenPoints));
 
-        root.then(editTree());
+
 
         dispatcher.register(root);
     }
@@ -121,20 +129,6 @@ public final class SkillCommands {
         return 1;
     }
 
-    private static int openLayout(CommandContext<CommandSourceStack> ctx) throws CommandSyntaxException {
-        SkillTreeMenu.openLayout(ctx.getSource().getPlayerOrException());
-        return 1;
-    }
-
-    private static int openEditor(CommandContext<CommandSourceStack> ctx) throws CommandSyntaxException {
-        SkillTreeMenu.openEditor(ctx.getSource().getPlayerOrException());
-        return 1;
-    }
-
-    private static int guide(CommandContext<CommandSourceStack> ctx) throws CommandSyntaxException {
-        io.github.andrewwwwwwwwwwwwwww.vanillaskills.book.GuideBook.open(ctx.getSource().getPlayerOrException());
-        return 1;
-    }
 
     private static int toggleNightVision(CommandContext<CommandSourceStack> ctx) throws CommandSyntaxException {
         ServerPlayer player = ctx.getSource().getPlayerOrException();
@@ -246,6 +240,67 @@ public final class SkillCommands {
         return 1;
     }
 
+    /** Print every giveable id, so the list is discoverable without tab-completing blindly. */
+    private static int giveList(CommandContext<CommandSourceStack> ctx) {
+        java.util.Set<String> ids = io.github.andrewwwwwwwwwwwwwww.vanillaskills.command.ModItems.all().keySet();
+        ctx.getSource().sendSuccess(() -> Component.literal(
+                ids.size() + " VanillaSkills items:").withStyle(ChatFormatting.GREEN), false);
+        ctx.getSource().sendSuccess(() -> Component.literal(String.join(", ", ids))
+                .withStyle(ChatFormatting.GRAY), false);
+        return ids.size();
+    }
+
+    /**
+     * Give one of our items to a player.
+     *
+     * <p>Counts above a stack are split across several stacks rather than making one oversized stack, so
+     * what lands in the inventory behaves like anything else. Anything that will not fit drops at the
+     * player's feet rather than vanishing.
+     */
+    private static int give(CommandContext<CommandSourceStack> ctx, int count, ServerPlayer explicitTarget)
+            throws CommandSyntaxException {
+        String id = StringArgumentType.getString(ctx, "item");
+        ServerPlayer target = explicitTarget != null ? explicitTarget : ctx.getSource().getPlayerOrException();
+
+        ItemStack sample = io.github.andrewwwwwwwwwwwwwww.vanillaskills.command.ModItems.create(id);
+        if (sample == null) {
+            ctx.getSource().sendFailure(Component.literal(
+                    "Unknown VanillaSkills item '" + id + "'. Try /skill give list.").withStyle(ChatFormatting.RED));
+            return 0;
+        }
+
+        int remaining = count;
+        while (remaining > 0) {
+            ItemStack stack = io.github.andrewwwwwwwwwwwwwww.vanillaskills.command.ModItems.create(id);
+            int n = Math.min(remaining, stack.getMaxStackSize());
+            stack.setCount(n);
+            remaining -= n;
+            target.getInventory().placeItemBackInInventory(stack);
+        }
+
+        final int given = count;
+        final String name = sample.getHoverName().getString();
+        ctx.getSource().sendSuccess(() -> Component.literal(
+                "Gave " + given + " x " + name + " to " + target.getName().getString())
+                .withStyle(ChatFormatting.GREEN), true);
+        return given;
+    }
+
+
+
+    private static boolean isOreOrOurs(net.minecraft.server.level.ServerLevel level,
+                                       net.minecraft.core.BlockPos pos, net.minecraft.world.level.block.state.BlockState state) {
+        if (VanillaSkills.SHARDS.kindAt(level, pos) != null) {
+            return true;
+        }
+        if (state.is(net.minecraft.world.level.block.Blocks.ANCIENT_DEBRIS)
+                || state.is(net.minecraft.world.level.block.Blocks.REINFORCED_DEEPSLATE)) {
+            return true;
+        }
+        Identifier id = net.minecraft.core.registries.BuiltInRegistries.BLOCK.getKey(state.getBlock());
+        return id.getPath().endsWith("_ore");
+    }
+
     private static int reload(CommandContext<CommandSourceStack> ctx) {
         PointsConfig points = PointsConfig.load();
         VanillaSkills.PLAYERS.setPointsConfig(points);
@@ -290,97 +345,9 @@ public final class SkillCommands {
         return 1;
     }
 
-    private static int regen(CommandContext<CommandSourceStack> ctx, boolean preserve) {
-        java.nio.file.Path backup = VanillaSkills.TREE.regenerate(preserve);
-        if (ctx.getSource().getServer() != null) {
-            for (ServerPlayer player : ctx.getSource().getServer().getPlayerList().getPlayers()) {
-                VanillaSkills.PLAYERS.applyAll(player);
-            }
-        }
-        String suffix = backup != null ? " Backed up the old tree to " + backup.getFileName() + "." : "";
-        String mode = preserve
-                ? "Updated the tree, keeping your changes (added any new lanes/nodes)"
-                : "Reset the tree to the built-in default";
-        ctx.getSource().sendSuccess(() -> Component.literal(
-                mode + " (" + VanillaSkills.TREE.tree().size() + " nodes)." + suffix)
-                .withStyle(ChatFormatting.GREEN), true);
-        return 1;
-    }
 
     // ---- op: tree editor ----
 
-    private static LiteralArgumentBuilder<CommandSourceStack> editTree() {
-        return Commands.literal("edit")
-                .requires(Commands.hasPermission(Commands.LEVEL_GAMEMASTERS))
-                .then(Commands.literal("list").executes(SkillCommands::editList))
-                .then(Commands.literal("add")
-                        .then(Commands.argument("id", StringArgumentType.word())
-                                .then(Commands.argument("category", StringArgumentType.word())
-                                        .then(Commands.argument("slot", IntegerArgumentType.integer(0))
-                                                .then(Commands.argument("cost", IntegerArgumentType.integer(0))
-                                                        .then(Commands.argument("icon", IdentifierArgument.id())
-                                                                .executes(SkillCommands::editAdd)))))))
-                .then(Commands.literal("category")
-                        .then(Commands.literal("add")
-                                .then(Commands.argument("id", StringArgumentType.word())
-                                        .then(Commands.argument("slot", IntegerArgumentType.integer(0))
-                                                .then(Commands.argument("icon", IdentifierArgument.id())
-                                                        .executes(SkillCommands::editCategoryAdd)))))
-                        .then(Commands.literal("remove")
-                                .then(Commands.argument("id", StringArgumentType.word())
-                                        .executes(SkillCommands::editCategoryRemove)))
-                        .then(Commands.literal("setslot")
-                                .then(Commands.argument("id", StringArgumentType.word())
-                                        .then(Commands.argument("slot", IntegerArgumentType.integer(0))
-                                                .executes(SkillCommands::editCategorySetSlot))))
-                        .then(Commands.literal("seticon")
-                                .then(Commands.argument("id", StringArgumentType.word())
-                                        .then(Commands.argument("icon", IdentifierArgument.id())
-                                                .executes(SkillCommands::editCategorySetIcon))))
-                        .then(Commands.literal("settitle")
-                                .then(Commands.argument("id", StringArgumentType.word())
-                                        .then(Commands.argument("text", StringArgumentType.greedyString())
-                                                .executes(SkillCommands::editCategorySetTitle)))))
-                .then(Commands.literal("remove")
-                        .then(Commands.argument("id", StringArgumentType.word())
-                                .executes(SkillCommands::editRemove)))
-                .then(Commands.literal("setcost")
-                        .then(Commands.argument("id", StringArgumentType.word())
-                                .then(Commands.argument("cost", IntegerArgumentType.integer(0))
-                                        .executes(SkillCommands::editSetCost))))
-                .then(Commands.literal("setslot")
-                        .then(Commands.argument("id", StringArgumentType.word())
-                                .then(Commands.argument("slot", IntegerArgumentType.integer(0))
-                                        .executes(SkillCommands::editSetSlot))))
-                .then(Commands.literal("seticon")
-                        .then(Commands.argument("id", StringArgumentType.word())
-                                .then(Commands.argument("icon", IdentifierArgument.id())
-                                        .executes(SkillCommands::editSetIcon))))
-                .then(Commands.literal("settitle")
-                        .then(Commands.argument("id", StringArgumentType.word())
-                                .then(Commands.argument("text", StringArgumentType.greedyString())
-                                        .executes(SkillCommands::editSetTitle))))
-                .then(Commands.literal("setdesc")
-                        .then(Commands.argument("id", StringArgumentType.word())
-                                .then(Commands.argument("text", StringArgumentType.greedyString())
-                                        .executes(SkillCommands::editSetDesc))))
-                .then(Commands.literal("require")
-                        .then(Commands.argument("id", StringArgumentType.word())
-                                .then(Commands.literal("add")
-                                        .then(Commands.argument("req", StringArgumentType.word())
-                                                .executes(ctx -> editRequire(ctx, true))))
-                                .then(Commands.literal("remove")
-                                        .then(Commands.argument("req", StringArgumentType.word())
-                                                .executes(ctx -> editRequire(ctx, false))))))
-                .then(Commands.literal("effect")
-                        .then(Commands.argument("id", StringArgumentType.word())
-                                .then(Commands.literal("clear").executes(SkillCommands::editEffectClear))
-                                .then(Commands.literal("attribute")
-                                        .then(Commands.argument("attribute", IdentifierArgument.id())
-                                                .then(Commands.argument("operation", StringArgumentType.word())
-                                                        .then(Commands.argument("amount", DoubleArgumentType.doubleArg())
-                                                                .executes(SkillCommands::editEffectAttribute)))))));
-    }
 
     private static SkillNode requireNode(CommandContext<CommandSourceStack> ctx) {
         String id = StringArgumentType.getString(ctx, "id");
@@ -389,34 +356,7 @@ public final class SkillCommands {
         return node;
     }
 
-    private static int editList(CommandContext<CommandSourceStack> ctx) {
-        SkillTree tree = VanillaSkills.TREE.tree();
-        ctx.getSource().sendSuccess(() -> Component.literal(
-                tree.title + " — " + tree.size() + " nodes, " + tree.rows + " rows").withStyle(ChatFormatting.AQUA), false);
-        for (SkillNode node : tree.nodes) {
-            ctx.getSource().sendSuccess(() -> Component.literal(
-                    " • " + node.id + "  slot=" + node.slot + " cost=" + node.cost
-                            + " effects=" + node.effects.size() + " req=" + node.requires), false);
-        }
-        return 1;
-    }
 
-    private static int editAdd(CommandContext<CommandSourceStack> ctx) {
-        String id = StringArgumentType.getString(ctx, "id");
-        if (VanillaSkills.TREE.tree().has(id)) {
-            ctx.getSource().sendFailure(Component.literal("A node with id '" + id + "' already exists."));
-            return 0;
-        }
-        String category = StringArgumentType.getString(ctx, "category");
-        int slot = IntegerArgumentType.getInteger(ctx, "slot");
-        int cost = IntegerArgumentType.getInteger(ctx, "cost");
-        String icon = IdentifierArgument.getId(ctx, "icon").toString();
-        SkillNode node = new SkillNode(id, id, category, slot, cost, icon);
-        VanillaSkills.TREE.tree().nodes.add(node);
-        VanillaSkills.TREE.touchAndSave();
-        ctx.getSource().sendSuccess(() -> Component.literal("Added node '" + id + "' to lane '" + category + "'.").withStyle(ChatFormatting.GREEN), true);
-        return 1;
-    }
 
     // ---- lane (category) editing ----
 
@@ -427,151 +367,17 @@ public final class SkillCommands {
         return cat;
     }
 
-    private static int editCategoryAdd(CommandContext<CommandSourceStack> ctx) {
-        String id = StringArgumentType.getString(ctx, "id");
-        if (VanillaSkills.TREE.tree().category(id) != null) {
-            ctx.getSource().sendFailure(Component.literal("A lane with id '" + id + "' already exists."));
-            return 0;
-        }
-        int slot = IntegerArgumentType.getInteger(ctx, "slot");
-        String icon = IdentifierArgument.getId(ctx, "icon").toString();
-        VanillaSkills.TREE.tree().categories.add(
-                new io.github.andrewwwwwwwwwwwwwww.vanillaskills.skill.SkillCategory(id, id, icon, slot));
-        VanillaSkills.TREE.touchAndSave();
-        ctx.getSource().sendSuccess(() -> Component.literal("Added lane '" + id + "'.").withStyle(ChatFormatting.GREEN), true);
-        return 1;
-    }
 
-    private static int editCategoryRemove(CommandContext<CommandSourceStack> ctx) {
-        var cat = requireCategory(ctx);
-        if (cat == null) return 0;
-        VanillaSkills.TREE.tree().categories.remove(cat);
-        VanillaSkills.TREE.touchAndSave();
-        ctx.getSource().sendSuccess(() -> Component.literal("Removed lane '" + cat.id + "' (its skills move to the default lane).").withStyle(ChatFormatting.GREEN), true);
-        return 1;
-    }
 
-    private static int editCategorySetSlot(CommandContext<CommandSourceStack> ctx) {
-        var cat = requireCategory(ctx);
-        if (cat == null) return 0;
-        cat.slot = IntegerArgumentType.getInteger(ctx, "slot");
-        VanillaSkills.TREE.touchAndSave();
-        ctx.getSource().sendSuccess(() -> Component.literal("Set lane '" + cat.id + "' slot to " + cat.slot + "."), true);
-        return 1;
-    }
 
-    private static int editCategorySetIcon(CommandContext<CommandSourceStack> ctx) {
-        var cat = requireCategory(ctx);
-        if (cat == null) return 0;
-        cat.icon = IdentifierArgument.getId(ctx, "icon").toString();
-        VanillaSkills.TREE.touchAndSave();
-        ctx.getSource().sendSuccess(() -> Component.literal("Set lane '" + cat.id + "' icon to " + cat.icon + "."), true);
-        return 1;
-    }
 
-    private static int editCategorySetTitle(CommandContext<CommandSourceStack> ctx) {
-        var cat = requireCategory(ctx);
-        if (cat == null) return 0;
-        cat.title = StringArgumentType.getString(ctx, "text");
-        VanillaSkills.TREE.touchAndSave();
-        ctx.getSource().sendSuccess(() -> Component.literal("Set lane '" + cat.id + "' title."), true);
-        return 1;
-    }
 
-    private static int editRemove(CommandContext<CommandSourceStack> ctx) {
-        SkillNode node = requireNode(ctx);
-        if (node == null) return 0;
-        VanillaSkills.TREE.tree().nodes.remove(node);
-        VanillaSkills.TREE.touchAndSave();
-        ctx.getSource().sendSuccess(() -> Component.literal("Removed node '" + node.id + "'.").withStyle(ChatFormatting.GREEN), true);
-        return 1;
-    }
 
-    private static int editSetCost(CommandContext<CommandSourceStack> ctx) {
-        SkillNode node = requireNode(ctx);
-        if (node == null) return 0;
-        node.cost = IntegerArgumentType.getInteger(ctx, "cost");
-        VanillaSkills.TREE.touchAndSave();
-        ctx.getSource().sendSuccess(() -> Component.literal("Set cost of '" + node.id + "' to " + node.cost + "."), true);
-        return 1;
-    }
 
-    private static int editSetSlot(CommandContext<CommandSourceStack> ctx) {
-        SkillNode node = requireNode(ctx);
-        if (node == null) return 0;
-        node.slot = IntegerArgumentType.getInteger(ctx, "slot");
-        VanillaSkills.TREE.touchAndSave();
-        ctx.getSource().sendSuccess(() -> Component.literal("Set slot of '" + node.id + "' to " + node.slot + "."), true);
-        return 1;
-    }
 
-    private static int editSetIcon(CommandContext<CommandSourceStack> ctx) {
-        SkillNode node = requireNode(ctx);
-        if (node == null) return 0;
-        node.icon = IdentifierArgument.getId(ctx, "icon").toString();
-        VanillaSkills.TREE.touchAndSave();
-        ctx.getSource().sendSuccess(() -> Component.literal("Set icon of '" + node.id + "' to " + node.icon + "."), true);
-        return 1;
-    }
 
-    private static int editSetTitle(CommandContext<CommandSourceStack> ctx) {
-        SkillNode node = requireNode(ctx);
-        if (node == null) return 0;
-        node.title = StringArgumentType.getString(ctx, "text");
-        VanillaSkills.TREE.touchAndSave();
-        ctx.getSource().sendSuccess(() -> Component.literal("Set title of '" + node.id + "'."), true);
-        return 1;
-    }
 
-    private static int editSetDesc(CommandContext<CommandSourceStack> ctx) {
-        SkillNode node = requireNode(ctx);
-        if (node == null) return 0;
-        node.description.clear();
-        node.description.add(StringArgumentType.getString(ctx, "text"));
-        VanillaSkills.TREE.touchAndSave();
-        ctx.getSource().sendSuccess(() -> Component.literal("Set description of '" + node.id + "'."), true);
-        return 1;
-    }
 
-    private static int editRequire(CommandContext<CommandSourceStack> ctx, boolean add) {
-        SkillNode node = requireNode(ctx);
-        if (node == null) return 0;
-        String req = StringArgumentType.getString(ctx, "req");
-        if (add) {
-            if (!node.requires.contains(req)) node.requires.add(req);
-        } else {
-            node.requires.remove(req);
-        }
-        VanillaSkills.TREE.touchAndSave();
-        ctx.getSource().sendSuccess(() -> Component.literal(
-                (add ? "Added" : "Removed") + " requirement '" + req + "' " + (add ? "to" : "from") + " '" + node.id + "'."), true);
-        return 1;
-    }
 
-    private static int editEffectClear(CommandContext<CommandSourceStack> ctx) {
-        SkillNode node = requireNode(ctx);
-        if (node == null) return 0;
-        node.effects.clear();
-        VanillaSkills.TREE.touchAndSave();
-        ctx.getSource().sendSuccess(() -> Component.literal("Cleared effects of '" + node.id + "'."), true);
-        return 1;
-    }
 
-    private static int editEffectAttribute(CommandContext<CommandSourceStack> ctx) {
-        SkillNode node = requireNode(ctx);
-        if (node == null) return 0;
-        String attribute = IdentifierArgument.getId(ctx, "attribute").toString();
-        String operation = StringArgumentType.getString(ctx, "operation");
-        double amount = DoubleArgumentType.getDouble(ctx, "amount");
-        if (!operation.equals("add_value") && !operation.equals("add_multiplied_base") && !operation.equals("add_multiplied_total")) {
-            ctx.getSource().sendFailure(Component.literal(
-                    "Operation must be add_value, add_multiplied_base, or add_multiplied_total."));
-            return 0;
-        }
-        node.effects.add(SkillEffect.attribute(attribute, operation, amount));
-        VanillaSkills.TREE.touchAndSave();
-        ctx.getSource().sendSuccess(() -> Component.literal(
-                "Added attribute effect to '" + node.id + "': " + attribute + " " + operation + " " + amount).withStyle(ChatFormatting.GREEN), true);
-        return 1;
-    }
 }

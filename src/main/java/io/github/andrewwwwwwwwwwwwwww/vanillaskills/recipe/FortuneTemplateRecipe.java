@@ -48,6 +48,25 @@ public class FortuneTemplateRecipe extends CustomRecipe {
     }
 
     @Override
+    public java.util.List<net.minecraft.world.item.crafting.display.RecipeDisplay> display() {
+        net.minecraft.world.item.ItemStack berry = new net.minecraft.world.item.ItemStack(
+                net.minecraft.world.item.Items.GLOW_BERRIES);
+        net.minecraft.world.item.ItemStack sculk = new net.minecraft.world.item.ItemStack(
+                net.minecraft.world.item.Items.SCULK);
+        net.minecraft.world.item.ItemStack diaBlock = new net.minecraft.world.item.ItemStack(
+                net.minecraft.world.item.Items.DIAMOND_BLOCK);
+        net.minecraft.world.item.ItemStack emeraldBlock = new net.minecraft.world.item.ItemStack(
+                net.minecraft.world.item.Items.EMERALD_BLOCK);
+        net.minecraft.world.item.ItemStack out = FortuneTemplate.create();
+        out.setCount(2);
+        return java.util.List.of(RecipeDisplays.shaped(new net.minecraft.world.item.ItemStack[]{
+                berry.copy(), FortuneTemplate.create(), berry.copy(),
+                sculk.copy(), diaBlock.copy(), sculk.copy(),
+                berry.copy(), emeraldBlock.copy(), berry.copy()}, out,
+                net.minecraft.world.item.Items.CRAFTING_TABLE));
+    }
+
+    @Override
     public CraftingBookCategory category() {
         return CraftingBookCategory.EQUIPMENT;
     }

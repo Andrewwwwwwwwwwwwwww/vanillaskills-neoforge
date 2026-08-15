@@ -48,9 +48,8 @@ public final class HelpCommand {
         line(source, "/skill reload", "help.a_reload", "reload the points + tree config from disk");
         line(source, "/skill regen [fresh]", "help.a_regen", "rebuild tree (keeps your changes; 'fresh' = full reset)");
         line(source, "/skill regenpoints", "help.a_regenpoints", "reset points.json (advancement values) to the new defaults");
-        line(source, "/skill editor", "help.a_editor", "node editor (move/delete nodes)");
-        line(source, "/skill layout", "help.a_layout", "drag the lane icons around to rearrange them");
         line(source, "/skill edit ...", "help.a_edit", "live-edit nodes (cost/slot/effects/requires)");
+        line(source, "/skill give <item> [n]", "help.a_give", "give any VanillaSkills item ('list' shows all ids)");
         line(source, "/quests board [remove|refresh]", "help.a_board", "place / remove / re-render a bounty board");
         line(source, "/quests reroll", "help.a_reroll", "force a fresh set of universal bounties now");
         line(source, "/quests graduate <player>", "help.a_graduate", "move a player to the main bounty board");

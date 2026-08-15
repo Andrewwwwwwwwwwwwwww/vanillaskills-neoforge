@@ -36,11 +36,26 @@ public final class ToolTiers {
             "hardwood", "Hardwood", 0x9A6B3F, "vs_tool_hardwood",
             STONE_TOOLS, 160, 0.0, 0.1, 0.0, itemSet(ArmorTiers.WOOD_ITEMS), stack -> WOOD_SET.contains(stack.getItem()));
 
+    /** Ores Rose Gold reaches despite its gold base — gold and iron, plus the raw storage blocks so you can
+     *  re-mine what you smelted. Delivered by the per-stack tool component, so vanilla gold tools are
+     *  untouched. */
+    private static final net.minecraft.world.level.block.Block[] ROSE_GOLD_EXTRA_HARVEST = {
+            net.minecraft.world.level.block.Blocks.GOLD_ORE,
+            net.minecraft.world.level.block.Blocks.DEEPSLATE_GOLD_ORE,
+            net.minecraft.world.level.block.Blocks.NETHER_GOLD_ORE,
+            net.minecraft.world.level.block.Blocks.GOLD_BLOCK,
+            net.minecraft.world.level.block.Blocks.RAW_GOLD_BLOCK,
+            net.minecraft.world.level.block.Blocks.IRON_ORE,
+            net.minecraft.world.level.block.Blocks.DEEPSLATE_IRON_ORE,
+            net.minecraft.world.level.block.Blocks.IRON_BLOCK,
+            net.minecraft.world.level.block.Blocks.RAW_IRON_BLOCK};
+
     // Rose Gold = gold tier (gold speed 12 — fastest miner, sword 4 -> 5.5). Durability 220 between
-    // Copper (190) and Iron (250): the "fast like gold, far sturdier" tier.
+    // Copper (190) and Iron (250): the "fast like gold, far sturdier" tier. 2.0: also mines gold and iron.
     public static final ToolTier ROSE_GOLD = new ToolTier(
             "rose_gold", "Rose Gold", 0xE8B7A6, "vs_tool_rose_gold",
-            GOLD_TOOLS, 220, 1.5, 0.2, 0.0, itemSet(GOLD_INGOT), Alloys::isRoseGoldIngot);
+            GOLD_TOOLS, 220, 1.5, 0.2, 0.0, itemSet(GOLD_INGOT), Alloys::isRoseGoldIngot,
+            ROSE_GOLD_EXTRA_HARVEST);
 
     // Steel = iron tier (iron speed 6, sword 6 -> 6.5). Durability 800 between Iron (250) and Diamond (1561).
     public static final ToolTier STEEL = new ToolTier(
@@ -62,6 +77,16 @@ public final class ToolTiers {
             io.github.andrewwwwwwwwwwwwwww.vanillaskills.armor.DragonIngot::isDragonIngot);
 
     public static final List<ToolTier> TIERS = List.of(HARDWOOD, ROSE_GOLD, STEEL, CRYSTAL, DRAGON);
+
+    /** A representative crafting material for a tier — see {@code ArmorTiers.sampleMaterial}. */
+    public static ItemStack sampleMaterial(ToolTier tier) {
+        if (tier == HARDWOOD) return new ItemStack(net.minecraft.world.item.Items.OAK_WOOD);
+        if (tier == ROSE_GOLD) return Alloys.roseGoldIngot();
+        if (tier == STEEL) return Alloys.steelIngot();
+        if (tier == CRYSTAL) return Alloys.crystallizedDiamond();
+        if (tier == DRAGON) return io.github.andrewwwwwwwwwwwwwww.vanillaskills.armor.DragonIngot.create();
+        return ItemStack.EMPTY;
+    }
 
     public static ToolTier tierForMaterial(ItemStack stack) {
         for (ToolTier tier : TIERS) {

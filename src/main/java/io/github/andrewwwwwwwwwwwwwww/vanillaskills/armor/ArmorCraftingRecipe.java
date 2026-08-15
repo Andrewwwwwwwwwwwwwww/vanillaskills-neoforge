@@ -59,6 +59,33 @@ public class ArmorCraftingRecipe extends CustomRecipe {
         return null;
     }
 
+    /**
+     * One book entry per (tier x piece) this recipe can actually make.
+     *
+     * <p>Dragon is excluded because it is smithing-only, matching {@link #find}. Each tier shows a
+     * representative sample of its crafting material, so the book displays a marked Steel Ingot rather
+     * than a plain iron one.
+     */
+    @Override
+    public java.util.List<net.minecraft.world.item.crafting.display.RecipeDisplay> display() {
+        java.util.List<net.minecraft.world.item.crafting.display.RecipeDisplay> out = new java.util.ArrayList<>();
+        for (ArmorTier tier : ArmorTiers.TIERS) {
+            if (tier == ArmorTiers.DRAGON) continue;
+            ItemStack material = ArmorTiers.sampleMaterial(tier);
+            if (material.isEmpty()) continue;
+            for (ArmorPiece piece : ArmorPiece.values()) {
+                ItemStack[] grid = new ItemStack[piece.filled.length];
+                for (int i = 0; i < piece.filled.length; i++) {
+                    grid[i] = piece.filled[i] ? material.copy() : ItemStack.EMPTY;
+                }
+                out.add(io.github.andrewwwwwwwwwwwwwww.vanillaskills.recipe.RecipeDisplays.shaped(
+                        piece.width, piece.height, grid, tier.create(piece),
+                        net.minecraft.world.item.Items.CRAFTING_TABLE));
+            }
+        }
+        return out;
+    }
+
     @Override
     public CraftingBookCategory category() {
         return CraftingBookCategory.EQUIPMENT;

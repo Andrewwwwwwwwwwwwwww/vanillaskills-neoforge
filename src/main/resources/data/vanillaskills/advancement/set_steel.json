@@ -4,11 +4,7 @@
     "icon": {
       "id": "minecraft:iron_chestplate",
       "components": {
-        "minecraft:custom_model_data": {
-          "strings": [
-            "vanillaskills:steel_chestplate"
-          ]
-        }
+        "minecraft:item_model": "vanillaskills:steel_chestplate"
       }
     },
     "title": {

@@ -40,18 +40,31 @@ public class FortuneUpgradeRecipe extends CustomRecipe {
     public boolean matches(CraftingInput input, Level level) {
         if (input.width() != 3 || input.height() != 3) return false;
 
-        // Fixed positions (row-major): 0..8
-        if (!input.getItem(0).is(Items.LAPIS_BLOCK)) return false;
-        if (!input.getItem(2).is(Items.LAPIS_BLOCK)) return false;
-        if (!input.getItem(6).is(Items.LAPIS_BLOCK)) return false;
-        if (!input.getItem(8).is(Items.LAPIS_BLOCK)) return false;
-        if (!input.getItem(1).is(Items.DIAMOND_BLOCK)) return false;
-        if (!input.getItem(7).is(Items.DIAMOND_BLOCK)) return false;
+        // Fixed positions (row-major): 0..8. The template and the two matching books are common to both
+        // tiers; the frame differs, so Fortune V costs materially more than Fortune IV.
         if (!FortuneTemplate.isTemplate(input.getItem(4))) return false;
 
         int left = bookFortuneLevel(input.getItem(3));
         int right = bookFortuneLevel(input.getItem(5));
-        return left >= 3 && left < MAX_LEVEL && left == right;
+        if (left < 3 || left >= MAX_LEVEL || left != right) return false;
+
+        if (left == 3) {
+            // III -> IV: lapis corners, diamond blocks top and bottom.
+            return input.getItem(0).is(Items.LAPIS_BLOCK)
+                    && input.getItem(2).is(Items.LAPIS_BLOCK)
+                    && input.getItem(6).is(Items.LAPIS_BLOCK)
+                    && input.getItem(8).is(Items.LAPIS_BLOCK)
+                    && input.getItem(1).is(Items.DIAMOND_BLOCK)
+                    && input.getItem(7).is(Items.DIAMOND_BLOCK);
+        }
+        // IV -> V: diamond blocks in every corner and a Stable Skill Shard Block top and bottom, so the
+        // final level is gated behind the shard economy rather than just more mining.
+        return input.getItem(0).is(Items.DIAMOND_BLOCK)
+                && input.getItem(2).is(Items.DIAMOND_BLOCK)
+                && input.getItem(6).is(Items.DIAMOND_BLOCK)
+                && input.getItem(8).is(Items.DIAMOND_BLOCK)
+                && io.github.andrewwwwwwwwwwwwwww.vanillaskills.shard.ShardItems.isStableBlock(input.getItem(1))
+                && io.github.andrewwwwwwwwwwwwwww.vanillaskills.shard.ShardItems.isStableBlock(input.getItem(7));
     }
 
     @Override
@@ -76,6 +89,45 @@ public class FortuneUpgradeRecipe extends CustomRecipe {
         mutable.set(fortune, Math.min(MAX_LEVEL, level + 1));
         out.set(DataComponents.STORED_ENCHANTMENTS, mutable.toImmutable());
         return out;
+    }
+
+    /** Both upgrade steps, each with its own frame — IV on lapis, V on diamond blocks and Stable blocks. */
+    @Override
+    public java.util.List<net.minecraft.world.item.crafting.display.RecipeDisplay> display() {
+        ItemStack lapis = new ItemStack(Items.LAPIS_BLOCK);
+        ItemStack diaBlock = new ItemStack(Items.DIAMOND_BLOCK);
+        ItemStack sssb = io.github.andrewwwwwwwwwwwwwww.vanillaskills.shard.ShardItems.stableBlock();
+        ItemStack template = FortuneTemplate.create();
+        return java.util.List.of(
+                RecipeDisplays.shaped(new ItemStack[]{
+                        lapis.copy(), diaBlock.copy(), lapis.copy(),
+                        displayBook(3), template.copy(), displayBook(3),
+                        lapis.copy(), diaBlock.copy(), lapis.copy()}, displayBook(4),
+                        Items.CRAFTING_TABLE),
+                RecipeDisplays.shaped(new ItemStack[]{
+                        diaBlock.copy(), sssb.copy(), diaBlock.copy(),
+                        displayBook(4), template.copy(), displayBook(4),
+                        diaBlock.copy(), sssb.copy(), diaBlock.copy()}, displayBook(5),
+                        Items.CRAFTING_TABLE));
+    }
+
+    /**
+     * A display-only "Fortune N" book.
+     *
+     * <p>Labelled rather than genuinely enchanted: building a real one needs a {@code Holder<Enchantment>}
+     * from the registry, and {@code display()} can be called without a reliable registry to hand. The label
+     * conveys the same thing in the book and cannot go stale.
+     */
+    private static ItemStack displayBook(int level) {
+        ItemStack book = new ItemStack(Items.ENCHANTED_BOOK);
+        String roman = switch (level) { case 3 -> "III"; case 4 -> "IV"; case 5 -> "V"; default -> String.valueOf(level); };
+        book.set(net.minecraft.core.component.DataComponents.ITEM_NAME,
+                net.minecraft.network.chat.Component.translatableWithFallback(
+                        "vanillaskills.item.fortune_book", "Fortune %s", roman)
+                        .withStyle(net.minecraft.ChatFormatting.AQUA)
+                        .withStyle(s -> s.withItalic(false)));
+        book.set(net.minecraft.core.component.DataComponents.ENCHANTMENT_GLINT_OVERRIDE, true);
+        return book;
     }
 
     @Override

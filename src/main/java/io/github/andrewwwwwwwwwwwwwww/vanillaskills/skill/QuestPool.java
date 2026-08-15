@@ -1,126 +1,88 @@
 package io.github.andrewwwwwwwwwwwwwww.vanillaskills.skill;
 
+import io.github.andrewwwwwwwwwwwwwww.vanillaskills.data.VsContent;
+
 import java.util.List;
 
-/** The pool of possible bounty-board quests; several are picked each rotation. */
+/**
+ * Access to the datapack-defined quest pools.
+ *
+ * <p>Both pools live in {@code data/&lt;namespace&gt;/vanillaskills/quest/}, split by their
+ * {@code "pool"} field — see {@link io.github.andrewwwwwwwwwwwwwww.vanillaskills.data.QuestDef}. The
+ * mod ships its own as a bundled datapack, so a pack can add, reprice or replace quests without a
+ * code change.
+ *
+ * <p>Player progress is keyed by quest id rather than list position, so quests can be added, removed
+ * or reordered freely — the constraint that forced the old APPEND-ONLY rule on the hardcoded lists.
+ */
 public final class QuestPool {
     private QuestPool() {}
 
     /**
-     * The FIXED starter board: all 15 always active for new players, each completable once. Finishing
-     * all of them graduates the player to the rotating shared board below. A progression arc — wood,
-     * food, the mining ladder, first combat, mob drops, and finally the mod's own skill tree. All
-     * targets are biome-agnostic (e.g. sticks instead of a specific wood's log).
-     * EDIT-IN-PLACE ONLY: starter progress is saved as indices into THIS list — never reorder,
-     * insert, or GROW it. The starter GUI ({@code QuestMenu.STARTER_SLOTS}) renders exactly this
-     * many slots and graduation requires claiming every index, so an appended quest would be
-     * unrenderable and would make graduation impossible. To change a quest, replace its entry.
+     * How many starter quests the board can show at once.
+     *
+     * <p>The starter GUI is a 9x5 chest with a centred 5-wide by 3-row block of quest slots, and
+     * graduation requires claiming <i>every</i> starter quest — so a pack shipping more than this
+     * would create unclaimable quests and an unreachable graduation. {@link VsContent} truncates the
+     * pool to this length (with a warning) rather than letting that soft-lock happen.
      */
-    public static final List<Quest> STARTER = List.of(
-            new Quest(Quest.Type.GATHER, "minecraft:stick", 32, 1, "Gather 32 Sticks"),
-            new Quest(Quest.Type.GATHER, "minecraft:cobblestone", 64, 1, "Gather 64 Cobblestone"),
-            new Quest(Quest.Type.GATHER, "minecraft:coal", 16, 1, "Gather 16 Coal"),
-            new Quest(Quest.Type.GATHER, "minecraft:bread", 16, 1, "Bake 16 Bread"),
-            new Quest(Quest.Type.GATHER, "minecraft:leather", 16, 2, "Gather 16 Leather"),
-            new Quest(Quest.Type.GATHER, "minecraft:copper_ingot", 32, 3, "Smelt 32 Copper Ingots"),
-            new Quest(Quest.Type.GATHER, "minecraft:iron_ingot", 16, 3, "Smelt 16 Iron Ingots"),
-            new Quest(Quest.Type.GATHER, "minecraft:gold_ingot", 8, 4, "Smelt 8 Gold Ingots"),
-            new Quest(Quest.Type.GATHER, "minecraft:diamond", 4, 5, "Gather 4 Diamonds"),
-            new Quest(Quest.Type.KILL, "minecraft:zombie", 10, 2, "Slay 10 Zombies"),
-            new Quest(Quest.Type.KILL, "minecraft:skeleton", 10, 2, "Slay 10 Skeletons"),
-            new Quest(Quest.Type.KILL, "minecraft:creeper", 5, 3, "Slay 5 Creepers"),
-            new Quest(Quest.Type.GATHER, "minecraft:bone", 16, 1, "Gather 16 Bones"),
-            new Quest(Quest.Type.GATHER, "minecraft:string", 8, 1, "Gather 8 String"),
-            new Quest(Quest.Type.SKILL, "", 10, 9, "Unlock 10 Skills")
-    );
+    public static final int STARTER_CAPACITY = 15;
 
-    // Rewards are in Quest Shards, tiered by difficulty (easy 2-3, medium 4-5, hard 6-7, elite 10-14
-    // for rare/grindy targets). 6 quests are dealt each rotation.
-    // weight 10 = normal (diamond is rarer at 4); lategame=true quests are hidden in the early-game window.
-    public static final List<Quest> ALL = List.of(
-            // ---- Gather (turned in at the board) ----
-            new Quest(Quest.Type.GATHER, "minecraft:iron_ingot", 32, 3, "Gather 32 Iron Ingots"),
-            new Quest(Quest.Type.GATHER, "minecraft:gold_ingot", 16, 3, "Gather 16 Gold Ingots"),
-            new Quest(Quest.Type.GATHER, "minecraft:diamond", 10, 13, "Gather 10 Diamonds", 4, false),
-            new Quest(Quest.Type.GATHER, "minecraft:copper_ingot", 64, 4, "Gather 64 Copper Ingots"),
-            new Quest(Quest.Type.GATHER, "minecraft:wheat", 64, 2, "Gather 64 Wheat"),
-            new Quest(Quest.Type.GATHER, "minecraft:leather", 24, 6, "Gather 24 Leather"),
-            new Quest(Quest.Type.GATHER, "minecraft:gunpowder", 16, 4, "Gather 16 Gunpowder"),
-            new Quest(Quest.Type.GATHER, "minecraft:redstone", 32, 3, "Gather 32 Redstone"),
-            new Quest(Quest.Type.GATHER, "minecraft:emerald", 32, 3, "Gather 32 Emeralds", 10, true),
-            new Quest(Quest.Type.GATHER, "minecraft:coal", 64, 2, "Gather 64 Coal"),
-            new Quest(Quest.Type.GATHER, "minecraft:ender_pearl", 8, 6, "Gather 8 Ender Pearls", 10, true),
-            new Quest(Quest.Type.GATHER, "minecraft:bone", 32, 2, "Gather 32 Bones"),
+    /**
+     * The fixed starter board: every entry is active at once for new players, each completable once.
+     * Finishing all of them graduates the player to the rotating board. Never longer than
+     * {@link #STARTER_CAPACITY}.
+     */
+    public static List<Quest> starter() {
+        return VsContent.starterQuests();
+    }
 
-            // ---- Fishing (catch & turn in) ----
-            // Half weight (5): fishing is one activity with four entries, so at full weight it
-            // dominated boards (~half of starter rotations had a fish quest).
-            new Quest(Quest.Type.GATHER, "minecraft:cod", 16, 3, "Catch 16 Cod", 5, false),
-            new Quest(Quest.Type.GATHER, "minecraft:salmon", 16, 3, "Catch 16 Salmon", 5, false),
-            new Quest(Quest.Type.GATHER, "minecraft:tropical_fish", 6, 6, "Catch 6 Tropical Fish", 5, false),
-            new Quest(Quest.Type.GATHER, "minecraft:pufferfish", 4, 4, "Catch 4 Pufferfish", 5, false),
+    /** The rotating pool the shared bounty board deals from, weighted by {@link Quest#weight()}. */
+    public static List<Quest> all() {
+        return VsContent.rotatingQuests();
+    }
 
-            // ---- Kill ----
-            new Quest(Quest.Type.KILL, "minecraft:zombie", 25, 3, "Slay 25 Zombies"),
-            new Quest(Quest.Type.KILL, "minecraft:skeleton", 25, 3, "Slay 25 Skeletons"),
-            new Quest(Quest.Type.KILL, "minecraft:creeper", 15, 4, "Slay 15 Creepers"),
-            new Quest(Quest.Type.KILL, "minecraft:spider", 20, 3, "Slay 20 Spiders"),
-            new Quest(Quest.Type.KILL, "minecraft:enderman", 10, 6, "Slay 10 Endermen", 10, true),
-            new Quest(Quest.Type.KILL, "minecraft:blaze", 8, 6, "Slay 8 Blazes", 10, true),
-            new Quest(Quest.Type.KILL, "minecraft:piglin", 15, 4, "Slay 15 Piglins", 10, true),
-            new Quest(Quest.Type.KILL, "minecraft:drowned", 15, 4, "Slay 15 Drowned", 10, true),
-            new Quest(Quest.Type.KILL, "minecraft:witch", 8, 10, "Slay 8 Witches", 10, true),
-            new Quest(Quest.Type.KILL, Quest.ANY_HOSTILE, 50, 4, "Slay 50 hostile mobs"),
+    /**
+     * Look up a quest by its stable id, across both pools.
+     *
+     * <p>Returns null for an id that no longer exists — a pack removing a quest that someone had
+     * banked progress on. Callers treat that as "that quest is gone" rather than an error.
+     */
+    public static Quest byId(String id) {
+        return VsContent.quest(id);
+    }
 
-            // ---- Freebie (instant, rare) ----
-            new Quest(Quest.Type.FREEBIE, "", 1, 1, "Daily Bonus — free Quest Shards", 3, false),
+    /**
+     * FROZEN pre-2.0 orderings, used only to translate a legacy save's integer keys into quest ids.
+     *
+     * <p>Before 2.0 the pools were hardcoded lists and progress was stored as positions in them. Those
+     * numbers are only meaningful against the ordering that wrote them, so the migration must not read
+     * the live datapack pools — a pack that reorders or replaces quests would otherwise silently remap
+     * players onto the wrong ones. Never edit these; they describe history, not content.
+     */
+    public static final List<String> LEGACY_STARTER_IDS = List.of(
+            "gather_32_sticks", "gather_64_cobblestone", "gather_16_coal", "bake_16_bread",
+            "gather_16_leather", "smelt_32_copper_ingots", "smelt_16_iron_ingots", "smelt_8_gold_ingots",
+            "gather_4_diamonds", "slay_10_zombies", "slay_10_skeletons", "slay_5_creepers",
+            "gather_16_bones", "gather_8_string", "unlock_10_skills");
 
-            // ---- 1.1.1 additions ----
-            // APPEND ONLY: boards persist quests as indices into this list, so new entries must go
-            // at the end — inserting above would silently remap players' saved active quests.
-            new Quest(Quest.Type.GATHER, "minecraft:carrot", 64, 2, "Gather 64 Carrots"),
-            new Quest(Quest.Type.GATHER, "minecraft:honey_bottle", 4, 5, "Gather 4 Honey Bottles"),
-            new Quest(Quest.Type.GATHER, "minecraft:amethyst_shard", 24, 2, "Gather 24 Amethyst Shards"),
-            new Quest(Quest.Type.GATHER, "minecraft:string", 32, 2, "Gather 32 String"),
-            new Quest(Quest.Type.KILL, "minecraft:slime", 15, 3, "Slay 15 Slimes"),
-            new Quest(Quest.Type.KILL, "minecraft:pillager", 10, 4, "Slay 10 Pillagers"),
-            new Quest(Quest.Type.KILL, "minecraft:guardian", 8, 6, "Slay 8 Guardians", 10, true),
-
-            // ---- 1.2.8 additions ---- (APPEND ONLY — see note above)
-            // Cultivator crops: give the expanded farming skill something to turn in.
-            new Quest(Quest.Type.GATHER, "minecraft:pumpkin", 64, 6, "Gather 64 Pumpkins"),
-            new Quest(Quest.Type.GATHER, "minecraft:melon_slice", 64, 3, "Gather 64 Melon Slices"),
-            new Quest(Quest.Type.GATHER, "minecraft:sugar_cane", 32, 2, "Gather 32 Sugar Cane"),
-            new Quest(Quest.Type.GATHER, "minecraft:sweet_berries", 16, 3, "Gather 16 Sweet Berries"),
-            new Quest(Quest.Type.GATHER, "minecraft:cocoa_beans", 16, 4, "Gather 16 Cocoa Beans"),
-            new Quest(Quest.Type.GATHER, "minecraft:nether_wart", 32, 5, "Gather 32 Nether Wart", 10, true),
-            new Quest(Quest.Type.GATHER, "minecraft:chorus_fruit", 8, 6, "Gather 8 Chorus Fruit", 10, true),
-
-            // Nether identity (all lategame — hidden during the early-game window).
-            new Quest(Quest.Type.GATHER, "minecraft:blaze_rod", 16, 6, "Gather 16 Blaze Rods", 10, true),
-            new Quest(Quest.Type.GATHER, "minecraft:quartz", 32, 2, "Gather 32 Nether Quartz", 10, true),
-            new Quest(Quest.Type.GATHER, "minecraft:ghast_tear", 4, 14, "Gather 4 Ghast Tears", 10, true),
-            new Quest(Quest.Type.GATHER, "minecraft:magma_cream", 8, 5, "Gather 8 Magma Cream", 10, true),
-            new Quest(Quest.Type.GATHER, "minecraft:ancient_debris", 1, 7, "Gather 1 Ancient Debris", 10, true),
-
-            // Ocean identity.
-            new Quest(Quest.Type.GATHER, "minecraft:prismarine_shard", 24, 4, "Gather 24 Prismarine Shards"),
-            new Quest(Quest.Type.GATHER, "minecraft:nautilus_shell", 3, 6, "Gather 3 Nautilus Shells"),
-            new Quest(Quest.Type.GATHER, "minecraft:kelp", 32, 2, "Gather 32 Kelp"),
-            new Quest(Quest.Type.GATHER, "minecraft:ink_sac", 8, 2, "Gather 8 Ink Sacs"),
-
-            // Mining — raw drops (rewards the dig, ties to Prospector).
-            new Quest(Quest.Type.GATHER, "minecraft:raw_iron", 32, 4, "Gather 32 Raw Iron"),
-            new Quest(Quest.Type.GATHER, "minecraft:deepslate", 48, 2, "Gather 48 Deepslate"),
-            new Quest(Quest.Type.GATHER, "minecraft:obsidian", 8, 2, "Gather 8 Obsidian"),
-            new Quest(Quest.Type.GATHER, "minecraft:lapis_lazuli", 24, 2, "Gather 24 Lapis Lazuli"),
-
-            // ---- 1.3.0 additions: repeatable STAT quests ---- (APPEND ONLY)
-            // Progress counts from the moment the quest is dealt (baseline snapshot per rotation), so
-            // veterans don't auto-complete and you must do it within the window. Distance stats are in
-            // cm (walk_one_cm etc.); the amount is in BLOCKS and the reader divides by 100.
-            new Quest(Quest.Type.STAT, "minecraft:walk_one_cm,minecraft:sprint_one_cm", 5000, 4, "Travel 5,000 blocks on foot"),
-            new Quest(Quest.Type.STAT, "minecraft:swim_one_cm", 1500, 5, "Swim 1,500 blocks"),
-            new Quest(Quest.Type.STAT, "minecraft:jump", 800, 1, "Jump 800 times")
-    );
+    /** @see #LEGACY_STARTER_IDS */
+    public static final List<String> LEGACY_ALL_IDS = List.of(
+            "gather_32_iron_ingots", "gather_16_gold_ingots", "gather_10_diamonds",
+            "gather_64_copper_ingots", "gather_64_wheat", "gather_24_leather", "gather_16_gunpowder",
+            "gather_32_redstone", "gather_32_emeralds", "gather_64_coal", "gather_8_ender_pearls",
+            "gather_32_bones", "catch_16_cod", "catch_16_salmon", "catch_6_tropical_fish",
+            "catch_4_pufferfish", "slay_25_zombies", "slay_25_skeletons", "slay_15_creepers",
+            "slay_20_spiders", "slay_10_endermen", "slay_8_blazes", "slay_15_piglins",
+            "slay_15_drowned", "slay_8_witches", "slay_50_hostile_mobs",
+            "daily_bonus_free_quest_shards", "gather_64_carrots", "gather_4_honey_bottles",
+            "gather_24_amethyst_shards", "gather_32_string", "slay_15_slimes", "slay_10_pillagers",
+            "slay_8_guardians", "gather_64_pumpkins", "gather_64_melon_slices", "gather_32_sugar_cane",
+            "gather_16_sweet_berries", "gather_16_cocoa_beans", "gather_32_nether_wart",
+            "gather_8_chorus_fruit", "gather_16_blaze_rods", "gather_32_nether_quartz",
+            "gather_4_ghast_tears", "gather_8_magma_cream", "gather_1_ancient_debris",
+            "gather_24_prismarine_shards", "gather_3_nautilus_shells", "gather_32_kelp",
+            "gather_8_ink_sacs", "gather_32_raw_iron", "gather_48_deepslate", "gather_8_obsidian",
+            "gather_24_lapis_lazuli", "travel_5_000_blocks_on_foot", "swim_1_500_blocks",
+            "jump_800_times");
 }

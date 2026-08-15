@@ -11,7 +11,10 @@ public class SkillNode {
     public String title;
     public List<String> description = new ArrayList<>();
     public String icon = "minecraft:stone";
+    /** Derived Skill Shard price, recomputed from {@link #weight} by the economy pass. Never authored. */
     public int cost = 1;
+    /** Authored relative price from the datapack. The fixed input the economy pass scales from. */
+    public int weight = 1;
     public int minEarned = 0;  // requires this many lifetime-earned Skill Shards before it can be unlocked
     public String currency = "skill"; // "skill" = Skill Shards, "quest" = Quest Shards
     public List<String> requires = new ArrayList<>();
@@ -31,6 +34,7 @@ public class SkillNode {
         this.category = category;
         this.slot = slot;
         this.cost = cost;
+        this.weight = cost;
         this.icon = icon;
     }
 
@@ -42,5 +46,6 @@ public class SkillNode {
         if (title == null) title = id;
         if (icon == null) icon = "minecraft:stone";
         if (currency == null) currency = "skill";
+        if (weight < 1) weight = Math.max(1, cost);
     }
 }

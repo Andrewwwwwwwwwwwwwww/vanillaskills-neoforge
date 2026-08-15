@@ -37,9 +37,9 @@ public final class DragonTemplateLoot {
                 .add(EmptyLootItem.emptyItem().setWeight(EMPTY_WEIGHT))
                 .add(LootItem.lootTableItem(DragonUpgradeTemplate.BASE)
                         .setWeight(TEMPLATE_WEIGHT)
-                        .apply(SetComponentsFunction.setComponent(DataComponents.CUSTOM_NAME, DragonUpgradeTemplate.displayName()))
+                        .apply(SetComponentsFunction.setComponent(DataComponents.ITEM_NAME, DragonUpgradeTemplate.displayName()))
                         .apply(SetComponentsFunction.setComponent(DataComponents.CUSTOM_DATA, CustomData.of(DragonUpgradeTemplate.markerTag())))
-                        .apply(SetComponentsFunction.setComponent(DataComponents.CUSTOM_MODEL_DATA, DragonUpgradeTemplate.modelData()))
+                        .apply(SetComponentsFunction.setComponent(DataComponents.ITEM_MODEL, DragonUpgradeTemplate.modelId()))
                         .apply(SetComponentsFunction.setComponent(DataComponents.LORE, DragonUpgradeTemplate.lore())));
     }
 }

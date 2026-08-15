@@ -115,6 +115,9 @@ public class PlayerSkillManager {
             SkillNode node = tree.byId(id);
             if (node != null) SkillEffects.applyNode(player, node);
         }
+        // The set of unlocked skills decides which of our recipes are visible in the book, so any time the
+        // effects are reapplied the book is reconciled too — that covers unlocking, refunding and /skill reset.
+        io.github.andrewwwwwwwwwwwwwww.vanillaskills.recipe.RecipeUnlocks.sync(player);
     }
 
     // ---- advancement points ----
@@ -517,6 +520,23 @@ public class PlayerSkillManager {
 
     public int questShards(ServerPlayer player) {
         return get(player.getUUID()).questShardsAvailable;
+    }
+
+    /**
+     * Return Skill Shards to the player's spendable balance <b>without</b> crediting lifetime earned.
+     *
+     * <p>The counterpart to {@link #spendSkillShards}, used when banking a physical Unstable Skill Shard.
+     * It deliberately does not call {@code grantPoints}: withdrawing only decrements {@code pointsAvailable},
+     * so crediting {@code pointsEarned} on the way back would let a player inflate their lifetime total by
+     * withdrawing and re-banking the same shard forever — and lifetime earned is what gates Night Vision at
+     * P/3. Keeping it out also means shards dug out of the ground can be spent but cannot be farmed to skip
+     * that gate.
+     */
+    public void depositSkillShards(ServerPlayer player, int amount) {
+        if (amount <= 0) return;
+        PlayerSkillData data = get(player.getUUID());
+        data.pointsAvailable += amount;
+        save(player.getUUID());
     }
 
     /** Spend available Skill Shards (does not reduce lifetime earned). Returns false if too few. */

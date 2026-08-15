@@ -111,23 +111,25 @@ public final class GuideBook {
             """
             Gear Materials
 
-            Steel ingot: forge iron + iron in an anvil.
+            Steel ingot: smelt an iron block in a furnace = 3.
 
-            Crystallized Diamond: 6 amethyst shards + 2 diamonds + 1 amethyst block = 2.""",
+            Steel Shield: shield + Steel Ingot in an anvil.
+
+            Crystallized Diamond: 4 amethyst shards + 2 Unstable Skill Shards + 2 diamonds + 1 amethyst block = 2.""",
 
             """
             Set Bonuses
 
-            Rose Gold: immune to bad effects; piglins stay neutral.
+            Rose Gold: immune to bad effects, fire resistant; piglins stay neutral.
 
-            Crystalline: reflects 25% of melee damage.
+            Crystalline: reflects 25% of melee damage, plus Strength & Resistance I.
 
             Dragon: immune to fire, lava & breath.""",
 
             """
             Dragon Gear
 
-            Slay the Ender Dragon for 8 Dragon Scales. Ring a Netherite Ingot with them for a Dragon Ingot.
+            Slay the Ender Dragon for 8 Dragon Scales — 32 for the world's first kill. Four scales around a Netherite Ingot make a Dragon Ingot.
 
             Sneak in midair to dive-dash.""",
 
@@ -183,7 +185,7 @@ public final class GuideBook {
             // Fill the live-config tokens so the guide always matches the current settings.
             String text = page
                     .replace("{MENDING}", mending)
-                    .replace("{GRAD}", String.valueOf(io.github.andrewwwwwwwwwwwwwww.vanillaskills.skill.QuestPool.STARTER.size()))
+                    .replace("{GRAD}", String.valueOf(io.github.andrewwwwwwwwwwwwwww.vanillaskills.skill.QuestPool.starter().size()))
                     .replace("{CONVERT}", String.valueOf(QuestShop.CONVERT_RATIO));
             pages.add(Filterable.passThrough(Component.literal(text)));
         }

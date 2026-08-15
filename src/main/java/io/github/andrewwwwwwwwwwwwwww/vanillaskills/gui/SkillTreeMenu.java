@@ -37,41 +37,34 @@ import java.util.List;
 
 /**
  * The skill GUI. With {@code category == null} it's the lane-select screen (one icon per lane);
- * with a category set it shows that lane's nodes. Edit mode lets ops manage lanes and nodes.
+ * with a category set it shows that lane's nodes.
+ *
+ * <p>The in-game node editor and lane-layout modes were removed in 2.0: the tree is content, and content
+ * is meant to be authored rather than dragged around at runtime.
  */
 public class SkillTreeMenu extends ChestMenu {
     private static final int POINTS_SLOT = 45;  // bottom-left corner
     private static final int STATS_SLOT = 53;   // bottom-right corner
     private static final int BACK_SLOT = 49;    // bottom-centre (lane view)
+    private static final int WITHDRAW_SLOT = 36; // directly above the shard counter
 
     private final ServerPlayer player;
     private final SimpleContainer container;
-    private final boolean editMode;
-    private final boolean layoutMode;   // lane-select: drag lane icons to rearrange them
     private final String category;   // null = lane-select view
-    private String selected;         // node id picked up in edit mode
-    private String selectedCategory; // lane id picked up in layout mode
+    /** Withdrawing converts banked Skill Shards into items, so the first click only arms the button. */
+    private boolean withdrawArmed;
     /** Home screen only: slot -> add-on extension id, resolved fresh on every populate(). */
     private final java.util.Map<Integer, String> extensionSlots = new java.util.HashMap<>();
 
     public static void open(ServerPlayer player) {
-        openInternal(player, false, false, null);
+        openInternal(player, null);
     }
 
-    public static void openEditor(ServerPlayer player) {
-        openInternal(player, true, false, null);
+    public static void openCategory(ServerPlayer player, String categoryId) {
+        openInternal(player, categoryId);
     }
 
-    /** Open the lane-select screen in layout mode: click a lane to pick it up, click a spot to move/swap. */
-    public static void openLayout(ServerPlayer player) {
-        openInternal(player, false, true, null);
-    }
-
-    public static void openCategory(ServerPlayer player, String categoryId, boolean editMode) {
-        openInternal(player, editMode, false, categoryId);
-    }
-
-    private static void openInternal(ServerPlayer player, boolean editMode, boolean layoutMode, String category) {
+    private static void openInternal(ServerPlayer player, String category) {
         SkillTree tree = VanillaSkills.TREE.tree();
         String base;
         if (category != null) {
@@ -84,22 +77,15 @@ public class SkillTreeMenu extends ChestMenu {
             base = io.github.andrewwwwwwwwwwwwwww.vanillaskills.text.Lang.tr(player,
                     "vanillaskills.menu.skilltree.title", tree.title == null ? "Skills" : tree.title);
         }
-        String suffix = layoutMode
-                ? " " + io.github.andrewwwwwwwwwwwwwww.vanillaskills.text.Lang.tr(player, "vanillaskills.menu.skilltree.layout_suffix", "(Layout)")
-                : editMode
-                ? " " + io.github.andrewwwwwwwwwwwwwww.vanillaskills.text.Lang.tr(player, "vanillaskills.menu.skilltree.edit_suffix", "(Edit Mode)")
-                : "";
-        Component title = Component.literal(base + suffix);
+        Component title = Component.literal(base);
         player.openMenu(new SimpleMenuProvider(
-                (syncId, inv, p) -> new SkillTreeMenu(syncId, inv, (ServerPlayer) p, editMode, layoutMode, category), title));
+                (syncId, inv, p) -> new SkillTreeMenu(syncId, inv, (ServerPlayer) p, category), title));
     }
 
-    public SkillTreeMenu(int syncId, Inventory inv, ServerPlayer player, boolean editMode, boolean layoutMode, String category) {
+    public SkillTreeMenu(int syncId, Inventory inv, ServerPlayer player, String category) {
         super(menuTypeFor(VanillaSkills.TREE.tree().rows), syncId, inv,
                 new SimpleContainer(VanillaSkills.TREE.tree().slotCount()), clampRows(VanillaSkills.TREE.tree().rows));
         this.player = player;
-        this.editMode = editMode;
-        this.layoutMode = layoutMode;
         this.category = category;
         this.container = (SimpleContainer) getContainer();
         populate();
@@ -128,36 +114,27 @@ public class SkillTreeMenu extends ChestMenu {
 
         if (category == null) {
             for (SkillCategory cat : tree.categories()) {
-                // Config-disabled crafting lanes are hidden from players (ops still see them in edit mode).
-                if (!editMode && io.github.andrewwwwwwwwwwwwwww.vanillaskills.skill.CraftingGate.laneDisabled(cat.id)) continue;
+                // Config-disabled crafting lanes are hidden entirely.
+                if (io.github.andrewwwwwwwwwwwwwww.vanillaskills.skill.CraftingGate.laneDisabled(cat.id)) continue;
                 container.setItem(cat.slot, buildCategoryItem(cat, data));
             }
-            if (layoutMode) {
-                container.setItem(size - 1, layoutHelp());
-            } else if (editMode) {
-                container.setItem(size - 1, buildEditInfo(true));
-            } else {
-                container.setItem(4, skillsHeader());
-                container.setItem(POINTS_SLOT, buildCounter(data));
-                container.setItem(STATS_SLOT, buildStatsHead());
-                placeExtensions();
-            }
+            container.setItem(4, skillsHeader());
+            container.setItem(POINTS_SLOT, buildCounter(data));
+            container.setItem(WITHDRAW_SLOT, buildWithdrawButton(data));
+            container.setItem(STATS_SLOT, buildStatsHead());
+            placeExtensions();
         } else {
             for (SkillNode node : tree.nodesIn(category)) {
-                container.setItem(node.slot, editMode ? buildEditItem(node) : buildNodeItem(node, data));
+                container.setItem(node.slot, buildNodeItem(node, data));
             }
             container.setItem(BACK_SLOT, backButton());
-            if (editMode) {
-                container.setItem(size - 1, buildEditInfo(false));
-            } else {
-                SkillCategory cat = tree.category(category);
-                if (cat != null) {
-                    int hs = headerSlot();               // top-center, else nearest free top-row slot
-                    if (hs >= 0) container.setItem(hs, laneHeader(cat, data));
-                }
-                container.setItem(POINTS_SLOT, buildCounter(data));
-                container.setItem(STATS_SLOT, buildStatsHead());
+            SkillCategory cat = tree.category(category);
+            if (cat != null) {
+                int hs = headerSlot();               // top-center, else nearest free top-row slot
+                if (hs >= 0) container.setItem(hs, laneHeader(cat, data));
             }
+            container.setItem(POINTS_SLOT, buildCounter(data));
+            container.setItem(STATS_SLOT, buildStatsHead());
         }
     }
 
@@ -165,9 +142,8 @@ public class SkillTreeMenu extends ChestMenu {
      * Home screen only: lay out buttons registered by add-on mods (see {@code SkillMenuExtensions}).
      *
      * <p>Runs after the lanes and the header/Points/Stats controls are placed, so "is this slot
-     * free?" reflects the player's own lane layout — a lane moved onto slot 44 with
-     * {@code /skill layout} simply pushes the add-on button elsewhere instead of being overwritten.
-     * An entry with nowhere to go is skipped.
+     * free?" reflects the tree's own lane layout, so an add-on button is placed around the lanes rather
+     * than over them. An entry with nowhere to go is skipped.
      */
     private void placeExtensions() {
         extensionSlots.clear();
@@ -206,7 +182,7 @@ public class SkillTreeMenu extends ChestMenu {
 
     /** Control slots that lanes and add-on buttons must never take over. */
     private boolean isReservedSlot(int slot) {
-        return slot == POINTS_SLOT || slot == STATS_SLOT || slot == 4
+        return slot == POINTS_SLOT || slot == STATS_SLOT || slot == WITHDRAW_SLOT || slot == 4
                 || slot == container.getContainerSize() - 1;
     }
 
@@ -242,7 +218,7 @@ public class SkillTreeMenu extends ChestMenu {
             r.set(DataComponents.CUSTOM_NAME, styled(t("vanillaskills.lane.recipes","Recipes"), ChatFormatting.GOLD));
             r.set(DataComponents.LORE, new ItemLore(List.of(
                     styled(t("vanillaskills.lane.recipes.desc","All custom crafting recipes"), ChatFormatting.GRAY),
-                    styled(layoutMode ? t("vanillaskills.menu.skilltree.pickup","Click to pick up & move") : t("vanillaskills.menu.skilltree.view","Click to view"), ChatFormatting.YELLOW))));
+                    styled(t("vanillaskills.menu.skilltree.view","Click to view"), ChatFormatting.YELLOW))));
             return r;
         }
         if ("guide".equals(cat.id)) {
@@ -251,7 +227,7 @@ public class SkillTreeMenu extends ChestMenu {
             r.set(DataComponents.CUSTOM_NAME, styled(t("vanillaskills.lane.guide","Guide"), ChatFormatting.GOLD));
             r.set(DataComponents.LORE, new ItemLore(List.of(
                     styled(t("vanillaskills.lane.guide.desc","How VanillaSkills works"), ChatFormatting.GRAY),
-                    styled(layoutMode ? t("vanillaskills.menu.skilltree.pickup","Click to pick up & move") : t("vanillaskills.menu.click_to_open","Click to open"), ChatFormatting.YELLOW))));
+                    styled(t("vanillaskills.menu.click_to_open","Click to open"), ChatFormatting.YELLOW))));
             return r;
         }
         if ("quests".equals(cat.id)) {
@@ -260,7 +236,7 @@ public class SkillTreeMenu extends ChestMenu {
             r.set(DataComponents.CUSTOM_NAME, styled(t("vanillaskills.lane.quests","Bounty Board"), ChatFormatting.GOLD));
             r.set(DataComponents.LORE, new ItemLore(List.of(
                     styled(t("vanillaskills.lane.quests.desc","Quests & the Quest Shop"), ChatFormatting.GRAY),
-                    styled(layoutMode ? t("vanillaskills.menu.skilltree.pickup","Click to pick up & move") : t("vanillaskills.menu.click_to_open","Click to open"), ChatFormatting.YELLOW))));
+                    styled(t("vanillaskills.menu.click_to_open","Click to open"), ChatFormatting.YELLOW))));
             return r;
         }
         int total = 0, unlocked = 0;
@@ -272,20 +248,9 @@ public class SkillTreeMenu extends ChestMenu {
         }
         ItemStack stack = new ItemStack(resolveItem(cat.icon));
         Guis.hideStats(stack);
-        // Layout mode: every lane is draggable; show the picked-up one as "(moving)".
-        if (layoutMode) {
-            boolean moving = cat.id.equals(selectedCategory);
-            stack.set(DataComponents.CUSTOM_NAME, styled(cat.title + (moving ? " (moving)" : ""),
-                    moving ? ChatFormatting.GOLD : (quest ? ChatFormatting.LIGHT_PURPLE : ChatFormatting.AQUA)));
-            stack.set(DataComponents.LORE, new ItemLore(List.of(
-                    styled(quest ? "Crafting (Quest Shards)" : "Skill (Skill Shards)", ChatFormatting.GRAY),
-                    styled(moving ? "Click a spot to place it" : "Click to pick up & move", ChatFormatting.YELLOW))));
-            if (moving) stack.set(DataComponents.ENCHANTMENT_GLINT_OVERRIDE, true);
-            return stack;
-        }
         // A locked lane (e.g. Night Vision) stays sealed until its earned-Shard gate is met — and we
         // deliberately don't reveal the requirement, so players can't bee-line to it.
-        if (!editMode && isLaneLocked(cat, data)) {
+        if (isLaneLocked(cat, data)) {
             stack.set(DataComponents.CUSTOM_NAME, styled(laneName(cat), ChatFormatting.DARK_GRAY));
             stack.set(DataComponents.LORE, new ItemLore(List.of(styled(t("vanillaskills.menu.skilltree.locked","🔒 Locked"), ChatFormatting.RED))));
             return stack;
@@ -296,7 +261,7 @@ public class SkillTreeMenu extends ChestMenu {
         stack.set(DataComponents.LORE, new ItemLore(List.of(
                 styled(t("vanillaskills.menu.skilltree.unlocked","%d/%d unlocked", unlocked, total), ChatFormatting.GRAY),
                 styled(quest ? t("vanillaskills.menu.quest_shards","Quest Shards") : t("vanillaskills.menu.skill_shards","Skill Shards"), quest ? ChatFormatting.LIGHT_PURPLE : ChatFormatting.AQUA),
-                styled(editMode ? "Click to edit this lane" : t("vanillaskills.menu.click_to_open","Click to open"), ChatFormatting.YELLOW))));
+                styled(t("vanillaskills.menu.click_to_open","Click to open"), ChatFormatting.YELLOW))));
         if (total > 0 && unlocked == total) stack.set(DataComponents.ENCHANTMENT_GLINT_OVERRIDE, true);
         return stack;
     }
@@ -421,23 +386,6 @@ public class SkillTreeMenu extends ChestMenu {
         return stack;
     }
 
-    private ItemStack buildEditItem(SkillNode node) {
-        boolean isSelected = node.id.equals(selected);
-        ItemStack stack = iconStackFor(node);
-        Guis.hideStats(stack);
-        stack.set(DataComponents.CUSTOM_NAME,
-                styled(node.title + (isSelected ? " (moving)" : ""), isSelected ? ChatFormatting.GOLD : ChatFormatting.AQUA));
-        List<Component> lore = new ArrayList<>();
-        lore.add(styled("id: " + node.id, ChatFormatting.DARK_GRAY));
-        lore.add(styled("slot " + node.slot + "   cost " + node.cost, ChatFormatting.GRAY));
-        lore.add(styled("effects: " + node.effects.size() + "   requires: " + node.requires, ChatFormatting.GRAY));
-        lore.add(Component.literal(""));
-        lore.add(styled("Left-click: pick up / place / swap", ChatFormatting.YELLOW));
-        lore.add(styled("Right-click: delete node", ChatFormatting.RED));
-        stack.set(DataComponents.LORE, new ItemLore(lore));
-        if (isSelected) stack.set(DataComponents.ENCHANTMENT_GLINT_OVERRIDE, true);
-        return stack;
-    }
 
     private ItemStack buildCounter(PlayerSkillData data) {
         ItemStack stack = new ItemStack(Items.EXPERIENCE_BOTTLE);
@@ -447,6 +395,43 @@ public class SkillTreeMenu extends ChestMenu {
                 styled(t("vanillaskills.menu.skilltree.quest_bal","Quest Shards: %d", data.questShardsAvailable), ChatFormatting.LIGHT_PURPLE),
                 Component.literal(""),
                 styled(t("vanillaskills.menu.skilltree.earn_hint","Click to see how to earn Skill Shards"), ChatFormatting.GRAY))));
+        return stack;
+    }
+
+    /**
+     * The withdraw button: turns banked Skill Shards into physical Unstable Skill Shards.
+     *
+     * <p>Guarded by a two-step click because the conversion is one the player would not want to make by
+     * accident. The first click only arms it. <b>Once confirmed it stays armed until the screen closes</b> —
+     * including while the player clicks other things — so emptying a large balance is one confirmation
+     * followed by ordinary clicking, not a confirmation per shard.
+     */
+    private ItemStack buildWithdrawButton(PlayerSkillData data) {
+        ItemStack stack = io.github.andrewwwwwwwwwwwwwww.vanillaskills.shard.ShardItems.unstableShard();
+        Guis.hideStats(stack);
+        stack.set(DataComponents.ITEM_NAME,
+                styled(t("vanillaskills.menu.skilltree.withdraw", "Withdraw a Skill Shard"), ChatFormatting.LIGHT_PURPLE));
+        List<Component> lore = new ArrayList<>();
+        int amount = io.github.andrewwwwwwwwwwwwwww.vanillaskills.shard.ShardBank.withdrawAmount();
+        lore.add(styled(t("vanillaskills.menu.skilltree.withdraw.desc",
+                "Turn %d Skill Shard(s) into physical shards.", amount), ChatFormatting.GRAY));
+        lore.add(styled(t("vanillaskills.menu.skilltree.withdraw.back",
+                "Right-click a shard in hand to bank it again."), ChatFormatting.DARK_GRAY));
+        lore.add(Component.literal(""));
+        if (data.pointsAvailable <= 0) {
+            lore.add(styled(t("vanillaskills.menu.skilltree.withdraw.none",
+                    "You have no Skill Shards to withdraw."), ChatFormatting.RED));
+        } else if (withdrawArmed) {
+            lore.add(styled(t("vanillaskills.menu.skilltree.withdraw.ready",
+                    "Ready — click to withdraw"), ChatFormatting.GREEN));
+            lore.add(styled(t("vanillaskills.menu.skilltree.withdraw.ready2",
+                    "Stays ready until you close this screen."), ChatFormatting.DARK_GRAY));
+        } else {
+            lore.add(styled(t("vanillaskills.menu.skilltree.withdraw.arm",
+                    "Click, then click again to confirm"), ChatFormatting.YELLOW));
+        }
+        stack.set(DataComponents.LORE, new ItemLore(lore));
+        if (withdrawArmed) stack.set(DataComponents.ENCHANTMENT_GLINT_OVERRIDE, true);
         return stack;
     }
 
@@ -463,78 +448,12 @@ public class SkillTreeMenu extends ChestMenu {
         return stack;
     }
 
-    private ItemStack buildEditInfo(boolean laneSelect) {
-        ItemStack stack = new ItemStack(Items.WRITABLE_BOOK);
-        stack.set(DataComponents.CUSTOM_NAME, styled("Edit Mode", ChatFormatting.GOLD));
-        List<Component> lore = new ArrayList<>();
-        if (laneSelect) {
-            lore.add(styled("Left-click a lane to edit its skills.", ChatFormatting.GRAY));
-            lore.add(styled("Left-click a blank slot to add a lane.", ChatFormatting.GRAY));
-            lore.add(styled("Manage lanes: /skill edit category ...", ChatFormatting.DARK_GRAY));
-        } else {
-            lore.add(styled("Left-click a node to pick up / move / swap.", ChatFormatting.GRAY));
-            lore.add(styled("Right-click a node to delete it.", ChatFormatting.GRAY));
-            lore.add(styled("Left-click a blank slot to add a skill here.", ChatFormatting.GRAY));
-            lore.add(styled("Set cost/effects: /skill edit ...", ChatFormatting.DARK_GRAY));
-        }
-        stack.set(DataComponents.LORE, new ItemLore(lore));
-        return stack;
-    }
 
     // ---- edit handling (within a lane) ----
 
-    private void handleNodeEdit(int slotId, int button) {
-        SkillTree tree = VanillaSkills.TREE.tree();
-        SkillNode atSlot = tree.nodeInCategoryAtSlot(category, slotId);
 
-        if (button == 1) {
-            if (atSlot != null && !atSlot.id.equals(SkillTree.ROOT_ID)) {
-                tree.nodes.remove(atSlot);
-                if (atSlot.id.equals(selected)) selected = null;
-                VanillaSkills.TREE.touchAndSave();
-            }
-            return;
-        }
-        if (selected == null) {
-            if (atSlot != null) selected = atSlot.id;
-            else promptAddSkill(slotId);
-            return;
-        }
-        SkillNode sel = tree.byId(selected);
-        if (sel == null) {
-            selected = null;
-            return;
-        }
-        if (atSlot == null) {
-            sel.slot = slotId;
-            sel.category = category;
-            VanillaSkills.TREE.touchAndSave();
-            selected = null;
-        } else if (atSlot.id.equals(selected)) {
-            selected = null;
-        } else {
-            int tmp = sel.slot;
-            sel.slot = atSlot.slot;
-            atSlot.slot = tmp;
-            VanillaSkills.TREE.touchAndSave();
-            selected = null;
-        }
-    }
 
-    private void promptAddSkill(int slotId) {
-        String command = "/skill edit add newskill " + category + " " + slotId + " 1 minecraft:stone";
-        suggest("Click to add a skill to this lane at slot " + slotId, command);
-    }
 
-    private void promptAddCategory(int slotId) {
-        String command = "/skill edit category add newlane " + slotId + " minecraft:book";
-        suggest("Click to add a lane at slot " + slotId, command);
-    }
-
-    private void suggest(String text, String command) {
-        player.sendSystemMessage(Component.literal(text + " (then edit the id/icon)")
-                .withStyle(s -> s.withColor(0x55FF55).withItalic(false).withClickEvent(new ClickEvent.SuggestCommand(command))));
-    }
 
     // ---- shared ----
 
@@ -589,8 +508,7 @@ public class SkillTreeMenu extends ChestMenu {
     public void clicked(int slotId, int button, ContainerInput input, Player clicker) {
         if (slotId >= 0 && slotId < container.getContainerSize() && clicker instanceof ServerPlayer sp) {
             if (category == null) {
-                if (layoutMode) handleLayoutClick(sp, slotId);
-                else if (handleLaneSelectClick(sp, slotId)) return;
+                if (handleLaneSelectClick(sp, slotId)) return;
             } else {
                 if (handleLaneViewClick(sp, slotId, button)) return;
             }
@@ -600,29 +518,6 @@ public class SkillTreeMenu extends ChestMenu {
     }
 
     /** Layout mode: pick up a lane, then click an empty spot to move it or another lane to swap. */
-    private void handleLayoutClick(ServerPlayer sp, int slotId) {
-        SkillTree tree = VanillaSkills.TREE.tree();
-        SkillCategory cat = tree.categoryAtSlot(slotId);
-        if (selectedCategory == null) {
-            if (cat != null) selectedCategory = cat.id; // pick up
-            return;
-        }
-        SkillCategory sel = tree.category(selectedCategory);
-        if (sel == null) { selectedCategory = null; return; }
-        if (cat != null && cat.id.equals(selectedCategory)) { selectedCategory = null; return; } // deselect
-        if (isReservedSlot(slotId)) {
-            sp.sendSystemMessage(Component.literal(io.github.andrewwwwwwwwwwwwwww.vanillaskills.text.Lang.tr(sp,"vanillaskills.msg.slot_reserved","That spot is reserved (header / Points / Stats)."))
-                    .withStyle(ChatFormatting.RED));
-            return;
-        }
-        if (cat == null) {
-            sel.slot = slotId;                              // move to an empty spot
-        } else {
-            int tmp = sel.slot; sel.slot = cat.slot; cat.slot = tmp; // swap two lanes
-        }
-        VanillaSkills.TREE.touchAndSave();
-        selectedCategory = null;
-    }
 
     private ItemStack skillsHeader() {
         ItemStack stack = new ItemStack(Items.NETHER_STAR);
@@ -633,91 +528,86 @@ public class SkillTreeMenu extends ChestMenu {
         return stack;
     }
 
-    private ItemStack layoutHelp() {
-        ItemStack stack = new ItemStack(Items.PAPER);
-        stack.set(DataComponents.CUSTOM_NAME, styled("Layout Mode", ChatFormatting.GOLD));
-        stack.set(DataComponents.LORE, new ItemLore(List.of(
-                styled("Click a lane to pick it up,", ChatFormatting.GRAY),
-                styled("then click an empty spot to move it", ChatFormatting.GRAY),
-                styled("or another lane to swap them.", ChatFormatting.GRAY),
-                styled("Changes save automatically. Close when done.", ChatFormatting.DARK_GRAY))));
-        return stack;
-    }
 
     /** @return true if a sub-screen was opened (this menu is being replaced). */
     private boolean handleLaneSelectClick(ServerPlayer sp, int slotId) {
-        if (!editMode && slotId == POINTS_SLOT) {
+        if (slotId == WITHDRAW_SLOT) {
+            if (!withdrawArmed) {
+                withdrawArmed = true; // first click arms only — nothing is converted yet
+            } else {
+                io.github.andrewwwwwwwwwwwwwww.vanillaskills.shard.ShardBank.withdraw(sp,
+                        io.github.andrewwwwwwwwwwwwwww.vanillaskills.shard.ShardBank.withdrawAmount());
+            }
+            return false; // stay here; populate() redraws the button in its new state
+        }
+        // Deliberately NOT disarmed by clicking elsewhere: once confirmed, the player can keep withdrawing
+        // freely for as long as this screen is open, rather than re-confirming every single shard.
+
+        if (slotId == POINTS_SLOT) {
             PointsScreen.open(sp);
             return true;
         }
-        if (!editMode && slotId == STATS_SLOT) {
+        if (slotId == STATS_SLOT) {
             StatsScreen.open(sp);
             return true;
         }
-        if (!editMode) {
-            String extensionId = extensionSlots.get(slotId);
-            if (extensionId != null) {
-                for (var entry : io.github.andrewwwwwwwwwwwwwww.vanillaskills.api.SkillMenuExtensions.all()) {
-                    if (!entry.id().equals(extensionId)) continue;
-                    try {
-                        entry.onClick().accept(sp);
-                    } catch (Exception e) {
-                        VanillaSkills.LOGGER.warn("Skill menu extension '{}' threw on click", extensionId, e);
-                    }
-                    return true; // the add-on owns the screen now (it usually opens its own menu)
+        String extensionId = extensionSlots.get(slotId);
+        if (extensionId != null) {
+            for (var entry : io.github.andrewwwwwwwwwwwwwww.vanillaskills.api.SkillMenuExtensions.all()) {
+                if (!entry.id().equals(extensionId)) continue;
+                try {
+                    entry.onClick().accept(sp);
+                } catch (Exception e) {
+                    VanillaSkills.LOGGER.warn("Skill menu extension '{}' threw on click", extensionId, e);
                 }
-                return false; // unregistered since this menu was built
+                return true; // the add-on owns the screen now (it usually opens its own menu)
             }
+            return false; // unregistered since this menu was built
         }
         SkillCategory cat = VanillaSkills.TREE.tree().categoryAtSlot(slotId);
         if (cat != null) {
-            if (!editMode && io.github.andrewwwwwwwwwwwwwww.vanillaskills.skill.CraftingGate.laneDisabled(cat.id)) {
+            if (io.github.andrewwwwwwwwwwwwwww.vanillaskills.skill.CraftingGate.laneDisabled(cat.id)) {
                 return false; // lane hidden by config — its slot is empty for players
             }
-            if (!editMode && "recipes".equals(cat.id)) {
+            if ("recipes".equals(cat.id)) {
                 RecipeBookMenu.open(sp, 0);
                 return true;
             }
-            if (!editMode && "guide".equals(cat.id)) {
+            if ("guide".equals(cat.id)) {
                 io.github.andrewwwwwwwwwwwwwww.vanillaskills.book.GuideBook.open(sp);
                 return true;
             }
-            if (!editMode && "quests".equals(cat.id)) {
+            if ("quests".equals(cat.id)) {
                 QuestMenu.open(sp);
                 return true;
             }
-            if (!editMode && isLaneLocked(cat, VanillaSkills.PLAYERS.get(sp.getUUID()))) {
+            if (isLaneLocked(cat, VanillaSkills.PLAYERS.get(sp.getUUID()))) {
                 sp.sendSystemMessage(net.minecraft.network.chat.Component.literal(io.github.andrewwwwwwwwwwwwwww.vanillaskills.text.Lang.tr(sp,"vanillaskills.msg.lane_locked","🔒 That path is still locked."))
                         .withStyle(ChatFormatting.RED));
                 return false;
             }
-            openCategory(sp, cat.id, editMode);
+            openCategory(sp, cat.id);
             return true;
         }
-        if (editMode) promptAddCategory(slotId);
         return false;
     }
 
     private boolean handleLaneViewClick(ServerPlayer sp, int slotId, int button) {
         if (slotId == BACK_SLOT) {
-            openInternal(sp, editMode, false, null);
+            openInternal(sp, null);
             return true;
         }
-        if (!editMode && slotId == POINTS_SLOT) {
+        if (slotId == POINTS_SLOT) {
             PointsScreen.open(sp);
             return true;
         }
-        if (!editMode && slotId == STATS_SLOT) {
+        if (slotId == STATS_SLOT) {
             StatsScreen.open(sp);
             return true;
         }
-        if (editMode) {
-            handleNodeEdit(slotId, button);
-        } else {
-            SkillNode node = VanillaSkills.TREE.tree().nodeInCategoryAtSlot(category, slotId);
-            if (node != null) {
-                VanillaSkills.PLAYERS.unlockChain(sp, node.id);   // buy this node + everything below it
-            }
+        SkillNode node = VanillaSkills.TREE.tree().nodeInCategoryAtSlot(category, slotId);
+        if (node != null) {
+            VanillaSkills.PLAYERS.unlockChain(sp, node.id);   // buy this node + everything below it
         }
         return false;
     }

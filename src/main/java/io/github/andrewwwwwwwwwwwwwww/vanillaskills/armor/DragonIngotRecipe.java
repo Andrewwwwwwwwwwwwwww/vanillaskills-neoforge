@@ -12,15 +12,21 @@ import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.level.Level;
 
 /**
- * Forges a Dragon Ingot from eight Dragon Scales + one (plain) Netherite Ingot, anywhere in the
+ * Forges a Dragon Ingot from four Dragon Scales + one (plain) Netherite Ingot, anywhere in the
  * 3x3 grid. Matched shapelessly by item count — the same robust style the other custom alloy
  * recipes use — rather than by exact grid positions.
  *
- *   D D D     D = Dragon Scale
+ *   . D .     D = Dragon Scale
  *   D N D     N = Netherite Ingot
- *   D D D
+ *   . D .
+ *
+ * <p>2.0: halved from eight scales to four. A dragon kill yields 8 scales (32 on a world's first), so
+ * eight-per-ingot meant a whole dragon bought a single ingot.
  */
 public class DragonIngotRecipe extends CustomRecipe {
+    /** Dragon Scales consumed per ingot. */
+    public static final int SCALES_PER_INGOT = 4;
+
     public static final DragonIngotRecipe INSTANCE = new DragonIngotRecipe();
     public static final RecipeSerializer<DragonIngotRecipe> SERIALIZER = new RecipeSerializer<>(
             MapCodec.unit(INSTANCE),
@@ -40,12 +46,23 @@ public class DragonIngotRecipe extends CustomRecipe {
                 return false;
             }
         }
-        return scales == 8 && netherite == 1;
+        return scales == SCALES_PER_INGOT && netherite == 1;
     }
 
     @Override
     public ItemStack assemble(CraftingInput input) {
         return DragonIngot.create();
+    }
+
+    @Override
+    public java.util.List<net.minecraft.world.item.crafting.display.RecipeDisplay> display() {
+        ItemStack scale = DragonScale.create();
+        ItemStack e = ItemStack.EMPTY;
+        return java.util.List.of(io.github.andrewwwwwwwwwwwwwww.vanillaskills.recipe.RecipeDisplays.shaped(
+                new ItemStack[]{e, scale.copy(), e,
+                                scale.copy(), new ItemStack(Items.NETHERITE_INGOT), scale.copy(),
+                                e, scale.copy(), e},
+                DragonIngot.create()));
     }
 
     @Override
