@@ -32,6 +32,8 @@ public class QuestMenu extends ChestMenu {
     // Graduated layout (9x4): 6 quests in a 3-3 block below the clock (rows 1-2, columns 2/4/6).
     private static final int[] MAIN_SLOTS = {11, 13, 15, 20, 22, 24};
     // Starter layout (9x5): a centered 5-wide x 3-row block of quests (columns 2-6).
+    // Exactly QuestPool.STARTER_CAPACITY slots — the datapack pool is trimmed to this length on load,
+    // so every starter quest is always reachable and graduation is always attainable.
     private static final int[] STARTER_SLOTS = {
             11, 12, 13, 14, 15,
             20, 21, 22, 23, 24,
@@ -100,7 +102,7 @@ public class QuestMenu extends ChestMenu {
         int quest = VanillaSkills.PLAYERS.questShards(player);
         List<Component> lore = new ArrayList<>();
         if (starterBoard) {
-            int total = QuestPool.STARTER.size();
+            int total = QuestPool.starter().size();
             lore.add(styled(t("vanillaskills.menu.quests.starter.info1", "Your starter quests — all always available,"), ChatFormatting.GRAY));
             lore.add(styled(t("vanillaskills.menu.quests.starter.info2", "no rotation, complete them in any order."), ChatFormatting.GRAY));
             lore.add(styled(t("vanillaskills.menu.quests.starter.progress", "Finish all %d to join the main board: %d/%d",

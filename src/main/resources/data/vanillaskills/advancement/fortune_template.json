@@ -4,11 +4,7 @@
     "icon": {
       "id": "minecraft:echo_shard",
       "components": {
-        "minecraft:custom_model_data": {
-          "strings": [
-            "vanillaskills:fortune_template"
-          ]
-        }
+        "minecraft:item_model": "vanillaskills:fortune_template"
       }
     },
     "title": {

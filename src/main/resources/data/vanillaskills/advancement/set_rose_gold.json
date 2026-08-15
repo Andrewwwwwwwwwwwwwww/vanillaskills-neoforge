@@ -4,11 +4,7 @@
     "icon": {
       "id": "minecraft:golden_chestplate",
       "components": {
-        "minecraft:custom_model_data": {
-          "strings": [
-            "vanillaskills:rose_gold_chestplate"
-          ]
-        }
+        "minecraft:item_model": "vanillaskills:rose_gold_chestplate"
       }
     },
     "title": {

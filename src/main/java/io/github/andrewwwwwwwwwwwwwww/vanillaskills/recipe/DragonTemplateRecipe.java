@@ -47,6 +47,25 @@ public class DragonTemplateRecipe extends CustomRecipe {
     }
 
     @Override
+    public java.util.List<net.minecraft.world.item.crafting.display.RecipeDisplay> display() {
+        net.minecraft.world.item.ItemStack chorus = new net.minecraft.world.item.ItemStack(
+                net.minecraft.world.item.Items.CHORUS_FLOWER);
+        net.minecraft.world.item.ItemStack endRod = new net.minecraft.world.item.ItemStack(
+                net.minecraft.world.item.Items.END_ROD);
+        net.minecraft.world.item.ItemStack netherite = new net.minecraft.world.item.ItemStack(
+                net.minecraft.world.item.Items.NETHERITE_INGOT);
+        net.minecraft.world.item.ItemStack shulker = new net.minecraft.world.item.ItemStack(
+                net.minecraft.world.item.Items.SHULKER_SHELL);
+        net.minecraft.world.item.ItemStack out = DragonUpgradeTemplate.create();
+        out.setCount(2);
+        return java.util.List.of(RecipeDisplays.shaped(new net.minecraft.world.item.ItemStack[]{
+                chorus.copy(), DragonUpgradeTemplate.create(), chorus.copy(),
+                chorus.copy(), netherite.copy(), chorus.copy(),
+                endRod.copy(), shulker.copy(), endRod.copy()}, out,
+                net.minecraft.world.item.Items.CRAFTING_TABLE));
+    }
+
+    @Override
     public CraftingBookCategory category() {
         return CraftingBookCategory.MISC;
     }

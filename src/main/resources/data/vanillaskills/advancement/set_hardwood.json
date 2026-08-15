@@ -4,11 +4,7 @@
     "icon": {
       "id": "minecraft:leather_chestplate",
       "components": {
-        "minecraft:custom_model_data": {
-          "strings": [
-            "vanillaskills:hardwood_chestplate"
-          ]
-        }
+        "minecraft:item_model": "vanillaskills:hardwood_chestplate"
       }
     },
     "title": {

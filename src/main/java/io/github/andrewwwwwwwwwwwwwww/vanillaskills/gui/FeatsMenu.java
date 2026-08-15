@@ -53,9 +53,17 @@ public class FeatsMenu extends ChestMenu {
     private void populate() {
         for (int i = 0; i < 45; i++) container.setItem(i, ItemStack.EMPTY);
         container.setItem(TITLE_SLOT, titleItem());
-        List<Feat> all = Feats.ALL;
+        List<Feat> all = Feats.all();
         for (int i = 0; i < all.size() && i < FEAT_SLOTS.length; i++) {
             container.setItem(FEAT_SLOTS[i], featItem(all.get(i)));
+        }
+        // Feats are datapack-driven now, so a pack can define more than this fixed layout holds.
+        // They still award normally — they just have nowhere to render — so say so rather than
+        // dropping them silently.
+        if (all.size() > FEAT_SLOTS.length) {
+            io.github.andrewwwwwwwwwwwwwww.vanillaskills.VanillaSkills.LOGGER.warn(
+                    "{} feats are loaded but the Feats screen only has {} slots — the rest are earnable but not shown",
+                    all.size(), FEAT_SLOTS.length);
         }
         container.setItem(BACK_SLOT, button(Items.ARROW,
                 t("vanillaskills.menu.feats.back", "Back to Bounty Board"), ChatFormatting.YELLOW));
@@ -68,14 +76,14 @@ public class FeatsMenu extends ChestMenu {
 
     private ItemStack titleItem() {
         int done = 0;
-        for (Feat f : Feats.ALL) if (Feats.isDone(player, f.id())) done++;
+        for (Feat f : Feats.all()) if (Feats.isDone(player, f.id())) done++;
         ItemStack stack = new ItemStack(Items.WITHER_SKELETON_SKULL);
         stack.set(DataComponents.CUSTOM_NAME, styled(t("vanillaskills.menu.feats.title", "Feats"), ChatFormatting.GOLD));
         stack.set(DataComponents.LORE, new ItemLore(List.of(
                 styled(t("vanillaskills.menu.feats.info1", "One-time achievements — earned once, kept forever."), ChatFormatting.GRAY),
                 styled(t("vanillaskills.menu.feats.info2", "They award Quest Shards automatically when you do them."), ChatFormatting.GRAY),
                 Component.literal(""),
-                styled(t("vanillaskills.menu.feats.progress", "Completed: %d/%d", done, Feats.ALL.size()), ChatFormatting.AQUA))));
+                styled(t("vanillaskills.menu.feats.progress", "Completed: %d/%d", done, Feats.all().size()), ChatFormatting.AQUA))));
         return stack;
     }
 

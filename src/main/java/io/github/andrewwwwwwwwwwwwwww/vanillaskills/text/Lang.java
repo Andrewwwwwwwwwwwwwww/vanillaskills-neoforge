@@ -53,10 +53,11 @@ public final class Lang {
         }
     }
 
-    /** Stable translation key for a quest title, e.g. "Gather 32 Emeralds" -> "vanillaskills.quest.gather_32_emeralds". */
+    /** Stable translation key for a quest title, e.g. "Gather 32 Emeralds" -> "vanillaskills.quest.gather_32_emeralds".
+     *  Delegates to {@code Quest.slug} so the translation key and the quest id can never drift apart. */
     public static String questKey(String title) {
-        return "vanillaskills.quest." + title.toLowerCase(Locale.ROOT)
-                .replaceAll("[^a-z0-9]+", "_").replaceAll("^_+|_+$", "");
+        return "vanillaskills.quest."
+                + io.github.andrewwwwwwwwwwwwwww.vanillaskills.skill.Quest.slug(title);
     }
 
     public static void invalidate() {

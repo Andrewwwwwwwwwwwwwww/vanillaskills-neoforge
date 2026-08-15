@@ -4,11 +4,7 @@
     "icon": {
       "id": "minecraft:netherite_ingot",
       "components": {
-        "minecraft:custom_model_data": {
-          "strings": [
-            "vanillaskills:dragon_ingot"
-          ]
-        }
+        "minecraft:item_model": "vanillaskills:dragon_ingot"
       }
     },
     "title": {

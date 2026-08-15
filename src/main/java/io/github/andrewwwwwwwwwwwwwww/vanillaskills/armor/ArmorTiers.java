@@ -35,7 +35,9 @@ public final class ArmorTiers {
     public static final ArmorTier HARDWOOD = new ArmorTier(
             "hardwood", "Hardwood", 0x9A6B3F, "vs_armor_hardwood",
             new Item[]{LEATHER_HELMET, LEATHER_CHESTPLATE, LEATHER_LEGGINGS, LEATHER_BOOTS},
-            new int[]{2, 3, 3, 1}, 0.0, 0.0, 0.025, new int[]{99, 144, 135, 117}, // 9 armour, dur x9
+            // 2.0: per-piece speed 0.025 -> 0.04, so the full set is +16% rather than +10%. Hardwood is the
+            // "light and fast" early tier and needs a reason to be worn over Copper's higher armour.
+            new int[]{2, 3, 3, 1}, 0.0, 0.0, 0.04, new int[]{99, 144, 135, 117}, // 9 armour, dur x9
             itemSet(WOOD_ITEMS), stack -> WOOD_SET.contains(stack.getItem()), null);
 
     // Rose Gold: between Gold (11 armour, dur x7) and Iron (15, dur x15) — a sturdier, quicker gold.
@@ -49,7 +51,9 @@ public final class ArmorTiers {
     public static final ArmorTier STEEL = new ArmorTier(
             "steel", "Steel", 0xB8C0C8, "vs_armor_steel",
             new Item[]{IRON_HELMET, IRON_CHESTPLATE, IRON_LEGGINGS, IRON_BOOTS},
-            new int[]{3, 7, 5, 3}, 0.0, 0.0, -0.01, new int[]{330, 481, 451, 390}, // 18 armour, dur x30
+            // 2.0: per-piece penalty -0.01 -> -0.025, so the full set is a flat -10% rather than -4%.
+            // 18 armour with almost no downside made Steel dominate its bracket; the weight is the trade-off.
+            new int[]{3, 7, 5, 3}, 0.0, 0.0, -0.025, new int[]{330, 481, 451, 390}, // 18 armour, dur x30
             itemSet(IRON_INGOT), Alloys::isSteelIngot, null);
 
     // Crystalline sits BETWEEN diamond (20 armor / 2 tough / 0 kb) and netherite (20 / 3 / 0.1):
@@ -69,6 +73,21 @@ public final class ArmorTiers {
             itemSet(NETHERITE_INGOT), DragonIngot::isDragonIngot, DragonSet::baseLore); // smithing-only; repaired with Dragon Ingots
 
     public static final List<ArmorTier> TIERS = List.of(HARDWOOD, ROSE_GOLD, STEEL, CRYSTAL, DRAGON);
+
+    /**
+     * A representative crafting material for a tier, for display purposes.
+     *
+     * <p>The tiers match their material with a {@link java.util.function.Predicate}, which can test a stack
+     * but cannot produce one — so the recipe book needs this to show what to put in the grid.
+     */
+    public static ItemStack sampleMaterial(ArmorTier tier) {
+        if (tier == HARDWOOD) return new ItemStack(OAK_WOOD);
+        if (tier == ROSE_GOLD) return Alloys.roseGoldIngot();
+        if (tier == STEEL) return Alloys.steelIngot();
+        if (tier == CRYSTAL) return Alloys.crystallizedDiamond();
+        if (tier == DRAGON) return DragonIngot.create();
+        return ItemStack.EMPTY;
+    }
 
     /** The tier whose crafting material this stack is, or null. */
     public static ArmorTier tierForMaterial(ItemStack stack) {

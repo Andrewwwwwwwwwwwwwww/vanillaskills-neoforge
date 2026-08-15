@@ -20,7 +20,7 @@ import java.util.function.Function;
  *
  * <p>Slot placement is best-effort and collision-safe: an entry is placed at its
  * {@code preferredSlot} only if that slot is still free once the tree's lanes have been laid out
- * (players can move lanes with {@code /skill layout}), otherwise the next free slot is used. An
+ * , otherwise the next free slot is used. An
  * entry that cannot be placed at all is silently skipped rather than overwriting anything.
  *
  * <p>Buttons appear on the home screen only — not inside a lane view, and never in edit or layout

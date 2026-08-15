@@ -9,8 +9,14 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 
 /**
- * Loads, saves and edits the skill tree, stored PER-WORLD at &lt;world&gt;/vanillaskills/skilltree.json.
- * If no file exists, the built-in default tree is written out (so each world starts from the default).
+ * Builds the skill tree from the datapacks.
+ *
+ * <p>The tree is content, not save data: lanes come from {@code vanillaskills/skill_category} and nodes from
+ * {@code vanillaskills/skill_node}, so a pack can add, retune or replace any part of it without code. What
+ * stays per-world is only the players' progress through it.
+ *
+ * <p>Worlds from before this carried the tree in {@code skilltree.json}; that file is rescued into a world
+ * datapack once and then retired, so in-game customisations are not silently lost.
  */
 public class SkillTreeManager {
     private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
@@ -26,41 +32,152 @@ public class SkillTreeManager {
         return dir == null ? null : dir.resolve("skilltree.json");
     }
 
+    /**
+     * Build the tree from the datapacks.
+     *
+     * <p>The datapack is authoritative. A per-world {@code skilltree.json} is no longer read as the tree —
+     * it is only inspected once, to rescue customisations from worlds that predate this (see
+     * {@link #migrateLegacyTree}).
+     *
+     * <p><b>Player progress is unaffected by this change.</b> Unlocked skills are stored as a set of node
+     * <i>ids</i>, and the ids are unchanged, so every existing unlock still resolves. That is the entire
+     * reason this migration is safe to do at all.
+     *
+     * <p>Falls back to the built-in generated tree if the datapack somehow yields nothing — a server with no
+     * skill tree at all would be far worse than one running the defaults.
+     */
     public void load() {
-        Path path = path();
-        try {
-            if (path != null && Files.exists(path)) {
-                String json = Files.readString(path);
-                SkillTree loaded = GSON.fromJson(json, SkillTree.class);
-                tree = loaded != null ? loaded : defaultTree();
-            } else {
-                tree = defaultTree();
-                if (path != null) save();
-            }
-        } catch (Exception e) {
-            VanillaSkills.LOGGER.error("Failed to load skilltree.json, using default tree", e);
+        migrateLegacyTree();
+
+        if (io.github.andrewwwwwwwwwwwwwww.vanillaskills.data.VsContent.hasSkillTree()) {
+            tree = fromDatapack();
+        } else {
+            VanillaSkills.LOGGER.warn(
+                    "No skill nodes found in any datapack — falling back to the built-in tree. "
+                            + "Is the mod's bundled datapack enabled?");
             tree = defaultTree();
         }
         tree.index();
-        VanillaSkills.LOGGER.info("Loaded skill tree '{}' with {} nodes", tree.title, tree.size());
+        applyEconomy(tree, economyP);
+        VanillaSkills.LOGGER.info("Loaded skill tree '{}' with {} nodes from {}",
+                tree.title, tree.size(),
+                io.github.andrewwwwwwwwwwwwwww.vanillaskills.data.VsContent.hasSkillTree()
+                        ? "datapack" : "built-in default");
     }
 
-    public void save() {
-        Path path = path();
-        if (path == null) return; // no world loaded
+    /** Assemble the runtime tree from the loaded datapack definitions. */
+    private static SkillTree fromDatapack() {
+        SkillTree t = new SkillTree();
+        t.title = io.github.andrewwwwwwwwwwwwwww.vanillaskills.config.GameplayConfig.SKILL_TREE_TITLE;
+        t.rows = io.github.andrewwwwwwwwwwwwwww.vanillaskills.config.GameplayConfig.SKILL_TREE_ROWS;
+        for (var def : io.github.andrewwwwwwwwwwwwwww.vanillaskills.data.VsContent.skillCategories()) {
+            t.categories.add(def.toCategory());
+        }
+        for (var def : io.github.andrewwwwwwwwwwwwwww.vanillaskills.data.VsContent.skillNodes()) {
+            t.nodes.add(def.toNode());
+        }
+        return t;
+    }
+
+    /**
+     * Rescue a pre-datapack world's customised tree, once.
+     *
+     * <p>Before 2.0 the tree lived in {@code skilltree.json} and ops could edit it in game. Now that the
+     * datapack owns it, that file would simply stop being read — silently discarding those edits. Instead it
+     * is converted into a world datapack that overrides the built-ins, so a customised tree keeps working and
+     * becomes editable the same way any other pack content is.
+     *
+     * <p>The original is renamed rather than deleted, so nothing is destroyed even if the conversion is
+     * imperfect. Runs at most once: it is skipped entirely once the marker file exists.
+     */
+    private void migrateLegacyTree() {
+        // Needs a world on disk to read from and write to. load() also runs from the datapack reload
+        // listener, which fires once before the server exists at all.
+        if (VanillaSkills.server == null) return;
+        Path legacy = path();
+        if (legacy == null || !Files.exists(legacy)) return;
+
+        Path dir = VanillaSkills.worldDir();
+        Path marker = dir.resolve("skilltree.migrated");
+        if (Files.exists(marker)) return;
+
         try {
-            Files.createDirectories(path.getParent());
-            Files.writeString(path, GSON.toJson(tree));
-        } catch (IOException e) {
-            VanillaSkills.LOGGER.error("Failed to save skilltree.json", e);
+            SkillTree old = GSON.fromJson(Files.readString(legacy), SkillTree.class);
+            if (old == null || old.nodes == null || old.nodes.isEmpty()) {
+                Files.move(legacy, marker);
+                return;
+            }
+            old.index();
+
+            Path packRoot = VanillaSkills.server.getWorldPath(
+                            net.minecraft.world.level.storage.LevelResource.ROOT)
+                    .resolve("datapacks").resolve("vanillaskills-legacy-tree");
+            Path content = packRoot.resolve("data").resolve("vanillaskills").resolve("vanillaskills");
+            Files.createDirectories(content.resolve("skill_category"));
+            Files.createDirectories(content.resolve("skill_node"));
+
+            Files.writeString(packRoot.resolve("pack.mcmeta"), """
+                    {
+                      "pack": {
+                        "description": "VanillaSkills - skill tree migrated from this world's skilltree.json",
+                        "pack_format": 107
+                      }
+                    }
+                    """);
+
+            // "replace": true, because this world's tree is meant to BE the tree, not to add to the defaults.
+            StringBuilder cats = new StringBuilder("{\n  \"replace\": true,\n  \"values\": [\n");
+            for (int i = 0; i < old.categories.size(); i++) {
+                SkillCategory c = old.categories.get(i);
+                cats.append("    ").append(GSON.toJson(c));
+                if (i < old.categories.size() - 1) cats.append(',');
+                cats.append('\n');
+            }
+            cats.append("  ]\n}\n");
+            Files.writeString(content.resolve("skill_category").resolve("migrated.json"), cats.toString());
+
+            StringBuilder nodes = new StringBuilder("{\n  \"replace\": true,\n  \"values\": [\n");
+            for (int i = 0; i < old.nodes.size(); i++) {
+                nodes.append("    ").append(GSON.toJson(legacyNodeAsDef(old.nodes.get(i))));
+                if (i < old.nodes.size() - 1) nodes.append(',');
+                nodes.append('\n');
+            }
+            nodes.append("  ]\n}\n");
+            Files.writeString(content.resolve("skill_node").resolve("migrated.json"), nodes.toString());
+
+            Files.move(legacy, marker);
+            VanillaSkills.LOGGER.info(
+                    "Migrated this world's skilltree.json into a datapack at world/datapacks/"
+                            + "vanillaskills-legacy-tree ({} lanes, {} nodes). The original was renamed to "
+                            + "skilltree.migrated. Run /reload or restart for it to take effect; delete the "
+                            + "pack to fall back to the built-in tree.",
+                    old.categories.size(), old.nodes.size());
+        } catch (Exception e) {
+            // Never fatal: a failed rescue must not stop the server, and the original file is still there.
+            VanillaSkills.LOGGER.error("Could not migrate skilltree.json to a datapack — the built-in tree "
+                    + "will be used and your old file has been left untouched", e);
         }
     }
 
-    /** Re-index and persist after an edit. */
-    public void touchAndSave() {
-        tree.index();
-        save();
+    /** The datapack shape of a legacy node: same fields, with {@code cost} carried across as {@code weight}. */
+    private static io.github.andrewwwwwwwwwwwwwww.vanillaskills.data.SkillNodeDef legacyNodeAsDef(SkillNode n) {
+        var def = new io.github.andrewwwwwwwwwwwwwww.vanillaskills.data.SkillNodeDef();
+        def.id = n.id;
+        def.title = n.title;
+        def.description = n.description;
+        def.icon = n.icon;
+        def.weight = Math.max(1, n.cost);
+        def.minEarned = n.minEarned;
+        def.currency = n.currency;
+        def.requires = n.requires;
+        def.category = n.category;
+        def.slot = n.slot;
+        def.effects = n.effects;
+        return def;
     }
+
+
+    /** Re-index and persist after an edit. */
 
     /**
      * Regenerate the tree from the built-in default, backing up the existing skilltree.json first.
@@ -71,39 +188,6 @@ public class SkillTreeManager {
      *
      * @return the backup file path, or null if there was no existing file (or the backup failed).
      */
-    public Path regenerate(boolean preserve) {
-        Path path = path();
-        Path backup = null;
-        try {
-            if (path != null && Files.exists(path)) {
-                backup = path.resolveSibling("skilltree.backup-" + System.currentTimeMillis() + ".json");
-                Files.copy(path, backup, java.nio.file.StandardCopyOption.REPLACE_EXISTING);
-            }
-        } catch (IOException e) {
-            VanillaSkills.LOGGER.error("Failed to back up skilltree.json before regen", e);
-            backup = null;
-        }
-        SkillTree def = defaultTree();
-        def.index();
-        if (preserve && tree != null && !tree.nodes.isEmpty()) {
-            tree.index();
-            int addedLanes = 0, addedNodes = 0;
-            for (SkillCategory c : def.categories) {
-                if (tree.category(c.id) == null) { tree.categories.add(c); addedLanes++; }
-            }
-            for (SkillNode n : def.nodes) {
-                if (tree.byId(n.id) == null) { tree.nodes.add(n); addedNodes++; }
-            }
-            VanillaSkills.LOGGER.info("Regen (preserve): kept existing tree, added {} new lane(s), {} new node(s)",
-                    addedLanes, addedNodes);
-        } else {
-            tree = def;
-            VanillaSkills.LOGGER.info("Regen (fresh): reset to built-in default ({} nodes)", tree.size());
-        }
-        tree.index();
-        save();
-        return backup;
-    }
 
     // ---- Default starter tree (5 lanes: Health, Speed, Mining, Luck, Damage) ----
 
@@ -319,13 +403,20 @@ public class SkillTreeManager {
     private static void applyEconomy(SkillTree t, int P) {
         if (P <= 80) return; // not computed yet (e.g. before server start) — leave hand-tuned costs
         final int nvCost = 75;
-        // Night Vision is fixed (75); Armorsmith/Toolsmith are funded by Quest Shards, not Skill Shards,
-        // so they're excluded from the Skill-Shard budget. Everything else scales so the Skill-Shard
-        // tree (core lanes + NV) sums to exactly P.
+
+        // ⚠ Scales from the AUTHORED WEIGHT each time, never from the previous cost.
+        //
+        // This used to read and write n.cost, which meant the result was only correct on the first run: a
+        // second /reload scaled already-scaled values and the whole economy drifted downward. Weights are
+        // now the fixed input and cost is derived output, so this is idempotent however often it runs.
+        //
+        // Night Vision is fixed (75); Armorsmith/Toolsmith are funded by Quest Shards rather than Skill
+        // Shards, so they sit outside the Skill-Shard budget. Everything else scales so the Skill-Shard tree
+        // (core lanes + NV) sums to exactly P — complete every advancement and you can afford it all once.
         int baseSum = 0;
         for (SkillNode n : t.nodes) {
             if (isFixedOrQuestLane(n)) continue;
-            baseSum += n.cost;
+            baseSum += Math.max(1, n.weight);
         }
         if (baseSum <= 0) return;
         double f = (double) (P - nvCost) / baseSum;
@@ -334,7 +425,9 @@ public class SkillTreeManager {
                 n.cost = nvCost;
                 n.minEarned = Math.round(P / 3.0f);
             } else if (!isFixedOrQuestLane(n)) {
-                n.cost = Math.max(1, (int) Math.round(n.cost * f));
+                n.cost = Math.max(1, (int) Math.round(Math.max(1, n.weight) * f));
+            } else {
+                n.cost = Math.max(1, n.weight);   // quest-funded lanes: weight IS the price
             }
         }
     }

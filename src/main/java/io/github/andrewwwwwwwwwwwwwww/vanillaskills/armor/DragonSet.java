@@ -28,9 +28,10 @@ public final class DragonSet {
     private static final EquipmentSlot[] ARMOR_SLOTS = {
             EquipmentSlot.HEAD, EquipmentSlot.CHEST, EquipmentSlot.LEGS, EquipmentSlot.FEET};
 
-    private static final double DASH_SPEED = 1.6;
-    private static final double DASH_DOWN_BIAS = 0.3;
-    private static final long DASH_COOLDOWN_TICKS = 60L; // ~3 seconds
+    // Live from gameplay.json - dragonDashSpeed / dragonDashDownBias / dragonDashCooldownTicks.
+    private static double dashSpeed() { return io.github.andrewwwwwwwwwwwwwww.vanillaskills.config.GameplayConfig.DRAGON_DASH_SPEED; }
+    private static double dashDownBias() { return io.github.andrewwwwwwwwwwwwwww.vanillaskills.config.GameplayConfig.DRAGON_DASH_DOWN_BIAS; }
+    private static long dashCooldownTicks() { return io.github.andrewwwwwwwwwwwwwww.vanillaskills.config.GameplayConfig.DRAGON_DASH_COOLDOWN_TICKS; }
 
     private static final Map<UUID, Long> lastDashTick = new HashMap<>();
 
@@ -61,11 +62,11 @@ public final class DragonSet {
 
         long now = player.level().getGameTime();
         Long last = lastDashTick.get(player.getUUID());
-        if (last != null && now - last < DASH_COOLDOWN_TICKS) return;
+        if (last != null && now - last < dashCooldownTicks()) return;
         lastDashTick.put(player.getUUID(), now);
 
         Vec3 look = player.getLookAngle();
-        Vec3 velocity = look.scale(DASH_SPEED).add(0.0, -DASH_DOWN_BIAS, 0.0);
+        Vec3 velocity = look.scale(dashSpeed()).add(0.0, -dashDownBias(), 0.0);
         player.setDeltaMovement(velocity);
         player.hurtMarked = true; // forces a velocity packet to the client
         player.fallDistance = 0.0;

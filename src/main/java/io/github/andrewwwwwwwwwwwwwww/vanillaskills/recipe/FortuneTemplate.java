@@ -4,10 +4,10 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.component.CustomData;
-import net.minecraft.world.item.component.CustomModelData;
 import net.minecraft.world.item.component.ItemLore;
 
 import java.util.List;
@@ -47,9 +47,9 @@ public final class FortuneTemplate {
     /** The base vanilla item the template is built on. */
     public static final net.minecraft.world.item.Item BASE = Items.ECHO_SHARD;
 
-    /** The resource-pack model hook that gives the template its custom texture. */
-    public static CustomModelData modelData() {
-        return new CustomModelData(List.of(), List.of(), List.of("vanillaskills:fortune_template"), List.of());
+    /** The custom model that gives the template its texture. Also stamped by the loot pool. */
+    public static Identifier modelId() {
+        return Identifier.fromNamespaceAndPath("vanillaskills", "fortune_template");
     }
 
     /** The template's description lore. */
@@ -63,9 +63,9 @@ public final class FortuneTemplate {
     /** Build a fresh Fortune Upgrade template stack. */
     public static ItemStack create() {
         ItemStack stack = new ItemStack(BASE);
-        stack.set(DataComponents.CUSTOM_NAME, displayName());
+        stack.set(DataComponents.ITEM_NAME, displayName());
         CustomData.set(DataComponents.CUSTOM_DATA, stack, markerTag());
-        stack.set(DataComponents.CUSTOM_MODEL_DATA, modelData());
+        stack.set(DataComponents.ITEM_MODEL, modelId());
         stack.set(DataComponents.LORE, lore());
         return stack;
     }

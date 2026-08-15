@@ -3,6 +3,7 @@ package io.github.andrewwwwwwwwwwwwwww.vanillaskills.armor;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.component.CustomData;
 
@@ -39,6 +40,31 @@ public final class Markers {
             if (key.startsWith("vs_")) return true;
         }
         return false;
+    }
+
+    /**
+     * Stamp a stack as one of ours: the hidden marker, the custom model, and the display name.
+     *
+     * <p>This is the single place the three identity components are set, so the pattern cannot drift
+     * apart across the ten or so item types that use it.
+     *
+     * <p>Two deliberate component choices:
+     * <ul>
+     *   <li>{@code ITEM_MODEL} rather than {@code CUSTOM_MODEL_DATA}. The stack points straight at a
+     *       model in our own namespace, so we no longer override any {@code assets/minecraft/items/}
+     *       file. Those overrides had to hand-copy vanilla's dye-tint and armour-trim handling, which
+     *       is what broke undyed leather in 0.19.15 and wiped trim icons in 1.0.2 — and they collided
+     *       with any add-on pack touching the same files.</li>
+     *   <li>{@code ITEM_NAME} rather than {@code CUSTOM_NAME}. This is the item's intrinsic name, so
+     *       it does not render italic and the anvil does not treat the gear as player-renamed.</li>
+     * </ul>
+     *
+     * @param modelId namespaced model id, e.g. {@code "vanillaskills:steel_ingot"}
+     */
+    public static void stamp(ItemStack stack, String markerKey, String modelId, Component displayName) {
+        applyMarker(stack, markerKey);
+        stack.set(DataComponents.ITEM_MODEL, Identifier.parse(modelId));
+        stack.set(DataComponents.ITEM_NAME, displayName);
     }
 
     /** A non-italic colored display name (rgb is 0xRRGGBB). */

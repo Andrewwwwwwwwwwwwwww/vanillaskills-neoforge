@@ -62,7 +62,9 @@ public class ShopMenu extends ChestMenu {
             var g = offer.icon();
             Component item = new ItemStack(Quests.item(g.itemId())).getHoverName();
             c = g.count() > 1
-                    ? Component.translatableWithFallback("vanillaskills.shop.stack", "%d× %s", g.count(), item)
+                    // %s for BOTH, not %d: Minecraft translation components only understand %s and %1$s.
+                    // A %d is passed through verbatim, which is why this rendered as the literal "%dx %s".
+                    ? Component.translatableWithFallback("vanillaskills.shop.stack", "%s x %s", g.count(), item)
                     : item.copy();
         }
         return c.copy().withStyle(ChatFormatting.WHITE).withStyle(s -> s.withItalic(false));

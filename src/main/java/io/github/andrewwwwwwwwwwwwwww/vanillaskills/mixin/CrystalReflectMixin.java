@@ -30,7 +30,7 @@ public class CrystalReflectMixin {
 
         Entity attacker = source.getDirectEntity();
         if (attacker instanceof LivingEntity living && living != self) {
-            float reflect = amount * CrystalSet.REFLECT_FRACTION;
+            float reflect = amount * CrystalSet.reflectFraction();
             if (reflect > 0.0f) {
                 living.hurtServer(level, self.damageSources().thorns(self), reflect);
             }

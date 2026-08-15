@@ -25,10 +25,28 @@ public final class RoseGoldSet {
     private static final EquipmentSlot[] ARMOR_SLOTS = {
             EquipmentSlot.HEAD, EquipmentSlot.CHEST, EquipmentSlot.LEGS, EquipmentSlot.FEET};
 
+    /** Refreshed well inside its own duration, so the effect never visibly flickers between ticks. */
+    private static final int FIRE_RESISTANCE_TICKS = 200;
+
     public static void tick(MinecraftServer server) {
         for (ServerPlayer player : server.getPlayerList().getPlayers()) {
-            if (isFullSet(player)) stripHarmfulEffects(player);
+            if (!isFullSet(player)) continue;
+            stripHarmfulEffects(player);
+            grantFireResistance(player);
         }
+    }
+
+    /**
+     * Fire resistance while the full set is worn.
+     *
+     * <p>Applied ambient and hidden so it reads as a property of the armour rather than a potion the player
+     * drank — and re-applied each pass so it lapses on its own shortly after a piece comes off, without
+     * needing to track and revoke it.
+     */
+    private static void grantFireResistance(ServerPlayer player) {
+        if (!io.github.andrewwwwwwwwwwwwwww.vanillaskills.config.GameplayConfig.ROSE_GOLD_FIRE_RESISTANCE) return;
+        player.addEffect(new MobEffectInstance(net.minecraft.world.effect.MobEffects.FIRE_RESISTANCE,
+                FIRE_RESISTANCE_TICKS, 0, true, false, false));
     }
 
     /** True only while all four Rose Gold pieces are worn (checked live, so it reverts instantly). */
@@ -46,6 +64,7 @@ public final class RoseGoldSet {
         lines.add(trStyled("vanillaskills.set.rose_gold.name_plain", "Rose Gold Set", ChatFormatting.AQUA));
         lines.add(trStyled("vanillaskills.set.rose_gold.desc1", "Full set: immune to all", ChatFormatting.GRAY));
         lines.add(trStyled("vanillaskills.set.rose_gold.desc2", "negative status effects", ChatFormatting.GRAY));
+        lines.add(trStyled("vanillaskills.set.rose_gold.desc3", "and fire resistance", ChatFormatting.GRAY));
         return new ItemLore(lines);
     }
 

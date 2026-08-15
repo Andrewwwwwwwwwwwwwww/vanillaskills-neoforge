@@ -62,8 +62,18 @@ public final class FortuneBoost {
 
         if (!ORES.contains(block)) return;
         for (int i = 3; i < fortune; i++) {
+            // One CHANCE at an extra base drop per level above III, not a guaranteed one.
+            //
+            // Guaranteed drops stacked far too high in practice: a Fortune V pick already feeds level 5 into
+            // vanilla's own ore_drops formula, and two more certain drops on top of that turned every ore
+            // into a windfall. A coin flip per level keeps V ahead of IV and IV ahead of III without the
+            // yield running away. Configurable, so this is tunable without another build.
+            if (level.getRandom().nextFloat() >= io.github.andrewwwwwwwwwwwwwww.vanillaskills.config
+                    .GameplayConfig.FORTUNE_BONUS_CHANCE) {
+                continue;
+            }
             // EMPTY tool = a plain un-enchanted roll of the ore's own loot (no fortune multiplication,
-            // no silk-touch branch) — one honest extra base drop per level above III.
+            // no silk-touch branch) — one honest extra base drop.
             for (ItemStack drop : Block.getDrops(state, level, pos, null, player, ItemStack.EMPTY)) {
                 Block.popResource(level, pos, drop);
             }

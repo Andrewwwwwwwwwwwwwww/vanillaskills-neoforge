@@ -1,5 +1,54 @@
 # VanillaSkills Changelog
 
+## [2.0.0] - 2026-08-14
+The datapack-era rework. Experience is gone, the Skill Shard is a real item, and almost all of the mod's content now lives in datapack files instead of Java constants — so a server can rewrite the skill tree, the quests, the shop and the crates without touching the code.
+
+**This is a breaking release.** Commands were removed, data formats changed, and the pushed texture pack was replaced. Back up your world before updating.
+
+### Added
+- **Skill Shards are physical.** Withdraw banked shards as **Unstable Skill Shards** from the skill tree, right-click one to bank it again. Nine compress into an **Unstable Skill Shard Block**, which also generates naturally in all three dimensions and can only be mined with a Crystalline pickaxe or better — anything less shatters it for nothing.
+- **Stable Skill Shard Blocks** damage nearby hostile mobs, merge with adjacent blocks to widen that aura, work as a beacon base, and are immune to explosions.
+- **Crates**, fished out of the water: Wooden, Copper, Iron and Diamond as a rarity ladder, plus **Frozen**, **Lush** and **Desert** biome variants. Opening one spins a slot-machine reel in front of you before it pays out.
+- **Unboxing**, a datapack fishing-rod enchantment that raises your crate rate — and is itself found in crates and sold in the shop.
+- The **Infusing Table** replaces the enchanting table. It reads enchanted books out of nearby **chiseled bookshelves**, offers exactly what those books hold, lets you pick several at once, and charges Skill Shards. Books are kept, not consumed (except Fortune IV+).
+- **Enchanted books in the Quest Shop**, capped at level I–II and priced well above the rest of the catalogue. Buy two and combine them at an anvil.
+- **Datapack content types**: `skill_category`, `skill_node`, `quest`, `shop_offer`, `feat` and `crate`. Files follow the vanilla tag format, so a pack adds, reprices, replaces or removes entries the same way it would extend a tag.
+- **Gear balance is configurable.** A `gear` block in gameplay.json holds every tier's armour, toughness, knockback, movement modifier and durability, plus tool durability, attack damage/speed and pickaxe mining. Existing gear is brought onto retuned numbers as its owner logs in.
+- Horse speed, jump height and health are shown when you open a horse's inventory.
+- Your banked Skill Shards are displayed on the experience bar, which experience no longer uses.
+- The recipe book fills the crafting grid for custom recipes.
+
+### Changed
+- **Experience is removed from the game.** No orbs, no XP from mobs, mining, smelting, breeding or furnaces, and Bottles o' Enchanting no longer appear in loot or villager trades. Anvils charge **Skill Shards** instead of levels.
+- **Anvils no longer put enchanted books onto tools and armour** — that is the Infusing Table's job now. Combining two books in an anvil still works, and still costs Skill Shards.
+- **Steel armour** now costs a flat **-10% movement speed** on the full set (was -4%), to pay for its 18 armour. **Hardwood** rises to **+16%** (was +10%).
+- **Crystalline** grants Strength and Resistance I on the full set, on top of its 25% melee reflect.
+- **Rose Gold** gains fire resistance and can mine gold and iron. **Copper** tools can mine gold.
+- **Recipes**: Steel Ingots are smelted (1 iron block to 3) rather than forged; the Steel Shield is forged in an anvil from a shield and a steel ingot; Crystallized Diamond takes Unstable Skill Shards; the Dragon Ingot needs 4 scales instead of 8; Fortune V needs a Stable Skill Shard Block top and bottom.
+- **The Ender Dragon only drops scales to a player kill**, with a one-time bonus for the world's first, so a scripted startup kill cannot consume it.
+- The skill tree is built from the datapack; `skilltree.json` is no longer authored in-game and an existing one is migrated into a datapack on first load.
+- Quest progress and the bounty board are keyed by stable quest ids rather than list positions, so quests can be reordered or replaced without disturbing anyone's progress.
+- Custom items identify themselves with `item_model` and `item_name` components instead of `custom_model_data`, which also stops custom gear showing a floating nameplate in an item frame.
+
+### Removed
+- `/skill open`, `/skill guide`, `/skill editor`, `/skill layout`, `/skill edit …` and `/skill regen`.
+- `/skill points` is now **`/skill skillshards`**.
+
+### Fixed
+- The anvil screen said "Enchantment Cost" while charging Skill Shards.
+- The Quest Shop showed offer names as a literal `%dx %s`.
+- Compressing an Unstable Skill Shard Block back into nine shards did not craft.
+- Shift-right-clicking a Stable Skill Shard Block onto another merged them instead of placing.
+- Creepers were immune to the Stable Skill Shard Block's aura.
+- The pushed texture pack now ships the same language files as the mod, so vanilla clients see translated item names rather than raw translation keys. A build step keeps the two copies in step.
+
+### Translation
+- English and Traditional Chinese are both complete at **689 keys**. Every quest, crate, feat, shop offer, skill lane and skill-node description is translatable, and node titles translate through their lane name.
+
+## [1.7.6] - 2026-07-24
+### Changed
+- New **Crystallized Diamond** texture.
+
 ## [1.7.5] - 2026-07-22
 ### Added
 - **Traditional Chinese (zh_tw) is now complete** — the 14 advancement titles and descriptions are translated, bringing zh_tw to full parity with English (612 keys). Thanks to caprese502 for the translation.

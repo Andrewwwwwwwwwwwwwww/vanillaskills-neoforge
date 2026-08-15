@@ -42,9 +42,9 @@ public final class FortuneTemplateLoot {
                 .add(EmptyLootItem.emptyItem().setWeight(EMPTY_WEIGHT))
                 .add(LootItem.lootTableItem(FortuneTemplate.BASE)
                         .setWeight(TEMPLATE_WEIGHT)
-                        .apply(SetComponentsFunction.setComponent(DataComponents.CUSTOM_NAME, FortuneTemplate.displayName()))
+                        .apply(SetComponentsFunction.setComponent(DataComponents.ITEM_NAME, FortuneTemplate.displayName()))
                         .apply(SetComponentsFunction.setComponent(DataComponents.CUSTOM_DATA, CustomData.of(FortuneTemplate.markerTag())))
-                        .apply(SetComponentsFunction.setComponent(DataComponents.CUSTOM_MODEL_DATA, FortuneTemplate.modelData()))
+                        .apply(SetComponentsFunction.setComponent(DataComponents.ITEM_MODEL, FortuneTemplate.modelId()))
                         .apply(SetComponentsFunction.setComponent(DataComponents.LORE, FortuneTemplate.lore())));
     }
 }

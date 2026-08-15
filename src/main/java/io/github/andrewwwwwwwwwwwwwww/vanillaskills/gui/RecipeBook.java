@@ -79,25 +79,25 @@ public final class RecipeBook {
                 copper.copy(), E, copper.copy(),
                 gold.copy(), copper.copy(), gold.copy()}, count(Alloys.roseGoldIngot(), 4)));
 
-        // 2. Steel Ingot — forged in an ANVIL (one iron in each input slot), not a crafting recipe.
-        //    The anvil is shown as the station icon at the top, so the grid is just iron + iron.
-        r.add(new Display("Steel Ingot (Anvil: iron + iron)", new ItemStack[]{
+        // 2. Steel Ingot — SMELTED, not crafted: one iron block in a furnace yields three.
+        r.add(new Display("Steel Ingot (×3, smelt an Iron Block)", new ItemStack[]{
                 E, E, E,
-                new ItemStack(Items.IRON_INGOT), E, new ItemStack(Items.IRON_INGOT),
-                E, E, E}, Alloys.steelIngot(), Items.ANVIL));
+                E, new ItemStack(Items.IRON_BLOCK), E,
+                E, E, E}, count(Alloys.steelIngot(), 3), Items.FURNACE));
 
-        // 3. Crystallized Diamond
+        // 3. Crystallized Diamond — Unstable Skill Shards top and bottom middle.
         ItemStack shard = new ItemStack(Items.AMETHYST_SHARD);
+        ItemStack uss = io.github.andrewwwwwwwwwwwwwww.vanillaskills.shard.ShardItems.unstableShard();
         r.add(new Display("Crystallized Diamond (×2)", new ItemStack[]{
-                shard.copy(), shard.copy(), shard.copy(),
+                shard.copy(), uss.copy(), shard.copy(),
                 diamond.copy(), new ItemStack(Items.AMETHYST_BLOCK), diamond.copy(),
-                shard.copy(), shard.copy(), shard.copy()}, count(Alloys.crystallizedDiamond(), 2)));
+                shard.copy(), uss.copy(), shard.copy()}, count(Alloys.crystallizedDiamond(), 2)));
 
-        // 4. Steel Shield
-        r.add(new Display("Steel Shield", new ItemStack[]{
-                steel.copy(), new ItemStack(Items.SHIELD), steel.copy(),
-                steel.copy(), steel.copy(), steel.copy(),
-                E, steel.copy(), E}, SteelShield.create()));
+        // 4. Steel Shield — forged in an ANVIL from a plain shield + one Steel Ingot.
+        r.add(new Display("Steel Shield (Anvil: shield + Steel Ingot)", new ItemStack[]{
+                E, E, E,
+                new ItemStack(Items.SHIELD), E, steel.copy(),
+                E, E, E}, SteelShield.create(), Items.ANVIL));
 
         // 5. Fortune Upgrade Template
         r.add(new Display("Fortune Upgrade Template (×2)", new ItemStack[]{
@@ -111,23 +111,57 @@ public final class RecipeBook {
                 fortuneBook(3), FortuneTemplate.create(), fortuneBook(3),
                 lapis.copy(), diaBlock.copy(), lapis.copy()}, fortuneBook(4)));
 
-        // 7. Fortune V Book
+        // 7. Fortune V Book — a heavier frame than IV: diamond blocks in every corner and a Stable Skill
+        //    Shard Block top and bottom, so the last level is gated behind the shard economy.
+        ItemStack sssb = io.github.andrewwwwwwwwwwwwwww.vanillaskills.shard.ShardItems.stableBlock();
         r.add(new Display("Fortune V Book", new ItemStack[]{
-                lapis.copy(), diaBlock.copy(), lapis.copy(),
+                diaBlock.copy(), sssb.copy(), diaBlock.copy(),
                 fortuneBook(4), FortuneTemplate.create(), fortuneBook(4),
-                lapis.copy(), diaBlock.copy(), lapis.copy()}, fortuneBook(5)));
+                diaBlock.copy(), sssb.copy(), diaBlock.copy()}, fortuneBook(5)));
 
-        // 8. Dragon Ingot
+        // 8. Dragon Ingot — four scales, halved in 2.0.
         r.add(new Display("Dragon Ingot", new ItemStack[]{
-                scale.copy(), scale.copy(), scale.copy(),
+                E, scale.copy(), E,
                 scale.copy(), netherite.copy(), scale.copy(),
-                scale.copy(), scale.copy(), scale.copy()}, DragonIngot.create()));
+                E, scale.copy(), E}, DragonIngot.create()));
 
         // 9. Dragon Upgrade Template
         r.add(new Display("Dragon Upgrade Template (×2)", new ItemStack[]{
                 chorus.copy(), DragonUpgradeTemplate.create(), chorus.copy(),
                 chorus.copy(), netherite.copy(), chorus.copy(),
                 endRod.copy(), new ItemStack(Items.SHULKER_SHELL), endRod.copy()}, count(DragonUpgradeTemplate.create(), 2)));
+
+        // --- Skill Shard blocks ---
+        // These were missing from this lane entirely: the shard economy shipped in Phase 2 but its three
+        // recipes were only ever published to the vanilla recipe book, so a player browsing the in-game
+        // guide had no way to learn how any of it was made.
+        ItemStack ussShard = io.github.andrewwwwwwwwwwwwwww.vanillaskills.shard.ShardItems.unstableShard();
+        ItemStack ussBlock = io.github.andrewwwwwwwwwwwwwww.vanillaskills.shard.ShardItems.unstableBlock();
+
+        r.add(new Display("Unstable Skill Shard Block",
+                new String[]{"Nine shards, compressed for storage."},
+                new ItemStack[]{
+                        ussShard.copy(), ussShard.copy(), ussShard.copy(),
+                        ussShard.copy(), ussShard.copy(), ussShard.copy(),
+                        ussShard.copy(), ussShard.copy(), ussShard.copy()},
+                io.github.andrewwwwwwwwwwwwwww.vanillaskills.shard.ShardItems.unstableBlock()));
+
+        r.add(new Display("Unstable Skill Shards (×9)",
+                new String[]{"The block, back into loose shards."},
+                new ItemStack[]{
+                        E, E, E,
+                        E, ussBlock.copy(), E,
+                        E, E, E},
+                count(io.github.andrewwwwwwwwwwwwwww.vanillaskills.shard.ShardItems.unstableShard(),
+                        io.github.andrewwwwwwwwwwwwwww.vanillaskills.shard.ShardItems.SHARDS_PER_BLOCK)));
+
+        r.add(new Display("Stable Skill Shard Block",
+                new String[]{"Harms hostile mobs nearby.", "Works as a beacon base."},
+                new ItemStack[]{
+                        new ItemStack(Items.REDSTONE), new ItemStack(Items.TINTED_GLASS), new ItemStack(Items.REDSTONE),
+                        E, ussBlock.copy(), E,
+                        new ItemStack(Items.REDSTONE), new ItemStack(Items.TINTED_GLASS), new ItemStack(Items.REDSTONE)},
+                io.github.andrewwwwwwwwwwwwwww.vanillaskills.shard.ShardItems.stableBlock()));
 
         return r;
     }

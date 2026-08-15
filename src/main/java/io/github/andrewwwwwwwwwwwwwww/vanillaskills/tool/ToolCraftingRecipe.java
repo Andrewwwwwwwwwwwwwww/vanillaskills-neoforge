@@ -66,6 +66,31 @@ public class ToolCraftingRecipe extends CustomRecipe {
         return tier;
     }
 
+    /** One book entry per (tier x tool kind), using each kind's first shape as the canonical layout. */
+    @Override
+    public java.util.List<net.minecraft.world.item.crafting.display.RecipeDisplay> display() {
+        java.util.List<net.minecraft.world.item.crafting.display.RecipeDisplay> out = new java.util.ArrayList<>();
+        ItemStack stick = new ItemStack(Items.STICK);
+        for (ToolTier tier : ToolTiers.TIERS) {
+            ItemStack material = ToolTiers.sampleMaterial(tier);
+            if (material.isEmpty()) continue;
+            for (ToolKind kind : ToolKind.values()) {
+                if (kind.shapes.isEmpty()) continue;
+                ToolKind.Shape shape = kind.shapes.get(0);
+                int cells = shape.width() * shape.height();
+                ItemStack[] grid = new ItemStack[cells];
+                for (int i = 0; i < cells; i++) {
+                    grid[i] = shape.isMat(i) ? material.copy()
+                            : shape.isStick(i) ? stick.copy()
+                            : ItemStack.EMPTY;
+                }
+                out.add(io.github.andrewwwwwwwwwwwwwww.vanillaskills.recipe.RecipeDisplays.shaped(
+                        shape.width(), shape.height(), grid, tier.create(kind), Items.CRAFTING_TABLE));
+            }
+        }
+        return out;
+    }
+
     @Override
     public CraftingBookCategory category() {
         return CraftingBookCategory.EQUIPMENT;
