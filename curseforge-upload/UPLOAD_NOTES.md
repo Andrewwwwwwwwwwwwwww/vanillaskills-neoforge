@@ -1,23 +1,17 @@
-# VanillaSkills — NeoForge edition — CurseForge Upload (1.7.6)
+# VanillaSkills — NeoForge, MC 26.2 — CurseForge Upload (2.0.0)
 
-Full details in `../../vanillaskills/curseforge-upload/UPLOAD_NOTES.md`. Upload as an ADDITIONAL
-FILE on the existing **Vanilla-Skills** project (`1570558`) — same project as the Fabric jars,
-different loader tag.
+Full details, including the breaking-release notice and the changelog to paste, are in
+`../../vanillaskills/curseforge-upload/UPLOAD_NOTES.md`. Upload as an ADDITIONAL FILE on the existing
+**Vanilla-Skills** project (`1570558`) — same project as the Fabric jars, different loader tag.
 
 ## Mod jar
-**File:** `vanillaskills-1.7.6+mc26.2-neoforge.jar`
+**File:** `vanillaskills-2.0.0+mc26.2-neoforge.jar`
 - Minecraft **26.2**, loader tag **NeoForge** (NOT "Forge")
 - Requires NeoForge **26.2.0.7-beta or newer**; no Fabric API dependency
-- Feature-equal with the Fabric 1.7.6 file, including the new Crystallized Diamond texture and the
-  `SkillMenuExtensions` API that VanillaSkills Casino depends on.
+- Release type: Release
+- Feature-equal with the Fabric 2.0.0 file; parity is enforced by `tools/check-parity.js`.
 
 ## Texture pack
-Same `VanillaSkills-TexturePack.zip` as the Fabric edition (already staged in
-`../../vanillaskills/curseforge-upload/`) — one pack serves both loaders. Only needs uploading once,
-to the **VSTP - Vanilla-Skills** project (`1585850`).
-
-## Changelog to paste
-```
-### Changed
-- New Crystallized Diamond texture.
-```
+Same `VanillaSkills-TexturePack.zip` as the Fabric edition — one pack serves both loaders, and it only
+needs uploading once, to the **VSTP - Vanilla-Skills** project (`1585850`). It must go up alongside the
+jars: they carry its SHA-1 and clients reject a mismatch.
