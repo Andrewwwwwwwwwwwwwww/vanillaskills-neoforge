@@ -3,75 +3,134 @@
   "random_sequence": "vanillaskills:crate/diamond",
   "pools": [
     {
-      "rolls": { "type": "minecraft:uniform", "min": 8.0, "max": 14.0 },
+      "rolls": {
+        "type": "minecraft:uniform",
+        "min": 8,
+        "max": 14
+      },
       "entries": [
-        { "type": "minecraft:loot_table", "value": "vanillaskills:util/unstable_skill_shard" }
+        {
+          "type": "minecraft:loot_table",
+          "value": "vanillaskills:util/unstable_skill_shard"
+        }
       ]
     },
     {
-      "rolls": 1.0,
+      "rolls": 1,
       "entries": [
-        { "type": "minecraft:empty", "weight": 3 },
-        { "type": "minecraft:loot_table", "value": "vanillaskills:util/unstable_skill_shard_block", "weight": 1 }
+        {
+          "type": "minecraft:empty",
+          "weight": 3
+        },
+        {
+          "type": "minecraft:loot_table",
+          "value": "vanillaskills:util/unstable_skill_shard_block",
+          "weight": 1
+        }
       ]
     },
     {
-      "rolls": { "type": "minecraft:uniform", "min": 2.0, "max": 3.0 },
+      "rolls": {
+        "type": "minecraft:uniform",
+        "min": 2,
+        "max": 3
+      },
       "entries": [
         {
           "type": "minecraft:item",
           "name": "minecraft:diamond",
           "weight": 20,
-          "functions": [
-            { "function": "minecraft:set_count", "count": { "type": "minecraft:uniform", "min": 4.0, "max": 9.0 } }
+          "modifier": [
+            {
+              "type": "minecraft:set_count",
+              "count": {
+                "type": "minecraft:uniform",
+                "min": 4,
+                "max": 9
+              }
+            }
           ]
         },
         {
           "type": "minecraft:item",
           "name": "minecraft:diamond_block",
           "weight": 10,
-          "functions": [
-            { "function": "minecraft:set_count", "count": { "type": "minecraft:uniform", "min": 1.0, "max": 2.0 } }
+          "modifier": [
+            {
+              "type": "minecraft:set_count",
+              "count": {
+                "type": "minecraft:uniform",
+                "min": 1,
+                "max": 2
+              }
+            }
           ]
         },
         {
           "type": "minecraft:item",
           "name": "minecraft:netherite_scrap",
           "weight": 8,
-          "functions": [
-            { "function": "minecraft:set_count", "count": { "type": "minecraft:uniform", "min": 1.0, "max": 2.0 } }
+          "modifier": [
+            {
+              "type": "minecraft:set_count",
+              "count": {
+                "type": "minecraft:uniform",
+                "min": 1,
+                "max": 2
+              }
+            }
           ]
         },
         {
           "type": "minecraft:item",
           "name": "minecraft:book",
           "weight": 10,
-          "functions": [
-            { "function": "minecraft:enchant_randomly", "options": "#minecraft:on_random_loot" }
+          "modifier": [
+            {
+              "type": "minecraft:enchant_randomly",
+              "options": "#minecraft:on_random_loot"
+            }
           ]
         },
-        { "type": "minecraft:item", "name": "minecraft:enchanted_golden_apple", "weight": 4 },
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:enchanted_golden_apple",
+          "weight": 4
+        },
         {
           "type": "minecraft:item",
           "name": "minecraft:ancient_debris",
           "weight": 3,
-          "functions": [
-            { "function": "minecraft:set_count", "count": { "type": "minecraft:uniform", "min": 1.0, "max": 2.0 } }
+          "modifier": [
+            {
+              "type": "minecraft:set_count",
+              "count": {
+                "type": "minecraft:uniform",
+                "min": 1,
+                "max": 2
+              }
+            }
           ]
         }
       ]
     },
     {
-      "rolls": 1.0,
-      "conditions": [
-        { "condition": "minecraft:random_chance", "chance": 0.07 }
-      ],
+      "rolls": 1,
+      "condition": {
+        "type": "minecraft:random_chance",
+        "chance": 0.07
+      },
       "entries": [
         {
           "type": "minecraft:item",
           "name": "minecraft:book",
-          "functions": [
-            { "function": "minecraft:set_enchantments", "enchantments": { "vanillaskills:unboxing": 3 } }
+          "modifier": [
+            {
+              "type": "minecraft:set_enchantments",
+              "enchantments": {
+                "vanillaskills:unboxing": 3
+              }
+            }
           ]
         }
       ]

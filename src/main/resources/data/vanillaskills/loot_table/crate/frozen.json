@@ -3,76 +3,131 @@
   "random_sequence": "vanillaskills:crate/frozen",
   "pools": [
     {
-      "rolls": { "type": "minecraft:uniform", "min": 3.0, "max": 6.0 },
+      "rolls": {
+        "type": "minecraft:uniform",
+        "min": 3,
+        "max": 6
+      },
       "entries": [
-        { "type": "minecraft:loot_table", "value": "vanillaskills:util/unstable_skill_shard" }
+        {
+          "type": "minecraft:loot_table",
+          "value": "vanillaskills:util/unstable_skill_shard"
+        }
       ]
     },
     {
-      "rolls": 2.0,
+      "rolls": 2,
       "entries": [
         {
           "type": "minecraft:item",
           "name": "minecraft:packed_ice",
           "weight": 20,
-          "functions": [
-            { "function": "minecraft:set_count", "count": { "type": "minecraft:uniform", "min": 8.0, "max": 16.0 } }
+          "modifier": [
+            {
+              "type": "minecraft:set_count",
+              "count": {
+                "type": "minecraft:uniform",
+                "min": 8,
+                "max": 16
+              }
+            }
           ]
         },
         {
           "type": "minecraft:item",
           "name": "minecraft:ice",
           "weight": 18,
-          "functions": [
-            { "function": "minecraft:set_count", "count": { "type": "minecraft:uniform", "min": 16.0, "max": 32.0 } }
+          "modifier": [
+            {
+              "type": "minecraft:set_count",
+              "count": {
+                "type": "minecraft:uniform",
+                "min": 16,
+                "max": 32
+              }
+            }
           ]
         },
         {
           "type": "minecraft:item",
           "name": "minecraft:blue_ice",
           "weight": 12,
-          "functions": [
-            { "function": "minecraft:set_count", "count": { "type": "minecraft:uniform", "min": 2.0, "max": 5.0 } }
+          "modifier": [
+            {
+              "type": "minecraft:set_count",
+              "count": {
+                "type": "minecraft:uniform",
+                "min": 2,
+                "max": 5
+              }
+            }
           ]
         },
         {
           "type": "minecraft:item",
           "name": "minecraft:snow_block",
           "weight": 15,
-          "functions": [
-            { "function": "minecraft:set_count", "count": { "type": "minecraft:uniform", "min": 8.0, "max": 20.0 } }
+          "modifier": [
+            {
+              "type": "minecraft:set_count",
+              "count": {
+                "type": "minecraft:uniform",
+                "min": 8,
+                "max": 20
+              }
+            }
           ]
         },
-        { "type": "minecraft:item", "name": "minecraft:powder_snow_bucket", "weight": 6 },
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:powder_snow_bucket",
+          "weight": 6
+        },
         {
           "type": "minecraft:item",
           "name": "minecraft:book",
           "weight": 8,
-          "functions": [
-            { "function": "minecraft:enchant_randomly", "options": ["minecraft:frost_walker"] }
+          "modifier": [
+            {
+              "type": "minecraft:enchant_randomly",
+              "options": [
+                "minecraft:frost_walker"
+              ]
+            }
           ]
         },
         {
           "type": "minecraft:item",
           "name": "minecraft:book",
           "weight": 6,
-          "functions": [
-            { "function": "minecraft:enchant_randomly", "options": ["minecraft:depth_strider"] }
+          "modifier": [
+            {
+              "type": "minecraft:enchant_randomly",
+              "options": [
+                "minecraft:depth_strider"
+              ]
+            }
           ]
         }
       ]
     },
     {
-      "rolls": 1.0,
-      "conditions": [
-        { "condition": "minecraft:random_chance", "chance": 0.04 }
-      ],
+      "rolls": 1,
+      "condition": {
+        "type": "minecraft:random_chance",
+        "chance": 0.04
+      },
       "entries": [
         {
           "type": "minecraft:item",
           "name": "minecraft:book",
-          "functions": [
-            { "function": "minecraft:set_enchantments", "enchantments": { "vanillaskills:unboxing": 3 } }
+          "modifier": [
+            {
+              "type": "minecraft:set_enchantments",
+              "enchantments": {
+                "vanillaskills:unboxing": 3
+              }
+            }
           ]
         }
       ]

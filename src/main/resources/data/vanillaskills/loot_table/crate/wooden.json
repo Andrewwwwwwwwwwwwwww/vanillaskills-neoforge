@@ -3,76 +3,139 @@
   "random_sequence": "vanillaskills:crate/wooden",
   "pools": [
     {
-      "rolls": { "type": "minecraft:uniform", "min": 1.0, "max": 2.0 },
+      "rolls": {
+        "type": "minecraft:uniform",
+        "min": 1,
+        "max": 2
+      },
       "entries": [
-        { "type": "minecraft:loot_table", "value": "vanillaskills:util/unstable_skill_shard" }
+        {
+          "type": "minecraft:loot_table",
+          "value": "vanillaskills:util/unstable_skill_shard"
+        }
       ]
     },
     {
-      "rolls": { "type": "minecraft:uniform", "min": 1.0, "max": 2.0 },
+      "rolls": {
+        "type": "minecraft:uniform",
+        "min": 1,
+        "max": 2
+      },
       "entries": [
         {
           "type": "minecraft:item",
           "name": "minecraft:oak_log",
           "weight": 20,
-          "functions": [
-            { "function": "minecraft:set_count", "count": { "type": "minecraft:uniform", "min": 8.0, "max": 16.0 } }
+          "modifier": [
+            {
+              "type": "minecraft:set_count",
+              "count": {
+                "type": "minecraft:uniform",
+                "min": 8,
+                "max": 16
+              }
+            }
           ]
         },
         {
           "type": "minecraft:item",
           "name": "minecraft:coal",
           "weight": 20,
-          "functions": [
-            { "function": "minecraft:set_count", "count": { "type": "minecraft:uniform", "min": 6.0, "max": 16.0 } }
+          "modifier": [
+            {
+              "type": "minecraft:set_count",
+              "count": {
+                "type": "minecraft:uniform",
+                "min": 6,
+                "max": 16
+              }
+            }
           ]
         },
         {
           "type": "minecraft:item",
           "name": "minecraft:bread",
           "weight": 15,
-          "functions": [
-            { "function": "minecraft:set_count", "count": { "type": "minecraft:uniform", "min": 4.0, "max": 8.0 } }
+          "modifier": [
+            {
+              "type": "minecraft:set_count",
+              "count": {
+                "type": "minecraft:uniform",
+                "min": 4,
+                "max": 8
+              }
+            }
           ]
         },
         {
           "type": "minecraft:item",
           "name": "minecraft:string",
           "weight": 15,
-          "functions": [
-            { "function": "minecraft:set_count", "count": { "type": "minecraft:uniform", "min": 4.0, "max": 9.0 } }
+          "modifier": [
+            {
+              "type": "minecraft:set_count",
+              "count": {
+                "type": "minecraft:uniform",
+                "min": 4,
+                "max": 9
+              }
+            }
           ]
         },
         {
           "type": "minecraft:item",
           "name": "minecraft:iron_ingot",
           "weight": 10,
-          "functions": [
-            { "function": "minecraft:set_count", "count": { "type": "minecraft:uniform", "min": 2.0, "max": 5.0 } }
+          "modifier": [
+            {
+              "type": "minecraft:set_count",
+              "count": {
+                "type": "minecraft:uniform",
+                "min": 2,
+                "max": 5
+              }
+            }
           ]
         },
         {
           "type": "minecraft:item",
           "name": "minecraft:leather",
           "weight": 10,
-          "functions": [
-            { "function": "minecraft:set_count", "count": { "type": "minecraft:uniform", "min": 3.0, "max": 7.0 } }
+          "modifier": [
+            {
+              "type": "minecraft:set_count",
+              "count": {
+                "type": "minecraft:uniform",
+                "min": 3,
+                "max": 7
+              }
+            }
           ]
         },
-        { "type": "minecraft:item", "name": "minecraft:name_tag", "weight": 3 }
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:name_tag",
+          "weight": 3
+        }
       ]
     },
     {
-      "rolls": 1.0,
-      "conditions": [
-        { "condition": "minecraft:random_chance", "chance": 0.03 }
-      ],
+      "rolls": 1,
+      "condition": {
+        "type": "minecraft:random_chance",
+        "chance": 0.03
+      },
       "entries": [
         {
           "type": "minecraft:item",
           "name": "minecraft:book",
-          "functions": [
-            { "function": "minecraft:set_enchantments", "enchantments": { "vanillaskills:unboxing": 1 } }
+          "modifier": [
+            {
+              "type": "minecraft:set_enchantments",
+              "enchantments": {
+                "vanillaskills:unboxing": 1
+              }
+            }
           ]
         }
       ]

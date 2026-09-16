@@ -9,9 +9,9 @@
           "type": "minecraft:item",
           "name": "minecraft:brick",
           "weight": 45,
-          "functions": [
+          "modifier": [
             {
-              "function": "minecraft:set_components",
+              "type": "minecraft:set_components",
               "components": {
                 "minecraft:custom_data": {
                   "vs_crate_wooden": true
@@ -39,9 +39,9 @@
           "type": "minecraft:item",
           "name": "minecraft:brick",
           "weight": 28,
-          "functions": [
+          "modifier": [
             {
-              "function": "minecraft:set_components",
+              "type": "minecraft:set_components",
               "components": {
                 "minecraft:custom_data": {
                   "vs_crate_copper": true
@@ -69,9 +69,9 @@
           "type": "minecraft:item",
           "name": "minecraft:brick",
           "weight": 14,
-          "functions": [
+          "modifier": [
             {
-              "function": "minecraft:set_components",
+              "type": "minecraft:set_components",
               "components": {
                 "minecraft:custom_data": {
                   "vs_crate_iron": true
@@ -99,9 +99,9 @@
           "type": "minecraft:item",
           "name": "minecraft:brick",
           "weight": 4,
-          "functions": [
+          "modifier": [
             {
-              "function": "minecraft:set_components",
+              "type": "minecraft:set_components",
               "components": {
                 "minecraft:custom_data": {
                   "vs_crate_diamond": true
@@ -129,21 +129,19 @@
           "type": "minecraft:item",
           "name": "minecraft:brick",
           "weight": 8,
-          "conditions": [
+          "condition": {
+            "type": "minecraft:table_bonus",
+            "enchantment": "vanillaskills:unboxing",
+            "chances": [
+              0,
+              0.5,
+              0.75,
+              1
+            ]
+          },
+          "modifier": [
             {
-              "condition": "minecraft:table_bonus",
-              "enchantment": "vanillaskills:unboxing",
-              "chances": [
-                0,
-                0.5,
-                0.75,
-                1
-              ]
-            }
-          ],
-          "functions": [
-            {
-              "function": "minecraft:set_components",
+              "type": "minecraft:set_components",
               "components": {
                 "minecraft:custom_data": {
                   "vs_crate_diamond": true
@@ -171,17 +169,15 @@
           "type": "minecraft:item",
           "name": "minecraft:brick",
           "weight": 10,
-          "conditions": [
-            {
-              "condition": "minecraft:location_check",
-              "predicate": {
-                "biomes": "#vanillaskills:frozen_waters"
-              }
+          "condition": {
+            "type": "minecraft:location_check",
+            "predicate": {
+              "biomes": "#vanillaskills:frozen_waters"
             }
-          ],
-          "functions": [
+          },
+          "modifier": [
             {
-              "function": "minecraft:set_components",
+              "type": "minecraft:set_components",
               "components": {
                 "minecraft:custom_data": {
                   "vs_crate_frozen": true
@@ -209,17 +205,15 @@
           "type": "minecraft:item",
           "name": "minecraft:brick",
           "weight": 10,
-          "conditions": [
-            {
-              "condition": "minecraft:location_check",
-              "predicate": {
-                "biomes": "#vanillaskills:lush_waters"
-              }
+          "condition": {
+            "type": "minecraft:location_check",
+            "predicate": {
+              "biomes": "#vanillaskills:lush_waters"
             }
-          ],
-          "functions": [
+          },
+          "modifier": [
             {
-              "function": "minecraft:set_components",
+              "type": "minecraft:set_components",
               "components": {
                 "minecraft:custom_data": {
                   "vs_crate_lush": true
@@ -247,17 +241,15 @@
           "type": "minecraft:item",
           "name": "minecraft:brick",
           "weight": 10,
-          "conditions": [
-            {
-              "condition": "minecraft:location_check",
-              "predicate": {
-                "biomes": "#vanillaskills:desert_waters"
-              }
+          "condition": {
+            "type": "minecraft:location_check",
+            "predicate": {
+              "biomes": "#vanillaskills:desert_waters"
             }
-          ],
-          "functions": [
+          },
+          "modifier": [
             {
-              "function": "minecraft:set_components",
+              "type": "minecraft:set_components",
               "components": {
                 "minecraft:custom_data": {
                   "vs_crate_desert": true

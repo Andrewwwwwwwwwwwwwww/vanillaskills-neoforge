@@ -2,16 +2,18 @@
   "type": "minecraft:gift",
   "pools": [
     {
-      "rolls": 1.0,
+      "rolls": 1,
       "entries": [
         {
           "type": "minecraft:item",
           "name": "minecraft:reinforced_deepslate",
-          "functions": [
+          "modifier": [
             {
-              "function": "minecraft:set_components",
+              "type": "minecraft:set_components",
               "components": {
-                "minecraft:custom_data": { "vs_unstable_shard_block": true },
+                "minecraft:custom_data": {
+                  "vs_unstable_shard_block": true
+                },
                 "minecraft:item_model": "vanillaskills:unstable_skill_shard_block",
                 "minecraft:item_name": {
                   "translate": "vanillaskills.item.unstable_skill_shard_block",
