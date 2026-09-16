@@ -8,7 +8,8 @@ import net.minecraft.world.level.storage.loot.LootPool;
 import net.minecraft.world.level.storage.loot.entries.EmptyLootItem;
 import net.minecraft.world.level.storage.loot.entries.LootItem;
 import net.minecraft.world.level.storage.loot.functions.SetComponentsFunction;
-import net.minecraft.world.level.storage.loot.providers.number.ConstantValue;
+import net.minecraft.core.Holder;
+import net.minecraft.world.level.storage.loot.providers.number.ints.ConstantValue;
 import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.event.LootTableLoadEvent;
 
@@ -33,7 +34,7 @@ public final class DragonTemplateLoot {
 
     private static LootPool.Builder templatePool() {
         return LootPool.lootPool()
-                .setRolls(ConstantValue.exactly(1.0f))
+                .setRolls(Holder.direct(new ConstantValue(1)))
                 .add(EmptyLootItem.emptyItem().setWeight(EMPTY_WEIGHT))
                 .add(LootItem.lootTableItem(DragonUpgradeTemplate.BASE)
                         .setWeight(TEMPLATE_WEIGHT)

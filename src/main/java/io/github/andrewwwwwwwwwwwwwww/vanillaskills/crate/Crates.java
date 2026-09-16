@@ -105,7 +105,7 @@ public final class Crates {
 
         if (!io.github.andrewwwwwwwwwwwwwww.vanillaskills.config.GameplayConfig.CRATE_REEL_ENABLED
                 || loot.isEmpty()) {
-            for (ItemStack drop : loot) player.getInventory().placeItemBackInInventory(drop);
+            for (ItemStack drop : loot) player.getInventory().placeItemBackInInventory(drop, net.minecraft.util.Prediction.SERVER_ONLY);
             return true;
         }
 
@@ -116,7 +116,7 @@ public final class Crates {
         Sampling sampling = sample(table, params);
         int lanes = Math.max(sampling.maxDisplayable, won.size());
         if (lanes == 0 || sampling.distinct.isEmpty()) {
-            for (ItemStack drop : loot) player.getInventory().placeItemBackInInventory(drop);
+            for (ItemStack drop : loot) player.getInventory().placeItemBackInInventory(drop, net.minecraft.util.Prediction.SERVER_ONLY);
             return true;
         }
 

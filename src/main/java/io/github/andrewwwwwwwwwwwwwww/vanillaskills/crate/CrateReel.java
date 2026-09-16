@@ -134,7 +134,7 @@ public final class CrateReel {
                 double up = (PAYLINE - row) * spacing;
                 Display.ItemDisplay display = new Display.ItemDisplay(EntityTypes.ITEM_DISPLAY, level);
                 display.setNoGravity(true);
-                display.setInvulnerable(true);
+                display.setPermanentlyInvulnerable(true);
                 display.addTag(TAG);
                 display.getSlot(0).set(styled(randomFiller(level, filler), false));
                 scale(display, (float) GameplayConfig.CRATE_REEL_SCALE);
@@ -317,7 +317,7 @@ public final class CrateReel {
     }
 
     private static void grant(ServerPlayer player, List<ItemStack> reward) {
-        for (ItemStack drop : reward) player.getInventory().placeItemBackInInventory(drop);
+        for (ItemStack drop : reward) player.getInventory().placeItemBackInInventory(drop, net.minecraft.util.Prediction.SERVER_ONLY);
     }
 
     /**
@@ -346,7 +346,7 @@ public final class CrateReel {
         public static synchronized void deliver(ServerPlayer player) {
             List<ItemStack> owed = pending.remove(player.getUUID());
             if (owed == null || owed.isEmpty()) return;
-            for (ItemStack drop : owed) player.getInventory().placeItemBackInInventory(drop);
+            for (ItemStack drop : owed) player.getInventory().placeItemBackInInventory(drop, net.minecraft.util.Prediction.SERVER_ONLY);
         }
     }
 }

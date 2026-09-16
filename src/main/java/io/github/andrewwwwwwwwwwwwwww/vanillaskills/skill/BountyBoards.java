@@ -102,7 +102,7 @@ public class BountyBoards {
 
     private static void configure(Entity e) {
         e.setNoGravity(true);
-        e.setInvulnerable(true);
+        e.setPermanentlyInvulnerable(true);
         e.addTag(TAG);
     }
 

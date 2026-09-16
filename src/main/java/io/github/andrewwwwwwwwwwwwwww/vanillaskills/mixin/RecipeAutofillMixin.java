@@ -56,7 +56,7 @@ public class RecipeAutofillMixin {
             if (existing.isEmpty()) continue;
             ItemStack returned = existing.copy();
             slot.set(ItemStack.EMPTY);
-            inventory.placeItemBackInInventory(returned, false);
+            inventory.placeItemBackInInventory(returned, false, net.minecraft.util.Prediction.SERVER_ONLY);
         }
         menu.clearCraftingContent();
 

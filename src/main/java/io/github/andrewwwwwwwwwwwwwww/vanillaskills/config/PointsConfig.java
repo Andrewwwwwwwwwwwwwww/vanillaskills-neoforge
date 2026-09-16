@@ -62,7 +62,7 @@ public class PointsConfig {
         Integer override = advancementOverrides.get(holder.id().toString());
         if (override != null) return override;
         net.minecraft.advancements.AdvancementType type = holder.value().display()
-                .map(net.minecraft.advancements.DisplayInfo::getType)
+                .map(net.minecraft.advancements.DisplayInfo::type)
                 .orElse(net.minecraft.advancements.AdvancementType.TASK);
         return switch (type) {
             case CHALLENGE -> valueChallenge;

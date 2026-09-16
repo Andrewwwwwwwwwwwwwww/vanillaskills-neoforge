@@ -72,7 +72,9 @@ public final class DragonSet {
         Vec3 look = player.getLookAngle();
         Vec3 velocity = look.scale(dashSpeed()).add(0.0, -dashDownBias(), 0.0);
         player.setDeltaMovement(velocity);
-        player.hurtMarked = true; // forces a velocity packet to the client
+        // Tell the client about the new velocity. The entity flag that used to ask for this is gone, so
+        // the packet it would have produced is sent directly.
+        player.connection.send(new net.minecraft.network.protocol.game.ClientboundSetEntityMotionPacket(player));
         player.fallDistance = 0.0;
     }
 

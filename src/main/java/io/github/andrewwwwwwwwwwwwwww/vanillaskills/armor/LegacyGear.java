@@ -195,7 +195,7 @@ public final class LegacyGear {
                 stack.get(DataComponents.CONTAINER);
         if (contents == null) return 0;
 
-        java.util.List<ItemStack> items = new java.util.ArrayList<>(contents.allItemsCopyStream().toList());
+        java.util.List<ItemStack> items = new java.util.ArrayList<>(contents.itemCopies().toList());
         int changed = 0;
         for (ItemStack inner : items) {
             if (upgrade(inner)) changed++;

@@ -37,7 +37,7 @@ public final class ShardBank {
         ItemStack stack = ShardItems.unstableShard();
         stack.setCount(amount);
         // placeItemBackInInventory drops whatever will not fit, so shards can never be destroyed by a full bag.
-        player.getInventory().placeItemBackInInventory(stack);
+        player.getInventory().placeItemBackInInventory(stack, net.minecraft.util.Prediction.SERVER_ONLY);
         // Push the inventory change to the client immediately.
         //
         // Withdrawing happens with our chest GUI open, and adding to the inventory behind an open menu does

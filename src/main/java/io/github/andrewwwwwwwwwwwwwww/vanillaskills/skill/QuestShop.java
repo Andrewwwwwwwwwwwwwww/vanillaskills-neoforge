@@ -132,7 +132,7 @@ public final class QuestShop {
         for (Grant g : offer.grants()) {
             ItemStack stack = new ItemStack(Quests.item(g.itemId()), g.count());
             applyEnchantment(player, stack, g);
-            player.getInventory().placeItemBackInInventory(stack);
+            player.getInventory().placeItemBackInInventory(stack, net.minecraft.util.Prediction.SERVER_ONLY);
         }
         String paid = paySkillShards
                 ? io.github.andrewwwwwwwwwwwwwww.vanillaskills.text.Lang.tr(player,

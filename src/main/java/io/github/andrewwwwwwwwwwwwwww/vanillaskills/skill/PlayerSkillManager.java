@@ -489,7 +489,7 @@ public class PlayerSkillManager {
         net.minecraft.world.item.ItemStack reward =
                 io.github.andrewwwwwwwwwwwwwww.vanillaskills.armor.DragonIngot.create();
         reward.setCount(rewardIngots);
-        if (!player.getInventory().add(reward)) player.drop(reward, false);
+        if (!player.getInventory().add(reward)) player.drop(reward, false, net.minecraft.util.Prediction.SERVER_ONLY);
         // Pass the count so translations can place the number where their language needs it.
         player.sendSystemMessage(Component.literal(io.github.andrewwwwwwwwwwwwwww.vanillaskills.text.Lang.tr(player,
                 "vanillaskills.msg.mastered", "Skill tree mastered! +%d Dragon Ingots", rewardIngots))

@@ -8,7 +8,7 @@ import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.client.event.ClientTickEvent;
 import net.neoforged.neoforge.client.event.RegisterKeyMappingsEvent;
 import net.neoforged.neoforge.common.NeoForge;
-import org.lwjgl.glfw.GLFW;
+import com.mojang.blaze3d.platform.InputConstants;
 
 /**
  * Client-only wiring. Registers two rebindable keys (Options → Controls → "VanillaSkills") that
@@ -35,8 +35,8 @@ public final class VanillaSkillsClient {
 
             // Defaults: ] for the skill tree, [ for the bounty board — both unbound in vanilla, unlike the
             // commonly-used B/V. Players can rebind under Options -> Controls -> VanillaSkills.
-            openSkills = new KeyMapping("key.vanillaskills.open_skills", GLFW.GLFW_KEY_RIGHT_BRACKET, category);
-            openQuests = new KeyMapping("key.vanillaskills.open_quests", GLFW.GLFW_KEY_LEFT_BRACKET, category);
+            openSkills = new KeyMapping("key.vanillaskills.open_skills", InputConstants.KEY_RBRACKET, category);
+            openQuests = new KeyMapping("key.vanillaskills.open_quests", InputConstants.KEY_LBRACKET, category);
             e.register(openSkills);
             e.register(openQuests);
         });

@@ -254,7 +254,7 @@ public final class SkillCommands {
             int n = Math.min(remaining, stack.getMaxStackSize());
             stack.setCount(n);
             remaining -= n;
-            target.getInventory().placeItemBackInInventory(stack);
+            target.getInventory().placeItemBackInInventory(stack, net.minecraft.util.Prediction.SERVER_ONLY);
         }
 
         final int given = count;

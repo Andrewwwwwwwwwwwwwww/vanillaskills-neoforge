@@ -9,7 +9,8 @@ import net.minecraft.world.level.storage.loot.LootPool;
 import net.minecraft.world.level.storage.loot.LootTable;
 import net.minecraft.world.level.storage.loot.entries.EmptyLootItem;
 import net.minecraft.world.level.storage.loot.entries.NestedLootTable;
-import net.minecraft.world.level.storage.loot.providers.number.ConstantValue;
+import net.minecraft.core.Holder;
+import net.minecraft.world.level.storage.loot.providers.number.ints.ConstantValue;
 import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.event.LootTableLoadEvent;
 
@@ -50,10 +51,11 @@ public final class CrateLoot {
             // counts too: at defaults, 2.4% base → ~3.2% with LotS III → ~4.3% with a maxed lane on top.
             // Unboxing deliberately stays out of this roll: it decides WHICH crate, not how often.
             event.getTable().addPool(LootPool.lootPool()
-                    .setRolls(ConstantValue.exactly(1.0f))
+                    .setRolls(Holder.direct(new ConstantValue(1)))
                     .add(EmptyLootItem.emptyItem()
                             .setWeight(Math.max(1, GameplayConfig.CRATE_FISHING_EMPTY_WEIGHT) * 10))
-                    .add(NestedLootTable.lootTableReference(CRATE_FISHING)
+                    .add(NestedLootTable.lootTableReference(
+                            event.getRegistries().lookupOrThrow(Registries.LOOT_TABLE).getOrThrow(CRATE_FISHING))
                             .setWeight(GameplayConfig.CRATE_FISHING_WEIGHT * 10)
                             .setQuality(GameplayConfig.CRATE_FISHING_LUCK_QUALITY))
                     .build());
