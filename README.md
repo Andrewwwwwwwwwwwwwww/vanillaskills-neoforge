@@ -1,6 +1,6 @@
 # VanillaSkills
 
-A **server-side** progression overhaul for Minecraft **26.2** (NeoForge).
+A **server-side** progression overhaul for Minecraft **26.3** (NeoForge).
 
 Experience is removed and **Skill Shards** take its place — earned from advancements and
 found in the world, spent in a fifteen-lane skill tree, at the anvil, and at the Infusing
@@ -30,8 +30,8 @@ installed by hand. A client-side install is optional.
 
 ## Requirements
 
-- Minecraft **26.2**
-- **NeoForge** 26.2.0.7-beta or newer
+- Minecraft **26.3**
+- **NeoForge** 26.3.0.0-beta or newer
 - Installed on the **server**
 
 ## Configuration
@@ -72,8 +72,8 @@ lane and node description is translatable. See [TRANSLATING.md](TRANSLATING.md).
 
 Run `./gradlew build`. The jar lands in `build/libs/`.
 
-The pushed texture pack is built from the **26.2 Fabric** repo
-(`tools/build-pack.sh <tag>`), which patches its SHA-1 into all four editions at once —
+The pushed texture pack is built from the **26.3 Fabric** repo
+(`tools/build-pack.sh <tag>`), which patches its SHA-1 into all six editions at once —
 they have to be produced together or the client rejects the download.
 
 ## Documentation
